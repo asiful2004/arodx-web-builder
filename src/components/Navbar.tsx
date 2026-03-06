@@ -13,10 +13,10 @@ const Navbar = ({ logo }: NavbarProps) => {
 
   const navLinks = [
     { label: "Home", href: "#" },
-    { label: "About Us", href: "#about" },
     { label: "Services", href: "#services" },
-    { label: "Portfolio", href: "#portfolio" },
     { label: "Pricing", href: "#pricing" },
+    { label: "Portfolio", href: "#portfolio" },
+    { label: "About Us", href: "#about" },
     { label: "Contact", href: "#contact" },
   ];
 
