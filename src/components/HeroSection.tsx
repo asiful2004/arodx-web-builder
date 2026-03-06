@@ -46,11 +46,11 @@ const HeroSection = () => {
           transition={{ duration: 0.8, delay: 0.45 }}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
-          <Button size="lg" className="bg-gradient-primary text-primary-foreground font-semibold px-8 py-6 text-base shadow-glow hover:opacity-90 transition-opacity">
-            Get Started <ArrowRight className="ml-2 h-5 w-5" />
+          <Button size="lg" asChild className="bg-gradient-primary text-primary-foreground font-semibold px-8 py-6 text-base shadow-glow hover:opacity-90 transition-opacity">
+            <a href="#pricing">Get Started <ArrowRight className="ml-2 h-5 w-5" /></a>
           </Button>
-          <Button size="lg" variant="outline" className="border-border text-foreground px-8 py-6 text-base hover:bg-secondary">
-            আমাদের কাজ দেখুন
+          <Button size="lg" variant="outline" asChild className="border-border text-foreground px-8 py-6 text-base hover:bg-secondary">
+            <a href="#portfolio">আমাদের কাজ দেখুন</a>
           </Button>
         </motion.div>
       </div>
