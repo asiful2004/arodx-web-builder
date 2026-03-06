@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 
 const HeroSection = () => {
   return (
@@ -54,6 +55,23 @@ const HeroSection = () => {
           </Button>
         </motion.div>
       </div>
+
+      {/* Scroll indicator */}
+      <motion.a
+        href="#services"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2, duration: 0.8 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+      >
+        <span className="text-xs font-medium tracking-widest uppercase">Scroll</span>
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+        >
+          <ChevronDown className="h-5 w-5" />
+        </motion.div>
+      </motion.a>
     </section>
   );
 };
