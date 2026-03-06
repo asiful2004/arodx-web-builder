@@ -54,18 +54,18 @@ const Navbar = ({ logo }: NavbarProps) => {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <a
-            href="#signin"
+          <Link
+            to="/signin"
             className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
           >
             Sign In
-          </a>
-          <a
-            href="#signup"
+          </Link>
+          <Link
+            to="/signup"
             className="px-5 py-2 text-sm font-medium rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90 transition-opacity"
           >
             Sign Up
-          </a>
+          </Link>
         </div>
 
         {/* Mobile Menu */}
