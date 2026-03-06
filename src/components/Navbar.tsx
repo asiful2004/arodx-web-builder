@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -53,18 +54,18 @@ const Navbar = ({ logo }: NavbarProps) => {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <a
-            href="#signin"
+          <Link
+            to="/signin"
             className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
           >
             Sign In
-          </a>
-          <a
-            href="#signup"
+          </Link>
+          <Link
+            to="/signup"
             className="px-5 py-2 text-sm font-medium rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90 transition-opacity"
           >
             Sign Up
-          </a>
+          </Link>
         </div>
 
         {/* Mobile Menu */}
@@ -88,20 +89,20 @@ const Navbar = ({ logo }: NavbarProps) => {
                   </a>
                 ))}
                 <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-border">
-                  <a
-                    href="#signin"
+                  <Link
+                    to="/signin"
                     onClick={() => setMobileOpen(false)}
                     className="text-base text-foreground hover:text-primary transition-colors"
                   >
                     Sign In
-                  </a>
-                  <a
-                    href="#signup"
+                  </Link>
+                  <Link
+                    to="/signup"
                     onClick={() => setMobileOpen(false)}
                     className="inline-block text-center px-5 py-2 text-sm font-medium rounded-xl bg-gradient-primary text-primary-foreground"
                   >
                     Sign Up
-                  </a>
+                  </Link>
                 </div>
               </div>
             </SheetContent>
