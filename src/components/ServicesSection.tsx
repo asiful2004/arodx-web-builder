@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Globe, TrendingUp, Video, Megaphone, Settings } from "lucide-react";
+import { Globe, TrendingUp, Video, Megaphone, Settings, PenTool } from "lucide-react";
 
 const services = [
   {
@@ -26,6 +26,11 @@ const services = [
     icon: Megaphone,
     title: "Brand Strategy",
     description: "আপনার ব্র্যান্ডের জন্য সঠিক স্ট্র্যাটেজি তৈরি করি।",
+  },
+  {
+    icon: PenTool,
+    title: "Graphics & UI/UX Design",
+    description: "লোগো, ব্যানার, সোশ্যাল মিডিয়া পোস্ট ও অ্যাপ/ওয়েব UI ডিজাইন করি যা আপনার ব্র্যান্ডকে আলাদা করে তোলে।",
   },
 ];
 
