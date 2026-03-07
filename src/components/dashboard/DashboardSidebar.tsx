@@ -78,7 +78,7 @@ export function DashboardSidebar({ profile, isAdmin }: DashboardSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup defaultOpen>
+        <SidebarGroup>
           <SidebarGroupLabel>মেইন মেনু</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
