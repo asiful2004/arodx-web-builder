@@ -7,8 +7,10 @@ import PaymentModal from "@/components/PaymentModal";
 const packages = [
   {
     name: "Starter",
-    monthlyPrice: "1,500",
-    yearlyPrice: "15,000",
+    regularPrice: "2,500",
+    firstYearPrice: "1,500",
+    regularYearlyPrice: "30,000",
+    firstYearYearlyPrice: "15,000",
     currency: "৳",
     description: "ছোট ব্যবসার জন্য পারফেক্ট শুরু",
     popular: false,
@@ -23,8 +25,10 @@ const packages = [
   },
   {
     name: "Business",
-    monthlyPrice: "3,500",
-    yearlyPrice: "35,000",
+    regularPrice: "5,500",
+    firstYearPrice: "3,500",
+    regularYearlyPrice: "66,000",
+    firstYearYearlyPrice: "35,000",
     currency: "৳",
     description: "গ্রোয়িং ব্যবসার জন্য সেরা চয়েস",
     popular: true,
@@ -41,8 +45,10 @@ const packages = [
   },
   {
     name: "Enterprise",
-    monthlyPrice: "7,500",
-    yearlyPrice: "75,000",
+    regularPrice: "8,500",
+    firstYearPrice: "7,500",
+    regularYearlyPrice: "102,000",
+    firstYearYearlyPrice: "75,000",
     currency: "৳",
     description: "বড় ব্র্যান্ড ও কোম্পানির জন্য",
     popular: false,
@@ -162,29 +168,30 @@ const PricingSection = () => {
               </div>
 
               <div className="mb-6">
-                <motion.span
+                <motion.div
                   key={isYearly ? "yearly" : "monthly"}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="text-4xl font-bold font-display"
                 >
-                  {pkg.currency}{isYearly ? pkg.yearlyPrice : pkg.monthlyPrice}
-                </motion.span>
-                <span className="text-muted-foreground text-sm">
-                  /{isYearly ? "year" : "month"}
-                </span>
-                {isYearly && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    className="mt-2"
-                  >
-                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
-                      2 Months Free
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-lg text-muted-foreground line-through font-medium">
+                      {pkg.currency}{isYearly ? pkg.regularYearlyPrice : pkg.regularPrice}
                     </span>
-                  </motion.div>
-                )}
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                      ১ম বছর ছাড়!
+                    </span>
+                  </div>
+                  <span className="text-4xl font-bold font-display text-primary">
+                    {pkg.currency}{isYearly ? pkg.firstYearYearlyPrice : pkg.firstYearPrice}
+                  </span>
+                  <span className="text-muted-foreground text-sm">
+                    /{isYearly ? "year" : "month"}
+                  </span>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    রিনিউয়াল: {pkg.currency}{isYearly ? pkg.regularYearlyPrice : pkg.regularPrice}/{isYearly ? "year" : "month"}
+                  </p>
+                </motion.div>
               </div>
 
               <ul className="space-y-3 mb-8 flex-1">
@@ -216,7 +223,7 @@ const PricingSection = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           packageName={selectedPackage.name}
-          amount={isYearly ? selectedPackage.yearlyPrice : selectedPackage.monthlyPrice}
+          amount={isYearly ? selectedPackage.firstYearYearlyPrice : selectedPackage.firstYearPrice}
           currency={selectedPackage.currency}
           billingPeriod={isYearly ? "yearly" : "monthly"}
         />
