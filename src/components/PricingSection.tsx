@@ -9,7 +9,7 @@ const packages = [
     name: "Starter",
     regularPrice: "2,500",
     firstYearPrice: "1,500",
-    regularYearlyPrice: "30,000",
+    regularYearlyPrice: "25,000",
     firstYearYearlyPrice: "15,000",
     currency: "৳",
     description: "ছোট ব্যবসার জন্য পারফেক্ট শুরু",
