@@ -13,7 +13,7 @@ const packages = [
     description: "ছোট ব্যবসার জন্য পারফেক্ট শুরু",
     popular: false,
     features: [
-      "Custom Website (Hosting সহ)",
+      "Website + ১টি Landing Page (Hosting সহ)",
       "Basic Maintenance & Support",
       "মাসে ২টি Video Edit",
       "Basic SEO Setup",
