@@ -174,23 +174,35 @@ const PricingSection = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg text-muted-foreground line-through font-medium">
-                      {pkg.currency}{isYearly ? pkg.regularYearlyPrice : pkg.regularPrice}
-                    </span>
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                      ১ম বছর ছাড়!
-                    </span>
-                  </div>
-                  <span className="text-4xl font-bold font-display text-primary">
-                    {pkg.currency}{isYearly ? pkg.firstYearYearlyPrice : pkg.firstYearPrice}
-                  </span>
-                  <span className="text-muted-foreground text-sm">
-                    /{isYearly ? "year" : "month"}
-                  </span>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    রিনিউয়াল: {pkg.currency}{isYearly ? pkg.regularYearlyPrice : pkg.regularPrice}/{isYearly ? "year" : "month"}
-                  </p>
+                  {(() => {
+                    const regular = parseInt((isYearly ? pkg.regularYearlyPrice : pkg.regularPrice).replace(/,/g, ''));
+                    const discounted = parseInt((isYearly ? pkg.firstYearYearlyPrice : pkg.firstYearPrice).replace(/,/g, ''));
+                    const discountPercent = Math.round(((regular - discounted) / regular) * 100);
+                    return (
+                      <>
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="text-lg text-muted-foreground line-through font-medium">
+                            {pkg.currency}{isYearly ? pkg.regularYearlyPrice : pkg.regularPrice}
+                          </span>
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                            {isYearly ? "১ম বছর ছাড়!" : "১ম মাস ছাড়!"}
+                          </span>
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">
+                            {discountPercent}% OFF
+                          </span>
+                        </div>
+                        <span className="text-4xl font-bold font-display text-primary">
+                          {pkg.currency}{isYearly ? pkg.firstYearYearlyPrice : pkg.firstYearPrice}
+                        </span>
+                        <span className="text-muted-foreground text-sm">
+                          /{isYearly ? "year" : "month"}
+                        </span>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          রিনিউয়াল: {pkg.currency}{isYearly ? pkg.regularYearlyPrice : pkg.regularPrice}/{isYearly ? "year" : "month"}
+                        </p>
+                      </>
+                    );
+                  })()}
                 </motion.div>
               </div>
 
