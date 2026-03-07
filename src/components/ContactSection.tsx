@@ -33,12 +33,29 @@ const ContactSection = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
+  const isOfficeOpen = () => {
+    const now = new Date();
+    const bdTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
+    const day = bdTime.getDay();
+    const hour = bdTime.getHours();
+    if (day === 5) return false;
+    if (day === 4) return hour >= 8 && hour < 17;
+    return hour >= 8;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "মেসেজ পাঠানো হয়েছে!",
-      description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।",
-    });
+    if (isOfficeOpen()) {
+      toast({
+        title: "মেসেজ পাঠানো হয়েছে!",
+        description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।",
+      });
+    } else {
+      toast({
+        title: "মেসেজ পাঠানো হয়েছে!",
+        description: "বর্তমানে অফিস বন্ধ আছে। অফিস চালু হলে আপনাকে রেসপন্স করা হবে।",
+      });
+    }
     setFormData({ name: "", email: "", message: "" });
   };
 
