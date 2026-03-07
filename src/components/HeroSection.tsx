@@ -37,8 +37,7 @@ const HeroSection = () => {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
         >
-          আমরা আপনার ব্র্যান্ডকে ডিজিটাল দুনিয়ায় সবার থেকে আলাদা করে তুলি। 
-          Creative design, development এবং marketing — সবকিছু এক ছাদের নিচে।
+          ব্যবসা আপনার, tension আমাদের।
         </motion.p>
 
         <motion.div
