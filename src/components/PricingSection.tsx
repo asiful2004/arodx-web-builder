@@ -69,6 +69,13 @@ const item = {
 
 const PricingSection = () => {
   const [isYearly, setIsYearly] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<typeof packages[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleBuy = (pkg: typeof packages[0]) => {
+    setSelectedPackage(pkg);
+    setIsModalOpen(true);
+  };
 
   return (
     <section className="py-24 px-4" id="pricing">
