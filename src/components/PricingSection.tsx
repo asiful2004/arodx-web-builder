@@ -49,7 +49,7 @@ const packages = [
       "Complete Digital Marketing",
       "Brand Strategy & Identity",
       "E-commerce Integration",
-      "Priority 24/7 Support",
+      "Dedicated Office Hours Support",
       "Dedicated Account Manager",
       "Analytics Dashboard",
     ],
