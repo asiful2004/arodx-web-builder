@@ -104,7 +104,7 @@ export function DashboardSidebar({ profile, isAdmin }: DashboardSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup defaultOpen>
+        <SidebarGroup>
           <SidebarGroupLabel>অ্যাকাউন্ট</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
