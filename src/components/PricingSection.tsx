@@ -1,13 +1,14 @@
 import { motion } from "framer-motion";
 import { Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 const packages = [
   {
     name: "Starter",
-    price: "15,000",
+    monthlyPrice: "1,500",
+    yearlyPrice: "15,000",
     currency: "৳",
-    period: "/project",
     description: "ছোট ব্যবসার জন্য পারফেক্ট",
     popular: false,
     features: [
@@ -15,14 +16,14 @@ const packages = [
       "Mobile Responsive",
       "Basic SEO Setup",
       "3 Revisions",
-      "1 Month Support",
+      "Email Support",
     ],
   },
   {
     name: "Business",
-    price: "35,000",
+    monthlyPrice: "3,500",
+    yearlyPrice: "35,000",
     currency: "৳",
-    period: "/project",
     description: "গ্রোয়িং ব্যবসার জন্য সেরা চয়েস",
     popular: true,
     features: [
@@ -31,15 +32,15 @@ const packages = [
       "Advanced SEO",
       "Social Media Setup",
       "Unlimited Revisions",
-      "3 Months Support",
+      "Priority Support",
       "Content Creation",
     ],
   },
   {
     name: "Enterprise",
-    price: "75,000",
+    monthlyPrice: "7,500",
+    yearlyPrice: "75,000",
     currency: "৳",
-    period: "/project",
     description: "বড় ব্র্যান্ড ও কোম্পানির জন্য",
     popular: false,
     features: [
@@ -49,7 +50,7 @@ const packages = [
       "Brand Strategy & Identity",
       "E-commerce Integration",
       "Priority 24/7 Support",
-      "6 Months Maintenance",
+      "Dedicated Account Manager",
       "Analytics Dashboard",
     ],
   },
@@ -66,6 +67,8 @@ const item = {
 };
 
 const PricingSection = () => {
+  const [isYearly, setIsYearly] = useState(false);
+
   return (
     <section className="py-24 px-4" id="pricing">
       <div className="max-w-6xl mx-auto">
@@ -82,6 +85,38 @@ const PricingSection = () => {
           <p className="text-muted-foreground mt-4 max-w-lg mx-auto">
             আপনার বাজেট ও প্রয়োজন অনুযায়ী সেরা প্যাকেজ বেছে নিন
           </p>
+
+          {/* Monthly / Yearly Toggle */}
+          <div className="flex items-center justify-center gap-4 mt-8">
+            <span className={`text-sm font-medium transition-colors ${!isYearly ? "text-foreground" : "text-muted-foreground"}`}>
+              Monthly
+            </span>
+            <button
+              onClick={() => setIsYearly(!isYearly)}
+              className={`relative w-14 h-7 rounded-full transition-colors duration-300 ${
+                isYearly ? "bg-primary" : "bg-muted"
+              }`}
+              aria-label="Toggle billing period"
+            >
+              <motion.div
+                className="absolute top-1 left-1 w-5 h-5 rounded-full bg-primary-foreground shadow-md"
+                animate={{ x: isYearly ? 28 : 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              />
+            </button>
+            <span className={`text-sm font-medium transition-colors ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>
+              Yearly
+            </span>
+            {isYearly && (
+              <motion.span
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary"
+              >
+                2 মাস ফ্রি!
+              </motion.span>
+            )}
+          </div>
         </motion.div>
 
         <motion.div
@@ -115,8 +150,18 @@ const PricingSection = () => {
               </div>
 
               <div className="mb-6">
-                <span className="text-4xl font-bold font-display">{pkg.currency}{pkg.price}</span>
-                <span className="text-muted-foreground text-sm">{pkg.period}</span>
+                <motion.span
+                  key={isYearly ? "yearly" : "monthly"}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-4xl font-bold font-display"
+                >
+                  {pkg.currency}{isYearly ? pkg.yearlyPrice : pkg.monthlyPrice}
+                </motion.span>
+                <span className="text-muted-foreground text-sm">
+                  /{isYearly ? "year" : "month"}
+                </span>
               </div>
 
               <ul className="space-y-3 mb-8 flex-1">
