@@ -152,13 +152,6 @@ const Dashboard = () => {
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            className="text-muted-foreground hover:text-destructive"
-          >
-            <LogOut className="w-4 h-4" />
-          </Button>
         </div>
       </motion.header>
 
