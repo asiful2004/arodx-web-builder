@@ -162,6 +162,17 @@ const PricingSection = () => {
                 <span className="text-muted-foreground text-sm">
                   /{isYearly ? "year" : "month"}
                 </span>
+                {isYearly && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="mt-2"
+                  >
+                    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+                      🎉 2 মাস ফ্রি — মাসিক থেকে সাশ্রয় করুন!
+                    </span>
+                  </motion.div>
+                )}
               </div>
 
               <ul className="space-y-3 mb-8 flex-1">
