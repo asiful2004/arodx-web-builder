@@ -48,7 +48,7 @@ const packages = [
     popular: false,
     features: [
       "Custom Website (Hosting সহ)",
-      "Free Domain",
+      "Free .com Domain (১ বছরের জন্য)",
       "Priority Technical Support & Maintenance",
       "Unlimited Video Editing",
       "Complete Digital Marketing (SEO, Ads, Organic)",
