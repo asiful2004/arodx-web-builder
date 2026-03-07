@@ -47,7 +47,7 @@ const packages = [
     name: "Enterprise",
     regularPrice: "8,500",
     firstYearPrice: "7,500",
-    regularYearlyPrice: "102,000",
+    regularYearlyPrice: "85,000",
     firstYearYearlyPrice: "75,000",
     currency: "৳",
     description: "বড় ব্র্যান্ড ও কোম্পানির জন্য",
