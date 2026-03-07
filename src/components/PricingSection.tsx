@@ -45,10 +45,10 @@ const packages = [
   },
   {
     name: "Enterprise",
-    regularPrice: "8,500",
-    firstYearPrice: "7,500",
-    regularYearlyPrice: "85,000",
-    firstYearYearlyPrice: "75,000",
+    regularPrice: "9,999",
+    firstYearPrice: "8,500",
+    regularYearlyPrice: "99,990",
+    firstYearYearlyPrice: "85,000",
     currency: "৳",
     description: "বড় ব্র্যান্ড ও কোম্পানির জন্য",
     popular: false,
@@ -227,6 +227,31 @@ const PricingSection = () => {
               </Button>
             </motion.div>
           ))}
+        </motion.div>
+
+        {/* Custom Package CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-12 text-center p-8 rounded-2xl border border-border bg-card/50 backdrop-blur-sm"
+        >
+          <p className="text-lg text-muted-foreground">
+            আপনার প্রয়োজন অনুযায়ী <span className="text-foreground font-semibold">Custom Package</span> বানাতে চান?
+          </p>
+          <p className="text-muted-foreground text-sm mt-2 mb-4">
+            আমাদের টিমের সাথে যোগাযোগ করুন এবং আপনার বাজেট ও চাহিদা অনুযায়ী প্যাকেজ তৈরি করুন।
+          </p>
+          <Button
+            onClick={() => {
+              const contactSection = document.getElementById("contact");
+              contactSection?.scrollIntoView({ behavior: "smooth" });
+            }}
+            variant="outline"
+            className="border-primary/30 text-primary hover:bg-primary/10 px-8 py-5 font-semibold"
+          >
+            যোগাযোগ করুন
+          </Button>
         </motion.div>
       </div>
 
