@@ -75,27 +75,26 @@ const ContactSection = () => {
               </div>
             </div>
 
-            {/* Office Hours */}
+            {/* Office Schedule */}
             <div className="p-5 rounded-xl border border-border bg-card/50">
-              <h3 className="font-semibold font-display mb-3">🕐 অফিস আওয়ার্স</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex justify-between">
-                  <span>শনি – বুধবার</span>
-                  <span className="text-foreground font-medium">8:00 AM – 12:00 AM</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>বৃহস্পতিবার</span>
-                  <span className="text-foreground font-medium">8:00 AM – 12:00 PM</span>
-                </li>
-                <li className="flex justify-between text-xs">
-                  <span>বৃহস্পতি (শুধু সাপোর্ট)</span>
-                  <span className="text-foreground font-medium">12:00 PM – 5:00 PM</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>শুক্রবার</span>
-                  <span className="text-destructive font-medium">বন্ধ</span>
-                </li>
-              </ul>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold font-display">অফিস কর্মসূচি</h3>
+                <ServiceStatus />
+              </div>
+              <div className="space-y-2.5 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">শনি – বুধবার</span>
+                  <span className="text-foreground">8:00 AM – 12:00 AM</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">বৃহস্পতিবার</span>
+                  <span className="text-foreground">8:00 AM – 5:00 PM</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">শুক্রবার</span>
+                  <span className="text-destructive">বন্ধ</span>
+                </div>
+              </div>
             </div>
           </motion.div>
 
