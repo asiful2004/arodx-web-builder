@@ -125,15 +125,9 @@ const PricingSection = () => {
             <span className={`text-sm font-medium transition-colors ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>
               Yearly
             </span>
-            {isYearly && (
-              <motion.span
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary"
-              >
-                2 মাস ফ্রি!
-              </motion.span>
-            )}
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+              2 মাস ফ্রি!
+            </span>
           </div>
         </motion.div>
 
