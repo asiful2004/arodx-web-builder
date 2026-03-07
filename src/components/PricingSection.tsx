@@ -47,7 +47,7 @@ const packages = [
     description: "বড় ব্র্যান্ড ও কোম্পানির জন্য",
     popular: false,
     features: [
-      "Custom Website (Hosting সহ)",
+      "Website + ১০টি Landing Page (Hosting সহ)",
       "Free .com Domain (১ বছরের জন্য)",
       "Priority Technical Support & Maintenance",
       "Unlimited Video Editing",
