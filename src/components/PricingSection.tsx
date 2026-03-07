@@ -47,7 +47,8 @@ const packages = [
     description: "বড় ব্র্যান্ড ও কোম্পানির জন্য",
     popular: false,
     features: [
-      "Custom Website/Web App (Hosting সহ)",
+      "Custom Website (Hosting সহ)",
+      "Free Domain",
       "Priority Technical Support & Maintenance",
       "Unlimited Video Editing",
       "Complete Digital Marketing (SEO, Ads, Organic)",
