@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -12,6 +13,7 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -129,10 +131,28 @@ const SignUp = () => {
                 required
               />
             </div>
+            <div className="flex items-start space-x-2">
+              <Checkbox
+                id="terms"
+                checked={agreedToTerms}
+                onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                className="mt-0.5"
+              />
+              <label htmlFor="terms" className="text-sm text-muted-foreground leading-snug cursor-pointer">
+                I agree to the{" "}
+                <Link to="/terms" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+                  Terms and Conditions
+                </Link>{" "}
+                and{" "}
+                <Link to="/privacy" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+                  Privacy Policy
+                </Link>
+              </label>
+            </div>
             <Button
               type="submit"
               className="w-full rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90"
-              disabled={loading}
+              disabled={loading || !agreedToTerms}
             >
               {loading ? "Creating account..." : "Sign Up"}
             </Button>
