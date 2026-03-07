@@ -223,7 +223,7 @@ const PricingSection = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           packageName={selectedPackage.name}
-          amount={isYearly ? selectedPackage.yearlyPrice : selectedPackage.monthlyPrice}
+          amount={isYearly ? selectedPackage.firstYearYearlyPrice : selectedPackage.firstYearPrice}
           currency={selectedPackage.currency}
           billingPeriod={isYearly ? "yearly" : "monthly"}
         />
