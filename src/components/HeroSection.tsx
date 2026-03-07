@@ -40,6 +40,15 @@ const HeroSection = () => {
           ব্যবসা আপনার, tension আমাদের।
         </motion.p>
 
+        <motion.p
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.38 }}
+          className="text-sm md:text-base text-muted-foreground/70 max-w-xl mx-auto mb-10"
+        >
+          Creative design, development এবং marketing — সবকিছু এক ছাদের নিচে।
+        </motion.p>
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
