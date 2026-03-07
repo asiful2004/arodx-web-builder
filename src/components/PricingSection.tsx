@@ -29,7 +29,7 @@ const packages = [
     description: "গ্রোয়িং ব্যবসার জন্য সেরা চয়েস",
     popular: true,
     features: [
-      "Custom Website (Hosting সহ)",
+      "Website + ৫টি Landing Page (Hosting সহ)",
       "Full Maintenance & Technical Support",
       "মাসে ৫টি Video Edit",
       "Advanced SEO + Ad Campaign",
