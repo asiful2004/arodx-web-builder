@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import PaymentModal from "@/components/PaymentModal";
 
 const packages = [
   {
