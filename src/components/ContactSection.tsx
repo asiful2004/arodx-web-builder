@@ -4,6 +4,31 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
+const ServiceStatus = () => {
+  const now = new Date();
+  const bdTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
+  const day = bdTime.getDay();
+  const hour = bdTime.getHours();
+
+  let isOpen = false;
+  if (day === 5) {
+    isOpen = false;
+  } else if (day === 4) {
+    isOpen = hour >= 8 && hour < 17;
+  } else {
+    isOpen = hour >= 8;
+  }
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
+      isOpen ? "bg-green-500/10 text-green-500" : "bg-destructive/10 text-destructive"
+    }`}>
+      <span className={`w-2 h-2 rounded-full ${isOpen ? "bg-green-500 animate-pulse" : "bg-destructive"}`} />
+      {isOpen ? "চালু আছে" : "বন্ধ আছে"}
+    </span>
+  );
+};
+
 const ContactSection = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
