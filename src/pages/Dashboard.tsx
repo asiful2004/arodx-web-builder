@@ -45,6 +45,9 @@ const Dashboard = () => {
   useEffect(() => {
     if (user) {
       fetchProfile();
+      supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
+        setIsAdmin(!!data);
+      });
     }
   }, [user]);
 
