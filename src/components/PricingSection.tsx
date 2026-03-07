@@ -193,6 +193,7 @@ const PricingSection = () => {
               </ul>
 
               <Button
+                onClick={() => handleBuy(pkg)}
                 className={`w-full py-5 font-semibold ${
                   pkg.popular
                     ? "bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
