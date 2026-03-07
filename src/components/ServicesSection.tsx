@@ -8,24 +8,19 @@ const services = [
     description: "আধুনিক ও রেসপন্সিভ ওয়েবসাইট তৈরি করি যা আপনার ব্যবসাকে অনলাইনে নিয়ে যায়।",
   },
   {
-    icon: Palette,
-    title: "UI/UX Design",
-    description: "ইউজার ফ্রেন্ডলি ডিজাইন তৈরি করি যা আপনার কাস্টমারদের মুগ্ধ করবে।",
-  },
-  {
     icon: TrendingUp,
     title: "Digital Marketing",
     description: "SEO, Social Media ও Ads ক্যাম্পেইনের মাধ্যমে আপনার ব্যবসা বাড়াই।",
   },
   {
-    icon: Code,
-    title: "App Development",
-    description: "কাস্টম মোবাইল ও ওয়েব অ্যাপ্লিকেশন ডেভেলপমেন্ট।",
+    icon: Video,
+    title: "Video Editing",
+    description: "প্রফেশনাল ভিডিও এডিটিং সার্ভিস যা আপনার কন্টেন্টকে আকর্ষণীয় করে তোলে।",
   },
   {
-    icon: Camera,
-    title: "Content Creation",
-    description: "প্রফেশনাল ভিডিও, ফটোগ্রাফি ও গ্রাফিক কন্টেন্ট তৈরি।",
+    icon: Settings,
+    title: "Business Automation",
+    description: "আপনার ব্যবসার প্রসেস অটোমেট করে সময় ও খরচ বাঁচান।",
   },
   {
     icon: Megaphone,
