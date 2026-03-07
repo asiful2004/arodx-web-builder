@@ -78,7 +78,7 @@ const ContactSection = () => {
               </div>
               <div>
                 <h3 className="font-semibold font-display mb-1">ইমেইল</h3>
-                <p className="text-muted-foreground">contact@arodx.com</p>
+                <p className="text-muted-foreground">arodxofficial@gmail.com</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
