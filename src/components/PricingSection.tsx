@@ -27,7 +27,7 @@ const packages = [
     name: "Business",
     regularPrice: "5,500",
     firstYearPrice: "3,500",
-    regularYearlyPrice: "66,000",
+    regularYearlyPrice: "55,000",
     firstYearYearlyPrice: "35,000",
     currency: "৳",
     description: "গ্রোয়িং ব্যবসার জন্য সেরা চয়েস",
