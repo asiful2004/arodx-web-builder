@@ -32,6 +32,7 @@ const Dashboard = () => {
   const [fullName, setFullName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [saving, setSaving] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -44,6 +45,9 @@ const Dashboard = () => {
   useEffect(() => {
     if (user) {
       fetchProfile();
+      supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
+        setIsAdmin(!!data);
+      });
     }
   }, [user]);
 
@@ -127,14 +131,27 @@ const Dashboard = () => {
             হোম
           </Link>
           <span className="text-sm font-display font-semibold text-foreground">ড্যাশবোর্ড</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            className="text-muted-foreground hover:text-destructive"
-          >
-            <LogOut className="w-4 h-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/admin")}
+                className="text-xs text-primary gap-1.5"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                অ্যাডমিন
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSignOut}
+              className="text-muted-foreground hover:text-destructive"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </motion.header>
 
