@@ -32,7 +32,7 @@ const packages = [
       "Advanced SEO",
       "Social Media Setup",
       "Unlimited Revisions",
-      "Priority Support",
+      "Priority Office Hours Support",
       "Content Creation",
     ],
   },
