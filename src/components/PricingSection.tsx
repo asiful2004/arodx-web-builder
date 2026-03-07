@@ -13,7 +13,7 @@ const packages = [
     description: "ছোট ব্যবসার জন্য পারফেক্ট শুরু",
     popular: false,
     features: [
-      "Custom Website (Hosting সহ)",
+      "Website + ১টি Landing Page (Hosting সহ)",
       "Basic Maintenance & Support",
       "মাসে ২টি Video Edit",
       "Basic SEO Setup",
@@ -29,7 +29,7 @@ const packages = [
     description: "গ্রোয়িং ব্যবসার জন্য সেরা চয়েস",
     popular: true,
     features: [
-      "Custom Website (Hosting সহ)",
+      "Website + ৫টি Landing Page (Hosting সহ)",
       "Full Maintenance & Technical Support",
       "মাসে ৫টি Video Edit",
       "Advanced SEO + Ad Campaign",
@@ -47,7 +47,7 @@ const packages = [
     description: "বড় ব্র্যান্ড ও কোম্পানির জন্য",
     popular: false,
     features: [
-      "Custom Website (Hosting সহ)",
+      "Website + ১০টি Landing Page (Hosting সহ)",
       "Free .com Domain (১ বছরের জন্য)",
       "Priority Technical Support & Maintenance",
       "Unlimited Video Editing",
