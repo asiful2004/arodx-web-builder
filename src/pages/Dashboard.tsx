@@ -131,7 +131,27 @@ const Dashboard = () => {
             হোম
           </Link>
           <span className="text-sm font-display font-semibold text-foreground">ড্যাশবোর্ড</span>
-          <Button
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/admin")}
+                className="text-xs text-primary gap-1.5"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                অ্যাডমিন
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSignOut}
+              className="text-muted-foreground hover:text-destructive"
+            >
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
             variant="ghost"
             size="icon"
             onClick={handleSignOut}
