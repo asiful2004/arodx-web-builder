@@ -9,7 +9,13 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import Dashboard from "./pages/Dashboard";
+import DashboardLayout from "./components/dashboard/DashboardLayout";
+import OverviewPage from "./components/dashboard/OverviewPage";
+import ProfilePage from "./components/dashboard/ProfilePage";
+import OrdersPage from "./components/dashboard/OrdersPage";
+import NotificationsPage from "./components/dashboard/NotificationsPage";
+import SettingsPage from "./components/dashboard/SettingsPage";
+import HelpPage from "./components/dashboard/HelpPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -28,7 +34,14 @@ const App = () => (
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<OverviewPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="orders" element={<OrdersPage />} />
+              <Route path="notifications" element={<NotificationsPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+              <Route path="help" element={<HelpPage />} />
+            </Route>
             <Route path="/admin" element={<AdminDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
