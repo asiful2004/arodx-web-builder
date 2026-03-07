@@ -1,23 +1,26 @@
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
-const ServiceStatus = () => {
+const getIsOpen = () => {
   const now = new Date();
   const bdTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
   const day = bdTime.getDay();
   const hour = bdTime.getHours();
+  if (day === 5) return false;
+  if (day === 4) return hour >= 8 && hour < 17;
+  return hour >= 8;
+};
 
-  let isOpen = false;
-  if (day === 5) {
-    isOpen = false;
-  } else if (day === 4) {
-    isOpen = hour >= 8 && hour < 17;
-  } else {
-    isOpen = hour >= 8;
-  }
+const ServiceStatus = () => {
+  const [isOpen, setIsOpen] = useState(getIsOpen);
+
+  useEffect(() => {
+    const interval = setInterval(() => setIsOpen(getIsOpen()), 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
@@ -33,15 +36,7 @@ const ContactSection = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
-  const isOfficeOpen = () => {
-    const now = new Date();
-    const bdTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
-    const day = bdTime.getDay();
-    const hour = bdTime.getHours();
-    if (day === 5) return false;
-    if (day === 4) return hour >= 8 && hour < 17;
-    return hour >= 8;
-  };
+  const isOfficeOpen = getIsOpen;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
