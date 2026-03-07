@@ -16,7 +16,7 @@ const packages = [
       "Mobile Responsive",
       "Basic SEO Setup",
       "3 Revisions",
-      "Email Support",
+      "Office Hours Support",
     ],
   },
   {
