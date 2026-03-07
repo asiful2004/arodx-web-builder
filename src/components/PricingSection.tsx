@@ -7,8 +7,10 @@ import PaymentModal from "@/components/PaymentModal";
 const packages = [
   {
     name: "Starter",
-    monthlyPrice: "1,500",
-    yearlyPrice: "15,000",
+    regularPrice: "2,500",
+    firstYearPrice: "1,500",
+    regularYearlyPrice: "30,000",
+    firstYearYearlyPrice: "15,000",
     currency: "৳",
     description: "ছোট ব্যবসার জন্য পারফেক্ট শুরু",
     popular: false,
@@ -23,8 +25,10 @@ const packages = [
   },
   {
     name: "Business",
-    monthlyPrice: "3,500",
-    yearlyPrice: "35,000",
+    regularPrice: "5,500",
+    firstYearPrice: "3,500",
+    regularYearlyPrice: "66,000",
+    firstYearYearlyPrice: "35,000",
     currency: "৳",
     description: "গ্রোয়িং ব্যবসার জন্য সেরা চয়েস",
     popular: true,
@@ -41,8 +45,10 @@ const packages = [
   },
   {
     name: "Enterprise",
-    monthlyPrice: "7,500",
-    yearlyPrice: "75,000",
+    regularPrice: "8,500",
+    firstYearPrice: "7,500",
+    regularYearlyPrice: "102,000",
+    firstYearYearlyPrice: "75,000",
     currency: "৳",
     description: "বড় ব্র্যান্ড ও কোম্পানির জন্য",
     popular: false,
