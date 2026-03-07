@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Globe, TrendingUp, Video, Megaphone, Settings } from "lucide-react";
+import { Globe, TrendingUp, Video, Megaphone, Settings, PenTool } from "lucide-react";
 
 const services = [
   {
