@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import PaymentModal from "@/components/PaymentModal";
 
 const packages = [
   {
@@ -68,6 +69,13 @@ const item = {
 
 const PricingSection = () => {
   const [isYearly, setIsYearly] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<typeof packages[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleBuy = (pkg: typeof packages[0]) => {
+    setSelectedPackage(pkg);
+    setIsModalOpen(true);
+  };
 
   return (
     <section className="py-24 px-4" id="pricing">
@@ -185,6 +193,7 @@ const PricingSection = () => {
               </ul>
 
               <Button
+                onClick={() => handleBuy(pkg)}
                 className={`w-full py-5 font-semibold ${
                   pkg.popular
                     ? "bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
@@ -197,6 +206,17 @@ const PricingSection = () => {
           ))}
         </motion.div>
       </div>
+
+      {selectedPackage && (
+        <PaymentModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          packageName={selectedPackage.name}
+          amount={isYearly ? selectedPackage.yearlyPrice : selectedPackage.monthlyPrice}
+          currency={selectedPackage.currency}
+          billingPeriod={isYearly ? "yearly" : "monthly"}
+        />
+      )}
     </section>
   );
 };
