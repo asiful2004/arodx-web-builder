@@ -74,14 +74,44 @@ const HeroSection = () => {
           >
             We Are{" "}
           </motion.span>
-          <motion.span
-            className="text-gradient inline-block"
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: "spring" as const, stiffness: 120, damping: 10, delay: 0.5 }}
-          >
-            Arodx
-          </motion.span>
+          <span className="inline-flex relative">
+            {["A", "r", "o", "d", "x"].map((letter, i) => (
+              <motion.span
+                key={i}
+                className="text-gradient inline-block cursor-default relative"
+                initial={{ opacity: 0, y: 80, rotateX: 90 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                transition={{
+                  type: "spring" as const,
+                  stiffness: 150,
+                  damping: 12,
+                  delay: 0.5 + i * 0.08,
+                }}
+                whileHover={{
+                  y: -12,
+                  scale: 1.2,
+                  transition: { type: "spring" as const, stiffness: 400, damping: 10 },
+                }}
+                style={{ display: "inline-block" }}
+              >
+                {letter}
+              </motion.span>
+            ))}
+            {/* Animated underline */}
+            <motion.div
+              className="absolute -bottom-2 left-0 right-0 h-[3px] bg-gradient-primary rounded-full origin-left"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ delay: 1.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            />
+            {/* Glow behind text */}
+            <motion.div
+              className="absolute inset-0 blur-2xl bg-primary/20 -z-10 rounded-full"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: [0, 0.6, 0.3], scale: [0.5, 1.2, 1] }}
+              transition={{ delay: 0.8, duration: 1.5 }}
+            />
+          </span>
         </motion.h1>
 
         <motion.p
