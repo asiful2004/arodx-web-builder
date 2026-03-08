@@ -32,9 +32,16 @@ const ServiceStatus = () => {
   );
 };
 
+const contactItems = [
+  { icon: Mail, title: "ইমেইল", value: "arodxofficial@gmail.com" },
+  { icon: Phone, title: "ফোন", value: "+880 1XXX-XXXXXX" },
+  { icon: MapPin, title: "ঠিকানা", value: "ঢাকা, বাংলাদেশ" },
+];
+
 const ContactSection = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const isOfficeOpen = getIsOpen;
 
@@ -58,15 +65,20 @@ const ContactSection = () => {
     <section id="contact" className="py-24 px-4">
       <div className="max-w-6xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ type: "spring" as const, stiffness: 80, damping: 15 }}
           className="text-center mb-16"
         >
-          <span className="inline-block px-4 py-1.5 mb-4 text-sm font-medium rounded-full border border-primary/30 text-primary bg-primary/5">
+          <motion.span
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="inline-block px-4 py-1.5 mb-4 text-sm font-medium rounded-full border border-primary/30 text-primary bg-primary/5"
+          >
             Contact
-          </span>
+          </motion.span>
           <h2 className="text-4xl md:text-5xl font-bold font-display mb-4">
             যোগাযোগ <span className="text-gradient">করুন</span>
           </h2>
@@ -78,42 +90,44 @@ const ContactSection = () => {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Info */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ type: "spring" as const, stiffness: 60, damping: 15 }}
             className="space-y-8"
           >
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <Mail className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold font-display mb-1">ইমেইল</h3>
-                <p className="text-muted-foreground">arodxofficial@gmail.com</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <Phone className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold font-display mb-1">ফোন</h3>
-                <p className="text-muted-foreground">+880 1XXX-XXXXXX</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <MapPin className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold font-display mb-1">ঠিকানা</h3>
-                <p className="text-muted-foreground">ঢাকা, বাংলাদেশ</p>
-              </div>
-            </div>
+            {contactItems.map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, type: "spring" as const, stiffness: 100, damping: 18 }}
+                whileHover={{ x: 6 }}
+                className="flex items-start gap-4 group"
+              >
+                <motion.div
+                  className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"
+                  whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <item.icon className="h-5 w-5 text-primary" />
+                </motion.div>
+                <div>
+                  <h3 className="font-semibold font-display mb-1 group-hover:text-primary transition-colors">{item.title}</h3>
+                  <p className="text-muted-foreground">{item.value}</p>
+                </div>
+              </motion.div>
+            ))}
 
             {/* Office Schedule */}
-            <div className="p-5 rounded-xl border border-border bg-card/50">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, type: "spring" as const, stiffness: 100, damping: 18 }}
+              className="p-5 rounded-xl border border-border bg-card/50"
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold font-display">অফিস কর্মসূচি</h3>
                 <ServiceStatus />
@@ -132,55 +146,76 @@ const ContactSection = () => {
                   <span className="text-destructive">বন্ধ</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
 
           {/* Contact Form */}
           <motion.form
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ type: "spring" as const, stiffness: 60, damping: 15 }}
             onSubmit={handleSubmit}
             className="space-y-5"
           >
-            <div>
-              <input
-                type="text"
-                placeholder="আপনার নাম"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
-            <div>
-              <input
-                type="email"
-                placeholder="আপনার ইমেইল"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-            </div>
-            <div>
+            {[
+              { name: "name", type: "text", placeholder: "আপনার নাম" },
+              { name: "email", type: "email", placeholder: "আপনার ইমেইল" },
+            ].map((field, i) => (
+              <motion.div
+                key={field.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <input
+                  type={field.type}
+                  placeholder={field.placeholder}
+                  required
+                  value={formData[field.name as keyof typeof formData]}
+                  onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
+                  onFocus={() => setFocusedField(field.name)}
+                  onBlur={() => setFocusedField(null)}
+                  className={`w-full px-4 py-3 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-300 ${
+                    focusedField === field.name
+                      ? "border-primary/50 ring-2 ring-primary/20 shadow-lg shadow-primary/5"
+                      : "border-border"
+                  }`}
+                />
+              </motion.div>
+            ))}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
               <textarea
                 placeholder="আপনার মেসেজ"
                 required
                 rows={5}
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                onFocus={() => setFocusedField("message")}
+                onBlur={() => setFocusedField(null)}
+                className={`w-full px-4 py-3 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none resize-none transition-all duration-300 ${
+                  focusedField === "message"
+                    ? "border-primary/50 ring-2 ring-primary/20 shadow-lg shadow-primary/5"
+                    : "border-border"
+                }`}
               />
-            </div>
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full bg-gradient-primary text-primary-foreground font-semibold py-6 hover:opacity-90 transition-opacity"
-            >
-              মেসেজ পাঠান <Send className="ml-2 h-4 w-4" />
-            </Button>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                type="submit"
+                size="lg"
+                className="w-full bg-gradient-primary text-primary-foreground font-semibold py-6 hover:opacity-90 transition-opacity relative overflow-hidden group"
+              >
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+                <span className="relative z-10 flex items-center justify-center">মেসেজ পাঠান <Send className="ml-2 h-4 w-4" /></span>
+              </Button>
+            </motion.div>
           </motion.form>
         </div>
       </div>
