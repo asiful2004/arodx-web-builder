@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useOutletContext } from "react-router-dom";
 import { User as UserType } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ShoppingBag, Calendar, Activity, Shield, TrendingUp, Clock
 } from "lucide-react";
@@ -30,6 +32,18 @@ const StatCard = ({ icon: Icon, label, value, color = "text-primary" }: {
 
 export default function OverviewPage() {
   const { user, profile, isAdmin } = useOutletContext<DashboardContext>();
+  const [orderCount, setOrderCount] = useState(0);
+
+  useEffect(() => {
+    const fetchOrderCount = async () => {
+      const { count } = await supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id);
+      setOrderCount(count || 0);
+    };
+    fetchOrderCount();
+  }, [user.id]);
 
   const initials = (profile.full_name || user.email || "U")
     .split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -77,7 +91,7 @@ export default function OverviewPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard icon={Calendar} label="যোগদান" value={joinedDate} />
         <StatCard icon={Activity} label="সদস্যপদ" value={`${daysSinceJoin} দিন`} color="text-accent" />
-        <StatCard icon={ShoppingBag} label="মোট অর্ডার" value="০" />
+        <StatCard icon={ShoppingBag} label="মোট অর্ডার" value={`${orderCount}`} />
       </div>
 
       {/* Recent Activity Placeholder */}
