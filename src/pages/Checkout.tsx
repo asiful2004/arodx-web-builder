@@ -116,6 +116,9 @@ export default function Checkout() {
     domainName: "",
   });
 
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
   const [domainCheck, setDomainCheck] = useState<{
     checking: boolean;
     result: null | { domain: string; available: boolean; checked: boolean };
