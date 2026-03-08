@@ -7,6 +7,9 @@ import {
   ShoppingBag, Calendar, Activity, TrendingUp, Clock,
   Package, CreditCard, CalendarClock, CheckCircle2, AlertTriangle, XCircle,
   ExternalLink, Building2, Phone, MapPin, Globe,
+  Shirt, ShoppingCart, UtensilsCrossed, Stethoscope, GraduationCap, Briefcase,
+  Palette, Cpu, Car, Plane, Landmark, Dumbbell, Music, Camera, Wrench, Heart,
+  type LucideIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
