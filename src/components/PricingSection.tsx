@@ -142,24 +142,36 @@ const PricingSection = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-12 text-center p-8 rounded-2xl border border-border bg-card/50 backdrop-blur-sm"
+          className="relative mt-12 text-center p-8 rounded-2xl border border-primary/20 overflow-hidden group"
         >
-          <p className="text-lg text-muted-foreground">
-            আপনার প্রয়োজন অনুযায়ী <span className="text-foreground font-semibold">Custom Package</span> বানাতে চান?
-          </p>
-          <p className="text-muted-foreground text-sm mt-2 mb-4">
-            আমাদের টিমের সাথে যোগাযোগ করুন এবং আপনার বাজেট ও চাহিদা অনুযায়ী প্যাকেজ তৈরি করুন।
-          </p>
-          <Button
-            onClick={() => {
-              const contactSection = document.getElementById("contact");
-              contactSection?.scrollIntoView({ behavior: "smooth" });
-            }}
-            variant="outline"
-            className="border-primary/30 text-primary hover:bg-primary/10 px-8 py-5 font-semibold"
-          >
-            যোগাযোগ করুন
-          </Button>
+          {/* Animated gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5 animate-[gradient-shift_6s_ease-in-out_infinite] bg-[length:200%_100%]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          
+          {/* Glowing border effect */}
+          <div className="absolute inset-0 rounded-2xl border border-primary/10 group-hover:border-primary/30 transition-colors duration-500" />
+          
+          {/* Subtle animated orbs */}
+          <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-primary/10 blur-3xl animate-[pulse_4s_ease-in-out_infinite]" />
+          <div className="absolute -bottom-12 -left-12 w-32 h-32 rounded-full bg-accent/10 blur-3xl animate-[pulse_4s_ease-in-out_infinite_1s]" />
+
+          <div className="relative z-10">
+            <p className="text-lg text-muted-foreground">
+              আপনার প্রয়োজন অনুযায়ী <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-bold">Custom Package</span> বানাতে চান?
+            </p>
+            <p className="text-muted-foreground text-sm mt-2 mb-4">
+              আমাদের টিমের সাথে যোগাযোগ করুন এবং আপনার বাজেট ও চাহিদা অনুযায়ী প্যাকেজ তৈরি করুন।
+            </p>
+            <Button
+              onClick={() => {
+                const contactSection = document.getElementById("contact");
+                contactSection?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="bg-gradient-primary text-primary-foreground hover:opacity-90 px-8 py-5 font-semibold shadow-glow transition-all duration-300 hover:shadow-[0_0_30px_hsl(var(--primary)/0.4)]"
+            >
+              যোগাযোগ করুন
+            </Button>
+          </div>
         </motion.div>
       </div>
 
