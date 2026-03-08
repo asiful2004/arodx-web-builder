@@ -21,13 +21,17 @@ export type Database = {
           business_name: string
           business_phone: string
           created_at: string
+          description: string | null
           domain_name: string | null
           domain_type: string
+          email: string | null
           id: string
           logo_url: string | null
           order_id: string | null
+          social_links: Json | null
           updated_at: string
           user_id: string
+          website_url: string | null
         }
         Insert: {
           business_address?: string | null
@@ -35,13 +39,17 @@ export type Database = {
           business_name: string
           business_phone: string
           created_at?: string
+          description?: string | null
           domain_name?: string | null
           domain_type?: string
+          email?: string | null
           id?: string
           logo_url?: string | null
           order_id?: string | null
+          social_links?: Json | null
           updated_at?: string
           user_id: string
+          website_url?: string | null
         }
         Update: {
           business_address?: string | null
@@ -49,13 +57,17 @@ export type Database = {
           business_name?: string
           business_phone?: string
           created_at?: string
+          description?: string | null
           domain_name?: string | null
           domain_type?: string
+          email?: string | null
           id?: string
           logo_url?: string | null
           order_id?: string | null
+          social_links?: Json | null
           updated_at?: string
           user_id?: string
+          website_url?: string | null
         }
         Relationships: [
           {

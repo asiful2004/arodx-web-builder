@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Building2, Layers, Phone, MapPin, Globe,
   Package, CreditCard, CalendarClock, Hash, CheckCircle2,
-  AlertTriangle, XCircle, Clock, FileText, Receipt,
+  AlertTriangle, XCircle, Clock, FileText, Receipt, Settings2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -177,6 +177,16 @@ export default function BusinessDetailPage() {
           <statusInfo.icon className="w-3 h-3 mr-1" />
           {statusInfo.label}
         </Badge>
+        {order.status === "confirmed" && order.is_active && (
+          <Button
+            size="sm"
+            className="gap-2 shrink-0"
+            onClick={() => navigate(`/dashboard/business/${orderId}/config`)}
+          >
+            <Settings2 className="w-4 h-4" />
+            কনফিগার করুন
+          </Button>
+        )}
       </div>
 
       {/* Business Info */}

@@ -16,6 +16,7 @@ import OverviewPage from "./components/dashboard/OverviewPage";
 import ProfilePage from "./components/dashboard/ProfilePage";
 import OrdersPage from "./components/dashboard/OrdersPage";
 import BusinessDetailPage from "./components/dashboard/BusinessDetailPage";
+import BusinessConfigPage from "./components/dashboard/BusinessConfigPage";
 import NotificationsPage from "./components/dashboard/NotificationsPage";
 import SettingsPage from "./components/dashboard/SettingsPage";
 import HelpPage from "./components/dashboard/HelpPage";
@@ -60,6 +61,7 @@ const App = () => {
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="business/:orderId" element={<BusinessDetailPage />} />
+                <Route path="business/:orderId/config" element={<BusinessConfigPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="help" element={<HelpPage />} />
