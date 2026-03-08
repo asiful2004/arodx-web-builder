@@ -19,6 +19,7 @@ import NotificationsPage from "./components/dashboard/NotificationsPage";
 import SettingsPage from "./components/dashboard/SettingsPage";
 import HelpPage from "./components/dashboard/HelpPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => {
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="help" element={<HelpPage />} />
               </Route>
+              <Route path="/checkout" element={<Checkout />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
