@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      businesses: {
+        Row: {
+          business_address: string | null
+          business_category: string
+          business_name: string
+          business_phone: string
+          created_at: string
+          domain_name: string | null
+          domain_type: string
+          id: string
+          order_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          business_address?: string | null
+          business_category: string
+          business_name: string
+          business_phone: string
+          created_at?: string
+          domain_name?: string | null
+          domain_type?: string
+          id?: string
+          order_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          business_address?: string | null
+          business_category?: string
+          business_name?: string
+          business_phone?: string
+          created_at?: string
+          domain_name?: string | null
+          domain_type?: string
+          id?: string
+          order_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "businesses_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           amount: string
