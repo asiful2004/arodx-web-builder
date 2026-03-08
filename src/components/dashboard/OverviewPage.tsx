@@ -223,9 +223,10 @@ export default function OverviewPage() {
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                         {biz?.logo_url ? (
                           <img src={biz.logo_url} alt={biz.business_name} className="w-full h-full object-cover rounded-xl" />
-                        ) : (
-                          <Building2 className="w-5 h-5 text-primary" />
-                        )}
+                        ) : (() => {
+                          const CategoryIcon = getCategoryIcon(biz?.business_category);
+                          return <CategoryIcon className="w-5 h-5 text-primary" />;
+                        })()}
                       </div>
                       <div>
                         <p className="font-semibold text-foreground text-sm">
