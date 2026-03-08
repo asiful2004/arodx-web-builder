@@ -163,7 +163,6 @@ const PricingSection = () => {
         </motion.div>
       </div>
 
-      </div>
     </section>
   );
 };
