@@ -5,16 +5,30 @@ import { User as UserType } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ShoppingBag, Calendar, Activity, TrendingUp, Clock,
-  Package, CreditCard, CalendarClock, CheckCircle2, AlertTriangle, XCircle
+  Package, CreditCard, CalendarClock, CheckCircle2, AlertTriangle, XCircle,
+  ExternalLink, Globe, Phone, MapPin, Building2, Hash, Layers
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 
 interface DashboardContext {
   user: UserType;
   profile: { full_name: string | null; avatar_url: string | null };
   isAdmin: boolean;
+}
+
+interface BusinessDetail {
+  id: string;
+  business_name: string;
+  business_category: string;
+  business_phone: string;
+  business_address: string | null;
+  domain_type: string;
+  domain_name: string | null;
 }
 
 interface ActiveOrder {
@@ -27,6 +41,7 @@ interface ActiveOrder {
   status: string;
   refund_status: string | null;
   business_name?: string;
+  business?: BusinessDetail;
 }
 
 const StatCard = ({ icon: Icon, label, value, color = "text-primary" }: {
