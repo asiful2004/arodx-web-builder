@@ -61,6 +61,7 @@ const App = () => {
                 <Route path="profile" element={<ProfilePage />} />
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="business/:orderId" element={<BusinessDetailPage />} />
+                <Route path="business/:orderId/config" element={<BusinessConfigPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="help" element={<HelpPage />} />
