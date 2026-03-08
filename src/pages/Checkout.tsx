@@ -151,6 +151,23 @@ export default function Checkout() {
     toast.success("নম্বর কপি হয়েছে!");
   };
 
+  const checkDomain = useCallback(async (domainName: string) => {
+    if (!domainName || domainName.length < 3) {
+      setDomainCheck({ checking: false, result: null });
+      return;
+    }
+    setDomainCheck({ checking: true, result: null });
+    try {
+      const { data, error } = await supabase.functions.invoke("check-domain", {
+        body: { domain: domainName },
+      });
+      if (error) throw error;
+      setDomainCheck({ checking: false, result: data });
+    } catch {
+      setDomainCheck({ checking: false, result: null });
+    }
+  }, []);
+
   const handleSubmit = async () => {
     if (!transactionId || !selectedMethod) {
       toast.error("পেমেন্ট তথ্য পূরণ করুন");
