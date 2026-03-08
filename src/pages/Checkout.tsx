@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, Package, User, CreditCard, CheckCircle, Copy, Loader2, Phone } from "lucide-react";
+import {
+  ArrowLeft, ArrowRight, Check, Package, Building2, CreditCard,
+  CheckCircle, Copy, Loader2, Globe, ExternalLink
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const steps = [
   { id: 1, label: "প্যাকেজ", icon: Package },
-  { id: 2, label: "তথ্য", icon: User },
+  { id: 2, label: "ব্যবসা", icon: Building2 },
   { id: 3, label: "পেমেন্ট", icon: CreditCard },
   { id: 4, label: "সম্পন্ন", icon: CheckCircle },
 ];
@@ -21,9 +25,23 @@ const paymentMethods = [
   { id: "rocket", name: "Rocket", number: "01XXXXXXXXX", color: "#8B2F8B" },
 ];
 
-const packages: Record<string, { features: string[]; description: string }> = {
+const businessCategories = [
+  "E-commerce",
+  "Restaurant / Food",
+  "Fashion & Clothing",
+  "Health & Beauty",
+  "Education",
+  "Real Estate",
+  "Technology",
+  "Service Provider",
+  "Freelancer / Portfolio",
+  "Other",
+];
+
+const packageInfo: Record<string, { features: string[]; description: string; hasDomain: boolean }> = {
   Starter: {
     description: "ছোট ব্যবসার জন্য পারফেক্ট শুরু",
+    hasDomain: false,
     features: [
       "Website + ১টি Landing Page (Hosting সহ)",
       "Basic Maintenance & Support",
@@ -35,6 +53,7 @@ const packages: Record<string, { features: string[]; description: string }> = {
   },
   Business: {
     description: "গ্রোয়িং ব্যবসার জন্য সেরা চয়েস",
+    hasDomain: false,
     features: [
       "Website + ৫টি Landing Page (Hosting সহ)",
       "Full Maintenance & Technical Support",
@@ -48,6 +67,7 @@ const packages: Record<string, { features: string[]; description: string }> = {
   },
   Enterprise: {
     description: "বড় ব্র্যান্ড ও কোম্পানির জন্য",
+    hasDomain: true,
     features: [
       "Website + ১০টি Landing Page (Hosting সহ)",
       "Free .com Domain (১ বছরের জন্য)",
@@ -72,26 +92,39 @@ const slideVariants = {
 export default function Checkout() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
 
   const packageName = searchParams.get("package") || "Starter";
   const amount = searchParams.get("amount") || "0";
   const currency = searchParams.get("currency") || "৳";
   const billingPeriod = searchParams.get("billing") || "monthly";
 
-  const pkg = packages[packageName];
+  const pkg = packageInfo[packageName];
 
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    transactionId: "",
+  const [transactionId, setTransactionId] = useState("");
+
+  const [businessData, setBusinessData] = useState({
+    businessName: "",
+    businessCategory: "",
+    businessPhone: "",
+    businessAddress: "",
+    domainType: pkg?.hasDomain ? "package" : "own" as "own" | "package",
+    domainName: "",
   });
 
   const selectedPayment = paymentMethods.find((m) => m.id === selectedMethod);
+
+  // Redirect to signin if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      toast.error("প্যাকেজ কিনতে আগে লগইন করুন");
+      navigate(`/signin?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+    }
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -100,10 +133,12 @@ export default function Checkout() {
   const goNext = () => {
     setDirection(1);
     setCurrentStep((s) => Math.min(s + 1, 4));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const goBack = () => {
     setDirection(-1);
     setCurrentStep((s) => Math.max(s - 1, 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const copyNumber = (number: string) => {
@@ -112,30 +147,67 @@ export default function Checkout() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.phone || !formData.transactionId || !selectedMethod) {
-      toast.error("সব তথ্য পূরণ করুন");
+    if (!transactionId || !selectedMethod) {
+      toast.error("পেমেন্ট তথ্য পূরণ করুন");
       return;
     }
+    if (!user) return;
+
     setLoading(true);
     try {
-      const { error } = await supabase.from("orders").insert({
-        customer_name: formData.name,
-        customer_phone: formData.phone,
-        customer_email: formData.email || null,
+      // Get user profile for name/phone
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", user.id)
+        .single();
+
+      // Insert order
+      const { data: order, error: orderError } = await supabase.from("orders").insert({
+        customer_name: profile?.full_name || user.email || "Unknown",
+        customer_phone: businessData.businessPhone,
+        customer_email: user.email || null,
         package_name: packageName,
         billing_period: billingPeriod,
         amount: `${currency}${amount}`,
         payment_method: selectedMethod,
-        transaction_id: formData.transactionId,
-      });
-      if (error) throw error;
+        transaction_id: transactionId,
+      }).select("id").single();
+
+      if (orderError) throw orderError;
+
+      // Insert business
+      const { error: bizError } = await supabase.from("businesses" as any).insert({
+        user_id: user.id,
+        order_id: order.id,
+        business_name: businessData.businessName,
+        business_category: businessData.businessCategory,
+        business_phone: businessData.businessPhone,
+        business_address: businessData.businessAddress || null,
+        domain_type: businessData.domainType,
+        domain_name: businessData.domainName || null,
+      } as any);
+
+      if (bizError) throw bizError;
+
       goNext();
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("অর্ডার সাবমিট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
     } finally {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -156,7 +228,6 @@ export default function Checkout() {
       <div className="max-w-3xl mx-auto px-4 py-8">
         {/* Stepper */}
         <div className="flex items-center justify-between mb-12 relative">
-          {/* Progress line */}
           <div className="absolute top-5 left-0 right-0 h-[2px] bg-border mx-10" />
           <motion.div
             className="absolute top-5 left-0 h-[2px] bg-primary mx-10 origin-left"
@@ -164,7 +235,6 @@ export default function Checkout() {
             transition={{ duration: 0.4, ease: "easeInOut" }}
             style={{ maxWidth: "calc(100% - 5rem)" }}
           />
-
           {steps.map((step) => (
             <div key={step.id} className="relative z-10 flex flex-col items-center gap-2">
               <motion.div
@@ -195,6 +265,7 @@ export default function Checkout() {
 
         {/* Step Content */}
         <AnimatePresence mode="wait" custom={direction}>
+          {/* STEP 1: Package Summary */}
           {currentStep === 1 && (
             <motion.div
               key="step1"
@@ -218,12 +289,8 @@ export default function Checkout() {
                     <p className="text-sm text-muted-foreground">{pkg?.description}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-gradient">
-                      {currency}{amount}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      /{billingPeriod === "yearly" ? "বছর" : "মাস"}
-                    </p>
+                    <p className="text-2xl font-bold text-gradient">{currency}{amount}</p>
+                    <p className="text-xs text-muted-foreground">/{billingPeriod === "yearly" ? "বছর" : "মাস"}</p>
                   </div>
                 </div>
 
@@ -244,13 +311,6 @@ export default function Checkout() {
                     </motion.div>
                   ))}
                 </div>
-
-                <div className="h-px bg-border" />
-
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">বিলিং</span>
-                  <span className="font-medium text-foreground capitalize">{billingPeriod}</span>
-                </div>
               </div>
 
               <div className="flex justify-end">
@@ -261,6 +321,7 @@ export default function Checkout() {
             </motion.div>
           )}
 
+          {/* STEP 2: Business Information */}
           {currentStep === 2 && (
             <motion.div
               key="step2"
@@ -273,38 +334,171 @@ export default function Checkout() {
               className="space-y-6"
             >
               <div>
-                <h2 className="text-2xl font-bold font-display">আপনার তথ্য</h2>
-                <p className="text-muted-foreground text-sm mt-1">আমরা এই তথ্য দিয়ে আপনার সাথে যোগাযোগ করবো</p>
+                <h2 className="text-2xl font-bold font-display">ব্যবসার তথ্য</h2>
+                <p className="text-muted-foreground text-sm mt-1">
+                  আপনার ব্যবসা সম্পর্কে কিছু প্রয়োজনীয় তথ্য দিন
+                </p>
               </div>
 
-              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+              {/* Logged in user info badge */}
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/15">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Check className="w-4 h-4 text-primary" />
+                </div>
+                <div className="text-sm">
+                  <span className="text-muted-foreground">লগইন হিসেবে: </span>
+                  <span className="font-medium text-foreground">{user.email}</span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
+                {/* Business Name */}
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">আপনার নাম *</label>
+                  <label className="text-sm font-medium text-foreground">ব্যবসার নাম *</label>
                   <Input
-                    placeholder="পুরো নাম লিখুন"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="যেমন: My Fashion Store"
+                    value={businessData.businessName}
+                    onChange={(e) => setBusinessData({ ...businessData, businessName: e.target.value })}
                     className="bg-background border-border h-12"
                   />
                 </div>
+
+                {/* Business Category */}
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">ফোন নম্বর *</label>
+                  <label className="text-sm font-medium text-foreground">ব্যবসার ক্যাটাগরি *</label>
+                  <select
+                    value={businessData.businessCategory}
+                    onChange={(e) => setBusinessData({ ...businessData, businessCategory: e.target.value })}
+                    className="w-full h-12 rounded-md border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    <option value="" disabled>ক্যাটাগরি সিলেক্ট করুন</option>
+                    {businessCategories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Business Phone */}
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">ব্যবসার ফোন নম্বর *</label>
                   <Input
                     placeholder="01XXXXXXXXX"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    value={businessData.businessPhone}
+                    onChange={(e) => setBusinessData({ ...businessData, businessPhone: e.target.value })}
                     className="bg-background border-border h-12"
                   />
                 </div>
+
+                {/* Business Address */}
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">ইমেইল <span className="text-muted-foreground">(ঐচ্ছিক)</span></label>
+                  <label className="text-sm font-medium text-foreground">
+                    ব্যবসার ঠিকানা <span className="text-muted-foreground">(ঐচ্ছিক)</span>
+                  </label>
                   <Input
-                    placeholder="email@example.com"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="যেমন: ঢাকা, বাংলাদেশ"
+                    value={businessData.businessAddress}
+                    onChange={(e) => setBusinessData({ ...businessData, businessAddress: e.target.value })}
                     className="bg-background border-border h-12"
                   />
+                </div>
+              </div>
+
+              {/* Domain Section */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">ডোমেইন সেটআপ</h3>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Option: Own domain */}
+                  <label
+                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
+                      businessData.domainType === "own"
+                        ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                        : "border-border hover:border-primary/20"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="domainType"
+                      value="own"
+                      checked={businessData.domainType === "own"}
+                      onChange={() => setBusinessData({ ...businessData, domainType: "own", domainName: "" })}
+                      className="mt-1 accent-[hsl(190,90%,50%)]"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">আমার নিজের ডোমেইন আছে</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        আপনার existing domain দিয়ে ওয়েবসাইট সেটআপ করা হবে
+                      </p>
+                      {businessData.domainType === "own" && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          className="mt-3"
+                        >
+                          <Input
+                            placeholder="yourdomain.com"
+                            value={businessData.domainName}
+                            onChange={(e) => setBusinessData({ ...businessData, domainName: e.target.value })}
+                            className="bg-background border-border h-10 text-sm"
+                          />
+                        </motion.div>
+                      )}
+                    </div>
+                  </label>
+
+                  {/* Option: Package domain */}
+                  <label
+                    className={`flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
+                      businessData.domainType === "package"
+                        ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                        : "border-border hover:border-primary/20"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="domainType"
+                      value="package"
+                      checked={businessData.domainType === "package"}
+                      onChange={() => setBusinessData({ ...businessData, domainType: "package", domainName: "" })}
+                      className="mt-1 accent-[hsl(190,90%,50%)]"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-foreground">প্যাকেজের সাথে ডোমেইন নিতে চাই</p>
+                        {pkg?.hasDomain && (
+                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                            ফ্রি .com!
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {pkg?.hasDomain
+                          ? "আপনার Enterprise প্যাকেজে ১ বছরের জন্য একটি ফ্রি .com ডোমেইন অন্তর্ভুক্ত"
+                          : "পরবর্তীতে আমাদের টিম আপনার সাথে যোগাযোগ করে ডোমেইন সেটআপ করবে"
+                        }
+                      </p>
+                      {businessData.domainType === "package" && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          className="mt-3"
+                        >
+                          <Input
+                            placeholder="আপনার পছন্দের domain নাম (যেমন: mybusiness.com)"
+                            value={businessData.domainName}
+                            onChange={(e) => setBusinessData({ ...businessData, domainName: e.target.value })}
+                            className="bg-background border-border h-10 text-sm"
+                          />
+                          <p className="text-[11px] text-muted-foreground mt-1.5">
+                            * ডোমেইন availability আমাদের টিম চেক করে জানাবে
+                          </p>
+                        </motion.div>
+                      )}
+                    </div>
+                  </label>
                 </div>
               </div>
 
@@ -314,8 +508,12 @@ export default function Checkout() {
                 </Button>
                 <Button
                   onClick={() => {
-                    if (!formData.name || !formData.phone) {
-                      toast.error("নাম ও ফোন নম্বর দিতে হবে");
+                    if (!businessData.businessName || !businessData.businessCategory || !businessData.businessPhone) {
+                      toast.error("ব্যবসার নাম, ক্যাটাগরি ও ফোন নম্বর দিতে হবে");
+                      return;
+                    }
+                    if (businessData.domainType === "own" && !businessData.domainName) {
+                      toast.error("আপনার ডোমেইন নাম লিখুন");
                       return;
                     }
                     goNext();
@@ -328,6 +526,7 @@ export default function Checkout() {
             </motion.div>
           )}
 
+          {/* STEP 3: Payment */}
           {currentStep === 3 && (
             <motion.div
               key="step3"
@@ -344,7 +543,6 @@ export default function Checkout() {
                 <p className="text-muted-foreground text-sm mt-1">পেমেন্ট মেথড সিলেক্ট করুন এবং ট্রানজেকশন সম্পন্ন করুন</p>
               </div>
 
-              {/* Payment method selection */}
               <div className="grid grid-cols-2 gap-3">
                 {paymentMethods.map((method) => (
                   <button
@@ -370,7 +568,6 @@ export default function Checkout() {
                 ))}
               </div>
 
-              {/* Payment instruction */}
               {selectedPayment && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
@@ -390,14 +587,13 @@ export default function Checkout() {
                     </div>
                     <p className="text-lg font-bold mt-2">Amount: {currency}{amount}</p>
                   </div>
-
                   <div className="p-5 bg-card border border-t-0 border-border rounded-b-xl space-y-3">
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium text-foreground">Transaction ID / TrxID *</label>
                       <Input
                         placeholder="আপনার ট্রানজেকশন আইডি লিখুন"
-                        value={formData.transactionId}
-                        onChange={(e) => setFormData({ ...formData, transactionId: e.target.value })}
+                        value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value)}
                         className="bg-background border-border h-12"
                       />
                     </div>
@@ -405,13 +601,17 @@ export default function Checkout() {
                 </motion.div>
               )}
 
-              {/* Order summary sidebar */}
+              {/* Order summary */}
               <div className="rounded-xl border border-border bg-card/50 p-5 space-y-3">
                 <h4 className="text-sm font-semibold text-foreground">অর্ডার সামারি</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">প্যাকেজ</span>
                     <span className="text-foreground font-medium">{packageName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">ব্যবসা</span>
+                    <span className="text-foreground">{businessData.businessName}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">বিলিং</span>
@@ -431,7 +631,7 @@ export default function Checkout() {
                 </Button>
                 <Button
                   onClick={handleSubmit}
-                  disabled={loading || !selectedMethod || !formData.transactionId}
+                  disabled={loading || !selectedMethod || !transactionId}
                   className="bg-gradient-primary text-primary-foreground px-8 py-5 font-semibold"
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "অর্ডার কনফার্ম করুন"}
@@ -440,6 +640,7 @@ export default function Checkout() {
             </motion.div>
           )}
 
+          {/* STEP 4: Success */}
           {currentStep === 4 && (
             <motion.div
               key="step4"
@@ -460,11 +661,7 @@ export default function Checkout() {
                 <CheckCircle className="w-10 h-10 text-primary" />
               </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
                 <h2 className="text-3xl font-bold font-display">অর্ডার সফলভাবে জমা হয়েছে! 🎉</h2>
                 <p className="text-muted-foreground mt-3 max-w-md mx-auto">
                   আমরা আপনার পেমেন্ট ভেরিফাই করে শীঘ্রই যোগাযোগ করবো। ধন্যবাদ আমাদের উপর আস্থা রাখার জন্য।
@@ -482,12 +679,12 @@ export default function Checkout() {
                   <span className="font-medium text-foreground">{packageName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">মোট</span>
-                  <span className="font-bold text-gradient">{currency}{amount}</span>
+                  <span className="text-muted-foreground">ব্যবসা</span>
+                  <span className="text-foreground">{businessData.businessName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">নাম</span>
-                  <span className="text-foreground">{formData.name}</span>
+                  <span className="text-muted-foreground">মোট</span>
+                  <span className="font-bold text-gradient">{currency}{amount}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">পেমেন্ট</span>
