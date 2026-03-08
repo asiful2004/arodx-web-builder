@@ -173,9 +173,20 @@ export default function OverviewPage() {
           : "—";
         return (
           <div key={order.id} className="space-y-2">
-            <h3 className="text-sm font-semibold text-foreground font-display px-1">
-              {order.business_name || order.package_name}
-            </h3>
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-sm font-semibold text-foreground font-display">
+                {order.business_name || order.package_name}
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs text-primary hover:text-primary/80 gap-1 h-7"
+                onClick={() => setSelectedOrder(order)}
+              >
+                বিস্তারিত দেখুন
+                <ExternalLink className="w-3 h-3" />
+              </Button>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <StatCard icon={Package} label="প্যাকেজ" value={order.package_name} />
               <StatCard icon={statusInfo.icon} label="স্ট্যাটাস" value={statusInfo.label} color={statusInfo.color} />
