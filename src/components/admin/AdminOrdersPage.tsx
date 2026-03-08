@@ -164,9 +164,25 @@ export default function AdminOrdersPage() {
     });
   };
 
+  const handleRefund = async (orderId: string, action: "approved" | "rejected") => {
+    setUpdatingId(orderId);
+    const { error } = await supabase.from("orders").update({
+      refund_status: action,
+      refund_resolved_at: new Date().toISOString(),
+    }).eq("id", orderId);
+    if (error) {
+      toast({ title: "আপডেট ব্যর্থ", variant: "destructive" });
+    } else {
+      await fetchAll();
+      toast({ title: action === "approved" ? "রিফান্ড অ্যাপ্রুভ করা হয়েছে" : "রিফান্ড রিজেক্ট করা হয়েছে" });
+    }
+    setUpdatingId(null);
+  };
+
   // Stats
   const activeCount = orders.filter((o) => o.status === "confirmed" && o.is_active).length;
   const pendingCount = orders.filter((o) => o.status === "pending").length;
+  const refundRequests = orders.filter((o) => o.refund_status === "requested").length;
   const urgentRenewals = orders.filter((o) => {
     const d = getDaysUntilRenewal(o.renewal_date);
     return o.is_active && d !== null && d <= 7;
