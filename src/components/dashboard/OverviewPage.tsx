@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useOutletContext } from "react-router-dom";
 import { User as UserType } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 import {
   ShoppingBag, Calendar, Activity, Shield, TrendingUp, Clock
 } from "lucide-react";
