@@ -30,8 +30,8 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
   const smoothX = useSpring(mouseX, { stiffness: 150, damping: 20 });
   const smoothY = useSpring(mouseY, { stiffness: 150, damping: 20 });
 
-  const rotateX = useTransform(smoothY, [0, 1], [4, -4]);
-  const rotateY = useTransform(smoothX, [0, 1], [-4, 4]);
+  const rotateX = useTransform(smoothY, [0, 1], [2, -2]);
+  const rotateY = useTransform(smoothX, [0, 1], [-2, 2]);
 
   const glowBackground = useTransform(
     [smoothX, smoothY],
@@ -99,7 +99,7 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
           rotateY: isHovered ? rotateY : 0,
           transformStyle: "preserve-3d",
         }}
-        whileHover={{ y: -8, transition: { type: "spring" as const, stiffness: 300, damping: 25 } }}
+        whileHover={{ y: -4, transition: { type: "spring" as const, stiffness: 300, damping: 25 } }}
         className={`relative flex flex-col h-full p-8 rounded-2xl border overflow-hidden transition-colors duration-300 ${
           pkg.popular
             ? "border-primary/40 bg-gradient-card shadow-glow"

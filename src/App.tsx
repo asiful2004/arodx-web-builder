@@ -25,8 +25,14 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [loading, setLoading] = useState(true);
-  const handleComplete = useCallback(() => setLoading(false), []);
+  const [loading, setLoading] = useState(() => {
+    if (sessionStorage.getItem("preloaded")) return false;
+    return true;
+  });
+  const handleComplete = useCallback(() => {
+    sessionStorage.setItem("preloaded", "1");
+    setLoading(false);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
