@@ -19,6 +19,7 @@ import NotificationsPage from "./components/dashboard/NotificationsPage";
 import SettingsPage from "./components/dashboard/SettingsPage";
 import HelpPage from "./components/dashboard/HelpPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
