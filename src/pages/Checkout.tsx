@@ -389,7 +389,49 @@ export default function Checkout() {
                   />
                 </div>
 
-                {/* Business Category */}
+                {/* Business Logo */}
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">ব্যবসার লোগো *</label>
+                  <div className="flex items-center gap-4">
+                    {logoPreview ? (
+                      <div className="relative w-20 h-20 rounded-xl border-2 border-primary/20 overflow-hidden bg-secondary/50 shrink-0">
+                        <img src={logoPreview} alt="Logo preview" className="w-full h-full object-contain" />
+                        <button
+                          type="button"
+                          onClick={() => { setLogoFile(null); setLogoPreview(null); }}
+                          className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center w-20 h-20 rounded-xl border-2 border-dashed border-border hover:border-primary/40 cursor-pointer transition-colors bg-secondary/30 shrink-0">
+                        <Upload className="w-5 h-5 text-muted-foreground mb-1" />
+                        <span className="text-[10px] text-muted-foreground">আপলোড</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              if (file.size > 5 * 1024 * 1024) {
+                                toast.error("ফাইল সাইজ ৫MB এর বেশি হতে পারবে না");
+                                return;
+                              }
+                              setLogoFile(file);
+                              setLogoPreview(URL.createObjectURL(file));
+                            }
+                          }}
+                        />
+                      </label>
+                    )}
+                    <div className="text-xs text-muted-foreground">
+                      <p>PNG, JPG, SVG বা WEBP</p>
+                      <p>সর্বোচ্চ ৫MB</p>
+                    </div>
+                  </div>
+                </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium text-foreground">ব্যবসার ক্যাটাগরি *</label>
                   <select
