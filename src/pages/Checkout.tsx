@@ -365,9 +365,9 @@ export default function Checkout() {
                   {pkg?.features.map((f, i) => (
                     <motion.div
                       key={i}
-                      initial={{ opacity: 0, x: -10 }}
+                      initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
+                      transition={{ delay: i * 0.03 }}
                       className="flex items-start gap-2.5 text-sm"
                     >
                       <Check className="w-4 h-4 text-primary mt-0.5 shrink-0" />
