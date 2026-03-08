@@ -506,16 +506,68 @@ export default function Checkout() {
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
-                          className="mt-3"
+                          className="mt-3 space-y-3"
                         >
-                          <Input
-                            placeholder="আপনার পছন্দের domain নাম (যেমন: mybusiness.com)"
-                            value={businessData.domainName}
-                            onChange={(e) => setBusinessData({ ...businessData, domainName: e.target.value })}
-                            className="bg-background border-border h-10 text-sm"
-                          />
-                          <p className="text-[11px] text-muted-foreground mt-1.5">
-                            * ডোমেইন availability আমাদের টিম চেক করে জানাবে
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="mybusiness.com"
+                              value={businessData.domainName}
+                              onChange={(e) => {
+                                setBusinessData({ ...businessData, domainName: e.target.value });
+                                setDomainCheck({ checking: false, result: null });
+                              }}
+                              className="bg-background border-border h-10 text-sm flex-1"
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => checkDomain(businessData.domainName)}
+                              disabled={domainCheck.checking || !businessData.domainName || businessData.domainName.length < 3}
+                              className="h-10 px-4 bg-gradient-primary text-primary-foreground"
+                            >
+                              {domainCheck.checking ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <><Search className="w-4 h-4 mr-1" /> চেক</>
+                              )}
+                            </Button>
+                          </div>
+
+                          {/* Domain check result */}
+                          <AnimatePresence mode="wait">
+                            {domainCheck.result && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className={`flex items-center gap-2 p-3 rounded-lg text-sm ${
+                                  domainCheck.result.available
+                                    ? "bg-green-500/10 border border-green-500/20"
+                                    : "bg-destructive/10 border border-destructive/20"
+                                }`}
+                              >
+                                {domainCheck.result.available ? (
+                                  <>
+                                    <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
+                                    <span className="text-green-500 font-medium">
+                                      {domainCheck.result.domain} — available! ✨
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <X className="w-4 h-4 text-destructive shrink-0" />
+                                    <span className="text-destructive font-medium">
+                                      {domainCheck.result.domain} — already taken
+                                    </span>
+                                  </>
+                                )}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
+                          <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            ফাইনাল availability আমাদের টিম কনফার্ম করবে
                           </p>
                         </motion.div>
                       )}
