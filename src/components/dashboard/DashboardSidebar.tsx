@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
   LayoutDashboard, User, ShoppingBag, Settings, LogOut, Shield,
-  HelpCircle, Bell
+  HelpCircle
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,

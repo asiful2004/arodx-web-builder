@@ -125,15 +125,87 @@ export default function DashboardLayout() {
         <DashboardSidebar profile={profile} isAdmin={isAdmin} userRole={userRole} />
 
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-40 h-14 flex items-center gap-3 border-b border-border bg-background/80 backdrop-blur-xl px-4">
-            <SidebarTrigger />
-            <Link
-              to="/"
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              হোম
-            </Link>
+          <header className="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-xl px-4">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger />
+              <Link
+                to="/"
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                হোম
+              </Link>
+            </div>
+
+            <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+                      {unreadCount}
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80 sm:w-96 flex flex-col">
+                <SheetHeader className="border-b border-border pb-3">
+                  <div className="flex items-center justify-between">
+                    <SheetTitle className="text-base">নোটিফিকেশন</SheetTitle>
+                    <div className="flex items-center gap-2">
+                      {unreadCount > 0 && (
+                        <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
+                          সব পঠিত
+                        </Button>
+                      )}
+                      <button
+                        onClick={toggleSound}
+                        className="p-1.5 rounded-md hover:bg-accent transition-colors"
+                        title={soundEnabled ? "সাউন্ড বন্ধ করুন" : "সাউন্ড চালু করুন"}
+                      >
+                        {soundEnabled ? (
+                          <Volume2 className="h-4 w-4 text-primary" />
+                        ) : (
+                          <BellOff className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </SheetHeader>
+
+                <div className="flex-1 overflow-y-auto py-2">
+                  {notifications.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-center py-16">
+                      <Bell className="w-10 h-10 text-muted-foreground/30 mb-3" />
+                      <p className="text-sm text-muted-foreground">কোনো নোটিফিকেশন নেই</p>
+                      <p className="text-xs text-muted-foreground/60 mt-1">নতুন আপডেট আসলে এখানে দেখা যাবে</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      {notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          className={`px-3 py-3 rounded-lg transition-colors ${
+                            n.read ? "bg-transparent" : "bg-primary/5"
+                          }`}
+                        >
+                          <div className="flex items-start gap-2">
+                            {!n.read && <span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />}
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-foreground">{n.title}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>
+                              <p className="text-[10px] text-muted-foreground/60 mt-1">
+                                {new Date(n.time).toLocaleString("bn-BD")}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
           </header>
 
           <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
