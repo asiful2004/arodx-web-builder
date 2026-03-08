@@ -76,7 +76,7 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
     >
       {/* Popular badge — centered on top border of the card */}
       {pkg.popular && (
-        <div className="absolute top-[12px] left-1/2 -translate-x-1/2 z-20">
+        <div className="absolute top-[4px] left-1/2 -translate-x-1/2 z-20">
           <motion.span
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
