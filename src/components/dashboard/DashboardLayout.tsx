@@ -63,6 +63,54 @@ export default function DashboardLayout() {
     }
   }, [user]);
 
+  const playNotifSound = useCallback(() => {
+    if (!soundEnabled) return;
+    if (!audioRef.current) {
+      audioRef.current = new Audio("https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3");
+      audioRef.current.volume = 0.5;
+    }
+    audioRef.current.currentTime = 0;
+    audioRef.current.play().catch(() => {});
+  }, [soundEnabled]);
+
+  const toggleSound = () => {
+    const next = !soundEnabled;
+    setSoundEnabled(next);
+    localStorage.setItem("notif_sound", String(next));
+  };
+
+  // Listen for realtime order status changes as notifications
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel('order-notifications')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'orders', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          const order = payload.new as any;
+          const notif = {
+            id: crypto.randomUUID(),
+            title: order.status === 'confirmed' ? 'অর্ডার কনফার্ম হয়েছে!' : `অর্ডার আপডেট: ${order.status}`,
+            body: `${order.package_name} - ${order.customer_name}`,
+            time: new Date().toISOString(),
+            read: false,
+          };
+          setNotifications(prev => [notif, ...prev]);
+          playNotifSound();
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user, playNotifSound]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const markAllRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
