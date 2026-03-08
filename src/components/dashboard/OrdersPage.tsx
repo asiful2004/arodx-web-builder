@@ -5,16 +5,18 @@ import {
   ShoppingBag, Clock, CheckCircle, XCircle, Loader2, Package,
   ChevronDown, Globe, Phone, MapPin, Building2, CreditCard, Hash,
   CalendarDays, Layers, FileText, RefreshCw, AlertTriangle,
-  Receipt, Download,
+  Receipt, Download, Ban, Undo2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import { generateInvoicePDF } from "@/lib/invoice-pdf";
+import { toast } from "sonner";
 
 interface Order {
   id: string;
@@ -30,6 +32,10 @@ interface Order {
   renewal_date: string | null;
   is_active: boolean;
   created_at: string;
+  refund_status: string | null;
+  refund_reason: string | null;
+  refund_requested_at: string | null;
+  refund_resolved_at: string | null;
 }
 
 interface Business {
@@ -112,26 +118,30 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [invoiceDialogOrder, setInvoiceDialogOrder] = useState<Order | null>(null);
+  const [cancelDialogOrder, setCancelDialogOrder] = useState<Order | null>(null);
+  const [refundReason, setRefundReason] = useState("");
+  const [cancelLoading, setCancelLoading] = useState(false);
+
+  const fetchData = async () => {
+    if (!user) return;
+    const [ordersRes, businessRes, invoicesRes] = await Promise.all([
+      supabase.from("orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      supabase.from("businesses").select("*").eq("user_id", user.id),
+      supabase.from("invoices").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+    ]);
+    if (ordersRes.data) setOrders(ordersRes.data as Order[]);
+    if (businessRes.data) {
+      const map: Record<string, Business> = {};
+      businessRes.data.forEach((b: any) => { if (b.order_id) map[b.order_id] = b; });
+      setBusinesses(map);
+    }
+    if (invoicesRes.data) setInvoices(invoicesRes.data as Invoice[]);
+    setLoading(false);
+  };
 
   useEffect(() => {
     if (!user) return;
-    const fetchData = async () => {
-      const [ordersRes, businessRes, invoicesRes] = await Promise.all([
-        supabase.from("orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-        supabase.from("businesses").select("*").eq("user_id", user.id),
-        supabase.from("invoices").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      ]);
-      if (ordersRes.data) setOrders(ordersRes.data as Order[]);
-      if (businessRes.data) {
-        const map: Record<string, Business> = {};
-        businessRes.data.forEach((b: any) => { if (b.order_id) map[b.order_id] = b; });
-        setBusinesses(map);
-      }
-      if (invoicesRes.data) setInvoices(invoicesRes.data as Invoice[]);
-      setLoading(false);
-    };
     fetchData();
-
     const channel = supabase
       .channel("user-orders")
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders", filter: `user_id=eq.${user.id}` },
@@ -142,6 +152,31 @@ export default function OrdersPage() {
 
   const handleRenew = (order: Order) => {
     navigate(`/renewal?order_id=${order.id}&package=${encodeURIComponent(order.package_name)}&amount=${encodeURIComponent(order.amount)}&billing=${order.billing_period}`);
+  };
+
+  const handleCancelAndRefund = async () => {
+    if (!cancelDialogOrder || !user) return;
+    setCancelLoading(true);
+    try {
+      const { error } = await supabase.from("orders").update({
+        status: "cancelled",
+        is_active: false,
+        refund_status: "requested",
+        refund_reason: refundReason || "কোনো কারণ উল্লেখ করা হয়নি",
+        refund_requested_at: new Date().toISOString(),
+      }).eq("id", cancelDialogOrder.id);
+
+      if (error) throw error;
+      toast.success("ক্যান্সেল ও রিফান্ড রিকোয়েস্ট পাঠানো হয়েছে!");
+      setCancelDialogOrder(null);
+      setRefundReason("");
+      await fetchData();
+    } catch (err) {
+      console.error(err);
+      toast.error("রিকোয়েস্ট পাঠাতে সমস্যা হয়েছে");
+    } finally {
+      setCancelLoading(false);
+    }
   };
 
   const handleDownloadInvoice = (inv: Invoice, order: Order) => {
@@ -173,7 +208,11 @@ export default function OrdersPage() {
   }
 
   const activeOrders = orders.filter((o) => o.status === "confirmed" && o.is_active);
-  const otherOrders = orders.filter((o) => !(o.status === "confirmed" && o.is_active));
+  const refundedOrders = orders.filter((o) => o.refund_status === "approved");
+  const pendingRefundOrders = orders.filter((o) => o.refund_status === "requested");
+  const otherOrders = orders.filter((o) =>
+    !(o.status === "confirmed" && o.is_active) && o.refund_status !== "approved" && o.refund_status !== "requested"
+  );
 
   return (
     <div className="space-y-8 max-w-4xl">
@@ -187,7 +226,6 @@ export default function OrdersPage() {
           className="rounded-2xl border border-border bg-card p-10 flex flex-col items-center justify-center text-center">
           <ShoppingBag className="w-12 h-12 text-muted-foreground/30 mb-4" />
           <p className="text-sm text-muted-foreground">এখনো কোনো অর্ডার নেই</p>
-          <p className="text-xs text-muted-foreground/70 mt-1">আপনি যখন কোনো প্যাকেজ কিনবেন, সেটি এখানে দেখা যাবে</p>
         </motion.div>
       ) : (
         <>
@@ -200,17 +238,41 @@ export default function OrdersPage() {
               </h2>
               {activeOrders.map((order, i) => (
                 <ActiveSubscriptionCard
-                  key={order.id}
-                  order={order}
-                  business={businesses[order.id]}
-                  orderInvoices={invoices.filter((inv) => inv.order_id === order.id)}
-                  index={i}
+                  key={order.id} order={order} business={businesses[order.id]}
+                  orderInvoices={invoices.filter((inv) => inv.order_id === order.id)} index={i}
                   onViewInvoices={() => setInvoiceDialogOrder(order)}
                   onRenew={() => handleRenew(order)}
+                  onCancel={() => setCancelDialogOrder(order)}
                   onDownloadInvoice={(inv) => handleDownloadInvoice(inv, order)}
                   expanded={expandedId === order.id}
                   onToggle={() => setExpandedId(expandedId === order.id ? null : order.id)}
                 />
+              ))}
+            </section>
+          )}
+
+          {/* Pending Refund */}
+          {pendingRefundOrders.length > 0 && (
+            <section className="space-y-4">
+              <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Clock className="w-4 h-4 text-yellow-500" />
+                রিফান্ড অপেক্ষমাণ
+              </h2>
+              {pendingRefundOrders.map((order, i) => (
+                <RefundCard key={order.id} order={order} business={businesses[order.id]} status="requested" index={i} />
+              ))}
+            </section>
+          )}
+
+          {/* Refunded */}
+          {refundedOrders.length > 0 && (
+            <section className="space-y-4">
+              <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Undo2 className="w-4 h-4 text-muted-foreground" />
+                রিফান্ডকৃত
+              </h2>
+              {refundedOrders.map((order, i) => (
+                <RefundCard key={order.id} order={order} business={businesses[order.id]} status="approved" index={i} />
               ))}
             </section>
           )}
@@ -259,12 +321,9 @@ export default function OrdersPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="font-display flex items-center gap-2">
-              <Receipt className="w-5 h-5 text-primary" />
-              ইনভয়েস হিস্ট্রি
+              <Receipt className="w-5 h-5 text-primary" />ইনভয়েস হিস্ট্রি
             </DialogTitle>
-            <DialogDescription>
-              {invoiceDialogOrder?.package_name} প্যাকেজের সকল ইনভয়েস
-            </DialogDescription>
+            <DialogDescription>{invoiceDialogOrder?.package_name} প্যাকেজের সকল ইনভয়েস</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 max-h-[400px] overflow-y-auto">
             {invoices.filter((inv) => inv.order_id === invoiceDialogOrder?.id).length === 0 ? (
@@ -290,13 +349,8 @@ export default function OrdersPage() {
                         {inv.status === "paid" ? "পেইড" : inv.status}
                       </Badge>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-primary"
-                      onClick={() => invoiceDialogOrder && handleDownloadInvoice(inv, invoiceDialogOrder)}
-                      title="ইনভয়েস ডাউনলোড"
-                    >
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      onClick={() => invoiceDialogOrder && handleDownloadInvoice(inv, invoiceDialogOrder)}>
                       <Download className="w-3.5 h-3.5" />
                     </Button>
                   </div>
@@ -309,23 +363,95 @@ export default function OrdersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Cancel & Refund Dialog */}
+      <Dialog open={!!cancelDialogOrder} onOpenChange={() => { setCancelDialogOrder(null); setRefundReason(""); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display flex items-center gap-2 text-destructive">
+              <Ban className="w-5 h-5" />প্যাকেজ ক্যান্সেল ও রিফান্ড
+            </DialogTitle>
+            <DialogDescription>
+              আপনি কি নিশ্চিত যে <strong>{cancelDialogOrder?.package_name}</strong> প্যাকেজ ক্যান্সেল করতে চান? ক্যান্সেল হলে রিফান্ড রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হবে।
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="p-3 rounded-xl bg-destructive/5 border border-destructive/10 text-xs text-muted-foreground space-y-1">
+              <p>⚠️ ক্যান্সেল করলে আপনার সার্ভিস বন্ধ হয়ে যাবে।</p>
+              <p>⚠️ রিফান্ড অ্যাডমিন অ্যাপ্রুভ করলে আপনি টাকা ফেরত পাবেন।</p>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground">ক্যান্সেলের কারণ (ঐচ্ছিক)</label>
+              <Textarea placeholder="কেন ক্যান্সেল করতে চাচ্ছেন জানান..." value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)} className="bg-background border-border min-h-[80px]" />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => { setCancelDialogOrder(null); setRefundReason(""); }} className="rounded-xl">
+              না, রাখুন
+            </Button>
+            <Button variant="destructive" onClick={handleCancelAndRefund} disabled={cancelLoading} className="rounded-xl gap-1.5">
+              {cancelLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ban className="w-4 h-4" />}
+              ক্যান্সেল ও রিফান্ড রিকোয়েস্ট
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+/* ─── Refund Card ─── */
+function RefundCard({ order, business, status, index }: {
+  order: Order; business?: Business; status: "requested" | "approved"; index: number;
+}) {
+  const isApproved = status === "approved";
+  return (
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}
+      className={`rounded-2xl border bg-card/60 backdrop-blur-xl p-5 ${
+        isApproved ? "border-border opacity-70" : "border-yellow-500/30"
+      }`}>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+            isApproved ? "bg-muted" : "bg-yellow-500/10"
+          }`}>
+            <Undo2 className={`w-5 h-5 ${isApproved ? "text-muted-foreground" : "text-yellow-600"}`} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="font-semibold text-foreground text-sm">{order.package_name} প্যাকেজ</p>
+              <Badge className={`text-[10px] border ${
+                isApproved
+                  ? "bg-muted text-muted-foreground border-border"
+                  : "bg-yellow-500/10 text-yellow-600 border-yellow-500/20"
+              }`}>
+                {isApproved ? "রিফান্ডকৃত" : "রিফান্ড অপেক্ষমাণ"}
+              </Badge>
+            </div>
+            {business && (
+              <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                <Building2 className="w-3 h-3" />{business.business_name}
+              </p>
+            )}
+            {order.refund_reason && (
+              <p className="text-xs text-muted-foreground mt-1">কারণ: {order.refund_reason}</p>
+            )}
+          </div>
+        </div>
+        <span className="text-sm font-bold text-foreground">{order.amount}</span>
+      </div>
+    </motion.div>
   );
 }
 
 /* ─── Active Subscription Card ─── */
 function ActiveSubscriptionCard({
-  order, business, orderInvoices, index, onViewInvoices, onRenew, onDownloadInvoice, expanded, onToggle,
+  order, business, orderInvoices, index, onViewInvoices, onRenew, onCancel, onDownloadInvoice, expanded, onToggle,
 }: {
-  order: Order;
-  business?: Business;
-  orderInvoices: Invoice[];
-  index: number;
-  onViewInvoices: () => void;
-  onRenew: () => void;
-  onDownloadInvoice: (inv: Invoice) => void;
-  expanded: boolean;
-  onToggle: () => void;
+  order: Order; business?: Business; orderInvoices: Invoice[]; index: number;
+  onViewInvoices: () => void; onRenew: () => void; onCancel: () => void;
+  onDownloadInvoice: (inv: Invoice) => void; expanded: boolean; onToggle: () => void;
 }) {
   const daysLeft = getDaysUntilRenewal(order.renewal_date);
   const isUrgent = daysLeft !== null && daysLeft <= 7;
@@ -334,14 +460,10 @@ function ActiveSubscriptionCard({
   const latestInvoice = orderInvoices[0];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}
       className={`rounded-2xl border bg-card/60 backdrop-blur-xl overflow-hidden ${
         isOverdue ? "border-destructive/40" : isUrgent ? "border-yellow-500/40" : "border-border"
-      }`}
-    >
+      }`}>
       <div className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
@@ -370,26 +492,18 @@ function ActiveSubscriptionCard({
         {/* Renewal Banner */}
         {order.renewal_date && (
           <div className={`mt-4 p-3 rounded-xl flex items-center justify-between ${
-            isOverdue
-              ? "bg-destructive/10 border border-destructive/20"
-              : isUrgent
-              ? "bg-yellow-500/10 border border-yellow-500/20"
+            isOverdue ? "bg-destructive/10 border border-destructive/20"
+              : isUrgent ? "bg-yellow-500/10 border border-yellow-500/20"
               : "bg-secondary/50 border border-border/30"
           }`}>
             <div className="flex items-center gap-2">
-              {isOverdue ? (
-                <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
-              ) : isUrgent ? (
-                <AlertTriangle className="w-4 h-4 text-yellow-600 shrink-0" />
-              ) : (
-                <CalendarDays className="w-4 h-4 text-muted-foreground shrink-0" />
-              )}
+              {isOverdue ? <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
+                : isUrgent ? <AlertTriangle className="w-4 h-4 text-yellow-600 shrink-0" />
+                : <CalendarDays className="w-4 h-4 text-muted-foreground shrink-0" />}
               <div>
                 <p className="text-xs font-medium text-foreground">
-                  {isOverdue
-                    ? "রিনিউয়াল মেয়াদ শেষ!"
-                    : isUrgent
-                    ? `${daysLeft} দিনের মধ্যে রিনিউ করুন`
+                  {isOverdue ? "রিনিউয়াল মেয়াদ শেষ!"
+                    : isUrgent ? `${daysLeft} দিনের মধ্যে রিনিউ করুন`
                     : `পরবর্তী রিনিউয়াল: ${formatDate(order.renewal_date)}`}
                 </p>
                 {!isOverdue && daysLeft !== null && !isUrgent && (
@@ -397,17 +511,12 @@ function ActiveSubscriptionCard({
                 )}
               </div>
             </div>
-            <Button
-              size="sm"
-              onClick={onRenew}
+            <Button size="sm" onClick={onRenew}
               className={`gap-1 text-xs rounded-xl ${
-                isOverdue || isUrgent
-                  ? "bg-gradient-primary text-primary-foreground hover:opacity-90"
+                isOverdue || isUrgent ? "bg-gradient-primary text-primary-foreground hover:opacity-90"
                   : "bg-secondary text-foreground hover:bg-secondary/80"
-              }`}
-            >
-              <RefreshCw className="w-3 h-3" />
-              রিনিউ করুন
+              }`}>
+              <RefreshCw className="w-3 h-3" />রিনিউ করুন
             </Button>
           </div>
         )}
@@ -415,18 +524,19 @@ function ActiveSubscriptionCard({
         {/* Action Buttons */}
         <div className="flex items-center gap-2 mt-4 flex-wrap">
           <Button variant="outline" size="sm" onClick={onViewInvoices} className="gap-1.5 text-xs rounded-xl">
-            <Receipt className="w-3.5 h-3.5" />
-            ইনভয়েস ({orderInvoices.length})
+            <Receipt className="w-3.5 h-3.5" />ইনভয়েস ({orderInvoices.length})
           </Button>
           {latestInvoice && (
             <Button variant="outline" size="sm" onClick={() => onDownloadInvoice(latestInvoice)} className="gap-1.5 text-xs rounded-xl">
-              <Download className="w-3.5 h-3.5" />
-              PDF ডাউনলোড
+              <Download className="w-3.5 h-3.5" />PDF ডাউনলোড
             </Button>
           )}
+          <Button variant="outline" size="sm" onClick={onCancel}
+            className="gap-1.5 text-xs rounded-xl text-destructive border-destructive/20 hover:bg-destructive/5">
+            <Ban className="w-3.5 h-3.5" />ক্যান্সেল
+          </Button>
           <Button variant="ghost" size="sm" onClick={onToggle} className="gap-1.5 text-xs text-muted-foreground rounded-xl ml-auto">
-            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expanded ? "rotate-180" : ""}`} />
-            বিস্তারিত
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expanded ? "rotate-180" : ""}`} />বিস্তারিত
           </Button>
         </div>
       </div>
@@ -434,13 +544,8 @@ function ActiveSubscriptionCard({
       {/* Expanded Details */}
       <AnimatePresence>
         {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="overflow-hidden"
-          >
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden">
             <div className="px-5 pb-5 space-y-4 border-t border-border/50 pt-4">
               <div>
                 <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">অর্ডার তথ্য</h3>
@@ -451,7 +556,6 @@ function ActiveSubscriptionCard({
                   <InfoRow icon={Layers} label="প্যাকেজ" value={order.package_name} />
                 </div>
               </div>
-
               {business && (
                 <div>
                   <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">ব্যবসার তথ্য</h3>
@@ -464,7 +568,6 @@ function ActiveSubscriptionCard({
                   </div>
                 </div>
               )}
-
               {features.length > 0 && (
                 <div>
                   <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">প্যাকেজে যা যা আছে</h3>

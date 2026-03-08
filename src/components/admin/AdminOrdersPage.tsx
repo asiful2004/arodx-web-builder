@@ -18,7 +18,7 @@ import {
   Search, RefreshCw, Package, CheckCircle2, Clock, XCircle,
   ChevronDown, Building2, CalendarDays, Globe, Phone, MapPin,
   FileText, Receipt, Download, AlertTriangle, Hash, CreditCard,
-  Layers, Eye,
+  Layers, Undo2, CheckCheck, X,
 } from "lucide-react";
 import { generateInvoicePDF } from "@/lib/invoice-pdf";
 
@@ -37,6 +37,10 @@ interface Order {
   renewal_date: string | null;
   is_active: boolean;
   user_id: string | null;
+  refund_status: string | null;
+  refund_reason: string | null;
+  refund_requested_at: string | null;
+  refund_resolved_at: string | null;
 }
 
 interface Business {
@@ -160,9 +164,25 @@ export default function AdminOrdersPage() {
     });
   };
 
+  const handleRefund = async (orderId: string, action: "approved" | "rejected") => {
+    setUpdatingId(orderId);
+    const { error } = await supabase.from("orders").update({
+      refund_status: action,
+      refund_resolved_at: new Date().toISOString(),
+    }).eq("id", orderId);
+    if (error) {
+      toast({ title: "আপডেট ব্যর্থ", variant: "destructive" });
+    } else {
+      await fetchAll();
+      toast({ title: action === "approved" ? "রিফান্ড অ্যাপ্রুভ করা হয়েছে" : "রিফান্ড রিজেক্ট করা হয়েছে" });
+    }
+    setUpdatingId(null);
+  };
+
   // Stats
   const activeCount = orders.filter((o) => o.status === "confirmed" && o.is_active).length;
   const pendingCount = orders.filter((o) => o.status === "pending").length;
+  const refundRequests = orders.filter((o) => o.refund_status === "requested").length;
   const urgentRenewals = orders.filter((o) => {
     const d = getDaysUntilRenewal(o.renewal_date);
     return o.is_active && d !== null && d <= 7;
@@ -181,10 +201,11 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <StatCard label="মোট অর্ডার" value={orders.length} icon={Package} />
         <StatCard label="অ্যাক্টিভ" value={activeCount} icon={CheckCircle2} color="text-green-500" />
         <StatCard label="পেন্ডিং" value={pendingCount} icon={Clock} color="text-yellow-500" />
+        <StatCard label="রিফান্ড রিকোয়েস্ট" value={refundRequests} icon={Undo2} color="text-primary" />
         <StatCard label="রিনিউ আর্জেন্ট" value={urgentRenewals} icon={AlertTriangle} color="text-destructive" />
       </div>
 
@@ -256,6 +277,16 @@ export default function AdminOrdersPage() {
                             {isUrgent && !isOverdue && (
                               <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20 border text-[10px] gap-0.5">
                                 <AlertTriangle className="w-3 h-3" />{daysLeft} দিন বাকি
+                              </Badge>
+                            )}
+                            {order.refund_status === "requested" && (
+                              <Badge className="bg-primary/10 text-primary border-primary/20 border text-[10px] gap-0.5">
+                                <Undo2 className="w-3 h-3" />রিফান্ড রিকোয়েস্ট
+                              </Badge>
+                            )}
+                            {order.refund_status === "approved" && (
+                              <Badge className="bg-muted text-muted-foreground border-border border text-[10px] gap-0.5">
+                                <Undo2 className="w-3 h-3" />রিফান্ডকৃত
                               </Badge>
                             )}
                           </div>
@@ -381,8 +412,53 @@ export default function AdminOrdersPage() {
                             </div>
                           )}
 
+                          {/* Refund Request Section */}
+                          {order.refund_status === "requested" && (
+                            <div className="space-y-3">
+                              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">রিফান্ড রিকোয়েস্ট</h3>
+                              <div className="p-4 rounded-xl border border-primary/20 bg-primary/5">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div>
+                                    <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                      <Undo2 className="w-4 h-4 text-primary" />রিফান্ড অপেক্ষমাণ
+                                    </p>
+                                    {order.refund_reason && (
+                                      <p className="text-xs text-muted-foreground mt-1">কারণ: {order.refund_reason}</p>
+                                    )}
+                                    {order.refund_requested_at && (
+                                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                                        রিকোয়েস্ট: {formatDate(order.refund_requested_at)}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <Button size="sm" onClick={() => handleRefund(order.id, "approved")}
+                                      disabled={updatingId === order.id}
+                                      className="gap-1 text-xs rounded-xl bg-green-600 hover:bg-green-700 text-white">
+                                      <CheckCheck className="w-3 h-3" />অ্যাপ্রুভ
+                                    </Button>
+                                    <Button size="sm" variant="outline" onClick={() => handleRefund(order.id, "rejected")}
+                                      disabled={updatingId === order.id}
+                                      className="gap-1 text-xs rounded-xl text-destructive border-destructive/20 hover:bg-destructive/5">
+                                      <X className="w-3 h-3" />রিজেক্ট
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {order.refund_status === "approved" && (
+                            <div className="p-4 rounded-xl border border-border bg-muted/30">
+                              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                <Undo2 className="w-4 h-4" />রিফান্ড অ্যাপ্রুভ করা হয়েছে
+                                {order.refund_resolved_at && <span className="text-[10px]">({formatDate(order.refund_resolved_at)})</span>}
+                              </p>
+                            </div>
+                          )}
+
                           {/* Invoice Section */}
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <Button variant="outline" size="sm" onClick={() => setInvoiceDialogOrder(order)}
                               className="gap-1.5 text-xs rounded-xl">
                               <Receipt className="w-3.5 h-3.5" />

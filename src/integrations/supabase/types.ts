@@ -126,6 +126,10 @@ export type Database = {
           is_active: boolean
           package_name: string
           payment_method: string
+          refund_reason: string | null
+          refund_requested_at: string | null
+          refund_resolved_at: string | null
+          refund_status: string | null
           renewal_date: string | null
           status: string
           transaction_id: string
@@ -142,6 +146,10 @@ export type Database = {
           is_active?: boolean
           package_name: string
           payment_method: string
+          refund_reason?: string | null
+          refund_requested_at?: string | null
+          refund_resolved_at?: string | null
+          refund_status?: string | null
           renewal_date?: string | null
           status?: string
           transaction_id: string
@@ -158,6 +166,10 @@ export type Database = {
           is_active?: boolean
           package_name?: string
           payment_method?: string
+          refund_reason?: string | null
+          refund_requested_at?: string | null
+          refund_resolved_at?: string | null
+          refund_status?: string | null
           renewal_date?: string | null
           status?: string
           transaction_id?: string
