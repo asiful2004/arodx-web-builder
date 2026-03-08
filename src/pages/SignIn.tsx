@@ -25,7 +25,7 @@ const SignIn = () => {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       toast({ title: "সফলভাবে লগইন হয়েছে!" });
-      navigate("/");
+      navigate(redirectTo || "/");
     } catch (error: any) {
       toast({ title: "লগইন ব্যর্থ", description: error.message, variant: "destructive" });
     } finally {
