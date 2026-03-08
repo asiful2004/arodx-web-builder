@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Check, Package, CreditCard,
-  CheckCircle, Copy, Loader2, RefreshCw,
+  CheckCircle, Copy, Loader2, RefreshCw, ArrowUpDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,13 @@ const paymentMethods = [
   { id: "rocket", name: "Rocket", number: "01XXXXXXXXX", color: "#8B2F8B" },
 ];
 
+// Renewal prices (regular price, not first-year discount)
+const packagePrices: Record<string, { monthly: string; yearly: string; monthlyNum: number; yearlyNum: number }> = {
+  Starter: { monthly: "৳2,500", yearly: "৳25,000", monthlyNum: 2500, yearlyNum: 25000 },
+  Business: { monthly: "৳5,500", yearly: "৳55,000", monthlyNum: 5500, yearlyNum: 55000 },
+  Enterprise: { monthly: "৳9,999", yearly: "৳99,990", monthlyNum: 9999, yearlyNum: 99990 },
+};
+
 const slideVariants = {
   enter: (d: number) => ({ x: d > 0 ? 80 : -80, opacity: 0 }),
   center: { x: 0, opacity: 1 },
@@ -37,14 +44,21 @@ export default function RenewalPage() {
 
   const orderId = searchParams.get("order_id") || "";
   const packageName = searchParams.get("package") || "";
-  const amount = searchParams.get("amount") || "";
-  const billingPeriod = searchParams.get("billing") || "monthly";
+  const currentBilling = searchParams.get("billing") || "monthly";
 
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [transactionId, setTransactionId] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Billing period switch
+  const [selectedBilling, setSelectedBilling] = useState(currentBilling);
+  const prices = packagePrices[packageName];
+  const finalAmount = prices
+    ? (selectedBilling === "monthly" ? prices.monthly : prices.yearly)
+    : searchParams.get("amount") || "";
+  const isSwitching = selectedBilling !== currentBilling;
 
   const selectedPayment = paymentMethods.find((m) => m.id === selectedMethod);
 
@@ -55,9 +69,7 @@ export default function RenewalPage() {
     }
   }, [user, authLoading, navigate]);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, []);
 
   const goNext = () => { setDirection(1); setCurrentStep((s) => Math.min(s + 1, 3)); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const goBack = () => { setDirection(-1); setCurrentStep((s) => Math.max(s - 1, 1)); window.scrollTo({ top: 0, behavior: "smooth" }); };
@@ -72,27 +84,17 @@ export default function RenewalPage() {
       toast.error("পেমেন্ট তথ্য পূরণ করুন");
       return;
     }
-
     setLoading(true);
     try {
-      // Fetch the existing order to get current renewal_date
       const { data: existingOrder, error: fetchErr } = await supabase
-        .from("orders")
-        .select("*")
-        .eq("id", orderId)
-        .eq("user_id", user.id)
-        .single();
-
+        .from("orders").select("*").eq("id", orderId).eq("user_id", user.id).single();
       if (fetchErr || !existingOrder) throw new Error("অর্ডার খুঁজে পাওয়া যায়নি");
 
-      // Calculate new renewal date from current renewal_date (or now if expired)
-      const currentRenewal = existingOrder.renewal_date
-        ? new Date(existingOrder.renewal_date)
-        : new Date();
+      const currentRenewal = existingOrder.renewal_date ? new Date(existingOrder.renewal_date) : new Date();
       const baseDate = currentRenewal > new Date() ? currentRenewal : new Date();
 
       let newRenewalDate: Date;
-      if (billingPeriod === "monthly") {
+      if (selectedBilling === "monthly") {
         newRenewalDate = new Date(baseDate);
         newRenewalDate.setMonth(newRenewalDate.getMonth() + 1);
       } else {
@@ -100,31 +102,27 @@ export default function RenewalPage() {
         newRenewalDate.setFullYear(newRenewalDate.getFullYear() + 1);
       }
 
-      // Update existing order with extended renewal date
-      const { error: updateErr } = await supabase
-        .from("orders")
-        .update({
-          renewal_date: newRenewalDate.toISOString(),
-          is_active: true,
-          transaction_id: transactionId,
-          payment_method: selectedMethod,
-        })
-        .eq("id", orderId);
-
+      // Update order — also update billing_period and amount if switched
+      const { error: updateErr } = await supabase.from("orders").update({
+        renewal_date: newRenewalDate.toISOString(),
+        is_active: true,
+        transaction_id: transactionId,
+        payment_method: selectedMethod,
+        billing_period: selectedBilling,
+        amount: finalAmount,
+      }).eq("id", orderId);
       if (updateErr) throw updateErr;
 
-      // Create invoice for this renewal payment
+      // Create invoice
       const invNumber = "INV-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + orderId.slice(0, 8);
       const periodStart = existingOrder.renewal_date || new Date().toISOString();
-      const periodEnd = newRenewalDate.toISOString();
-
       await supabase.from("invoices").insert({
         order_id: orderId,
         user_id: user.id,
         invoice_number: invNumber,
-        amount: amount,
+        amount: finalAmount,
         period_start: periodStart,
-        period_end: periodEnd,
+        period_end: newRenewalDate.toISOString(),
         status: "paid",
         payment_method: selectedMethod,
         transaction_id: transactionId,
@@ -146,7 +144,6 @@ export default function RenewalPage() {
       </div>
     );
   }
-
   if (!user) return null;
 
   return (
@@ -154,12 +151,9 @@ export default function RenewalPage() {
       {/* Top bar */}
       <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-          <button
-            onClick={() => navigate("/dashboard/orders")}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            ড্যাশবোর্ডে ফিরুন
+          <button onClick={() => navigate("/dashboard/orders")}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="w-4 h-4" />ড্যাশবোর্ডে ফিরুন
           </button>
           <div className="flex items-center gap-2">
             <RefreshCw className="w-4 h-4 text-primary" />
@@ -172,23 +166,14 @@ export default function RenewalPage() {
         {/* Stepper */}
         <div className="flex items-center justify-between mb-12 relative">
           <div className="absolute top-5 left-0 right-0 h-[2px] bg-border mx-10" />
-          <motion.div
-            className="absolute top-5 left-0 h-[2px] bg-primary mx-10 origin-left"
+          <motion.div className="absolute top-5 left-0 h-[2px] bg-primary mx-10 origin-left"
             animate={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-            style={{ maxWidth: "calc(100% - 5rem)" }}
-          />
+            transition={{ duration: 0.4, ease: "easeInOut" }} style={{ maxWidth: "calc(100% - 5rem)" }} />
           {steps.map((step) => (
             <div key={step.id} className="relative z-10 flex flex-col items-center gap-2">
-              <motion.div
-                className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
-                  currentStep >= step.id
-                    ? "bg-primary border-primary text-primary-foreground"
-                    : "bg-card border-border text-muted-foreground"
-                }`}
-                animate={currentStep === step.id ? { scale: [1, 1.1, 1] } : {}}
-                transition={{ duration: 0.3 }}
-              >
+              <motion.div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
+                currentStep >= step.id ? "bg-primary border-primary text-primary-foreground" : "bg-card border-border text-muted-foreground"
+              }`} animate={currentStep === step.id ? { scale: [1, 1.1, 1] } : {}} transition={{ duration: 0.3 }}>
                 {currentStep > step.id ? <Check className="w-4 h-4" /> : <step.icon className="w-4 h-4" />}
               </motion.div>
               <span className={`text-xs font-medium ${currentStep >= step.id ? "text-foreground" : "text-muted-foreground"}`}>
@@ -199,13 +184,13 @@ export default function RenewalPage() {
         </div>
 
         <AnimatePresence mode="wait" custom={direction}>
-          {/* STEP 1: Renewal Summary */}
+          {/* STEP 1: Renewal Summary with Billing Switch */}
           {currentStep === 1 && (
             <motion.div key="s1" custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit"
               transition={{ duration: 0.3 }} className="space-y-6">
               <div>
                 <h2 className="text-2xl font-bold font-display">রিনিউয়াল সামারি</h2>
-                <p className="text-muted-foreground text-sm mt-1">আপনার বিদ্যমান প্যাকেজের মেয়াদ বাড়ান</p>
+                <p className="text-muted-foreground text-sm mt-1">আপনার বিদ্যমান প্যাকেজের মেয়াদ বাড়ান বা প্ল্যান পরিবর্তন করুন</p>
               </div>
 
               <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
@@ -213,21 +198,71 @@ export default function RenewalPage() {
                   <div>
                     <h3 className="text-xl font-bold font-display text-foreground">{packageName} প্যাকেজ</h3>
                     <p className="text-sm text-muted-foreground">
-                      {billingPeriod === "monthly" ? "মাসিক" : "বার্ষিক"} রিনিউয়াল
+                      বর্তমান: {currentBilling === "monthly" ? "মাসিক" : "বার্ষিক"}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-gradient">{amount}</p>
-                    <p className="text-xs text-muted-foreground">/{billingPeriod === "yearly" ? "বছর" : "মাস"}</p>
+                    <p className="text-2xl font-bold text-gradient">{finalAmount}</p>
+                    <p className="text-xs text-muted-foreground">/{selectedBilling === "yearly" ? "বছর" : "মাস"}</p>
                   </div>
                 </div>
 
                 <div className="h-px bg-border" />
 
-                <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
+                {/* Billing Period Switch */}
+                {prices && (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <ArrowUpDown className="w-4 h-4 text-primary" />
+                      বিলিং পিরিয়ড নির্বাচন করুন
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button onClick={() => setSelectedBilling("monthly")}
+                        className={`p-4 rounded-xl border text-left transition-all ${
+                          selectedBilling === "monthly"
+                            ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                            : "border-border bg-card hover:border-primary/20"
+                        }`}>
+                        <p className="font-semibold text-sm text-foreground">মাসিক</p>
+                        <p className="text-lg font-bold text-gradient mt-1">{prices.monthly}</p>
+                        <p className="text-[10px] text-muted-foreground">প্রতি মাসে</p>
+                        {currentBilling === "monthly" && (
+                          <Badge className="mt-2 text-[10px] bg-secondary text-muted-foreground border-border border">বর্তমান প্ল্যান</Badge>
+                        )}
+                      </button>
+                      <button onClick={() => setSelectedBilling("yearly")}
+                        className={`p-4 rounded-xl border text-left transition-all relative ${
+                          selectedBilling === "yearly"
+                            ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                            : "border-border bg-card hover:border-primary/20"
+                        }`}>
+                        <div className="absolute -top-2 right-3">
+                          <Badge className="text-[10px] bg-primary text-primary-foreground">২ মাস ফ্রি</Badge>
+                        </div>
+                        <p className="font-semibold text-sm text-foreground">বার্ষিক</p>
+                        <p className="text-lg font-bold text-gradient mt-1">{prices.yearly}</p>
+                        <p className="text-[10px] text-muted-foreground">প্রতি বছর (১০ মাসের দামে)</p>
+                        {currentBilling === "yearly" && (
+                          <Badge className="mt-2 text-[10px] bg-secondary text-muted-foreground border-border border">বর্তমান প্ল্যান</Badge>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {isSwitching && (
+                  <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
+                    <p className="text-xs text-primary font-medium">
+                      ✨ আপনি {currentBilling === "monthly" ? "মাসিক" : "বার্ষিক"} থেকে{" "}
+                      {selectedBilling === "monthly" ? "মাসিক" : "বার্ষিক"} প্ল্যানে সুইচ করছেন
+                    </p>
+                  </div>
+                )}
+
+                <div className="p-3 rounded-xl bg-secondary/50 border border-border/30">
                   <p className="text-xs text-muted-foreground">
                     পেমেন্ট কনফার্ম হলে আপনার বিদ্যমান প্যাকেজের মেয়াদ আরও{" "}
-                    <strong>{billingPeriod === "monthly" ? "১ মাস" : "১ বছর"}</strong> বাড়িয়ে দেওয়া হবে। নতুন কোনো অর্ডার তৈরি হবে না।
+                    <strong>{selectedBilling === "monthly" ? "১ মাস" : "১ বছর"}</strong> বাড়িয়ে দেওয়া হবে।
                   </p>
                 </div>
               </div>
@@ -280,17 +315,13 @@ export default function RenewalPage() {
                         <Copy className="h-4 w-4" />
                       </button>
                     </div>
-                    <p className="text-lg font-bold mt-2">Amount: {amount}</p>
+                    <p className="text-lg font-bold mt-2">Amount: {finalAmount}</p>
                   </div>
                   <div className="p-5 bg-card border border-t-0 border-border rounded-b-xl space-y-3">
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium text-foreground">Transaction ID / TrxID *</label>
-                      <Input
-                        placeholder="আপনার ট্রানজেকশন আইডি লিখুন"
-                        value={transactionId}
-                        onChange={(e) => setTransactionId(e.target.value)}
-                        className="bg-background border-border h-12"
-                      />
+                      <Input placeholder="আপনার ট্রানজেকশন আইডি লিখুন" value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value)} className="bg-background border-border h-12" />
                     </div>
                   </div>
                 </motion.div>
@@ -305,12 +336,15 @@ export default function RenewalPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">বিলিং</span>
-                    <span className="text-foreground">{billingPeriod === "monthly" ? "মাসিক" : "বার্ষিক"}</span>
+                    <span className="text-foreground">
+                      {selectedBilling === "monthly" ? "মাসিক" : "বার্ষিক"}
+                      {isSwitching && <span className="text-primary text-xs ml-1">(পরিবর্তিত)</span>}
+                    </span>
                   </div>
                   <div className="h-px bg-border" />
                   <div className="flex justify-between text-base font-bold">
                     <span className="text-foreground">মোট</span>
-                    <span className="text-gradient">{amount}</span>
+                    <span className="text-gradient">{finalAmount}</span>
                   </div>
                 </div>
               </div>
@@ -336,14 +370,10 @@ export default function RenewalPage() {
                 className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                 <CheckCircle className="w-10 h-10 text-primary" />
               </motion.div>
-
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
                 <h2 className="text-3xl font-bold font-display">রিনিউয়াল সফল! 🎉</h2>
-                <p className="text-muted-foreground mt-3 max-w-md mx-auto">
-                  আপনার প্যাকেজের মেয়াদ বাড়ানো হয়েছে। ধন্যবাদ!
-                </p>
+                <p className="text-muted-foreground mt-3 max-w-md mx-auto">আপনার প্যাকেজের মেয়াদ বাড়ানো হয়েছে। ধন্যবাদ!</p>
               </motion.div>
-
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
                 className="rounded-xl border border-border bg-card p-5 max-w-sm mx-auto text-left space-y-2 text-sm">
                 <div className="flex justify-between">
@@ -351,22 +381,22 @@ export default function RenewalPage() {
                   <span className="font-medium text-foreground">{packageName}</span>
                 </div>
                 <div className="flex justify-between">
+                  <span className="text-muted-foreground">বিলিং</span>
+                  <span className="text-foreground">{selectedBilling === "monthly" ? "মাসিক" : "বার্ষিক"}</span>
+                </div>
+                <div className="flex justify-between">
                   <span className="text-muted-foreground">মোট</span>
-                  <span className="font-bold text-gradient">{amount}</span>
+                  <span className="font-bold text-gradient">{finalAmount}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">পেমেন্ট</span>
                   <span className="text-foreground capitalize">{selectedMethod}</span>
                 </div>
               </motion.div>
-
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
                 className="flex gap-3 justify-center pt-4">
-                <Button variant="outline" onClick={() => navigate("/dashboard/orders")} className="px-6 py-5">
-                  অর্ডারে ফিরুন
-                </Button>
-                <Button onClick={() => navigate("/dashboard")}
-                  className="bg-gradient-primary text-primary-foreground px-6 py-5">
+                <Button variant="outline" onClick={() => navigate("/dashboard/orders")} className="px-6 py-5">অর্ডারে ফিরুন</Button>
+                <Button onClick={() => navigate("/dashboard")} className="bg-gradient-primary text-primary-foreground px-6 py-5">
                   ড্যাশবোর্ডে যান
                 </Button>
               </motion.div>
