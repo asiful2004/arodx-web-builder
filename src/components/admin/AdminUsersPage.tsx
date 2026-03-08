@@ -224,8 +224,8 @@ export default function AdminUsersPage() {
         {[
           { label: "মোট ইউজার", value: stats.total, icon: Users, color: "bg-primary/10 text-primary" },
           { label: "অ্যাডমিন", value: stats.admins, icon: Crown, color: "bg-yellow-500/10 text-yellow-600" },
-          { label: "মডারেটর", value: stats.moderators, icon: ShieldCheck, color: "bg-green-500/10 text-green-600" },
-          { label: "নো রোল", value: stats.noRole, icon: UserIcon, color: "bg-secondary text-muted-foreground" },
+          { label: "ক্লায়েন্ট", value: stats.clients, icon: ShieldCheck, color: "bg-green-500/10 text-green-600" },
+          { label: "ইউজার", value: stats.users, icon: UserIcon, color: "bg-secondary text-muted-foreground" },
         ].map((s, i) => (
           <motion.div
             key={s.label}
