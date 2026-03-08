@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Building2, Layers, Phone, MapPin, Globe,
   Package, CreditCard, CalendarClock, Hash, CheckCircle2,
-  AlertTriangle, XCircle, Clock, FileText, Receipt,
+  AlertTriangle, XCircle, Clock, FileText, Receipt, Settings2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
