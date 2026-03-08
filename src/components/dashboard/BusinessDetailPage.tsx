@@ -139,7 +139,7 @@ export default function BusinessDetailPage() {
 
   if (!order) {
     return (
-      <div className="space-y-4 max-w-3xl">
+      <div className="space-y-4">
         <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")} className="gap-2">
           <ArrowLeft className="w-4 h-4" /> ফিরে যান
         </Button>
@@ -161,7 +161,7 @@ export default function BusinessDetailPage() {
     : "—";
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6">
       {/* Back + Title */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/dashboard")}>

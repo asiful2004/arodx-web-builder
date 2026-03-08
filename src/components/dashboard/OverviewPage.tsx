@@ -157,7 +157,7 @@ export default function OverviewPage() {
   );
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6">
       {/* Welcome Banner */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -188,10 +188,11 @@ export default function OverviewPage() {
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Calendar} label="যোগদান" value={joinedDate} />
         <StatCard icon={Activity} label="সদস্যপদ" value={`${daysSinceJoin} দিন`} color="text-accent" />
         <StatCard icon={ShoppingBag} label="মোট অর্ডার" value={`${orderCount}`} />
+        <StatCard icon={Package} label="সক্রিয় প্যাকেজ" value={`${activeOrders.filter(o => o.is_active).length}`} color="text-green-500" />
       </div>
 
       {/* Business Cards */}
@@ -201,7 +202,7 @@ export default function OverviewPage() {
             <Building2 className="w-4 h-4 text-primary" />
             আমার ব্যবসা সমূহ
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {activeOrders.map((order, i) => {
               const statusInfo = getStatusInfo(order);
               const biz = order.business;
