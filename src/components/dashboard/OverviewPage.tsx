@@ -201,7 +201,7 @@ export default function OverviewPage() {
             <Building2 className="w-4 h-4 text-primary" />
             আমার ব্যবসা সমূহ
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {activeOrders.map((order, i) => {
               const statusInfo = getStatusInfo(order);
               const biz = order.business;
