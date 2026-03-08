@@ -79,7 +79,7 @@ export default function OverviewPage() {
   const [activeOrders, setActiveOrders] = useState<ActiveOrder[]>([]);
   const navigate = useNavigate();
 
-  const [selectedOrder, setSelectedOrder] = useState<ActiveOrder | null>(null);
+  
 
   useEffect(() => {
     const fetchData = async () => {
