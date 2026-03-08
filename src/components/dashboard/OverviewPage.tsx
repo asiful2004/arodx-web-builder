@@ -18,16 +18,6 @@ interface DashboardContext {
   isAdmin: boolean;
 }
 
-interface BusinessDetail {
-  id: string;
-  business_name: string;
-  business_category: string;
-  business_phone: string;
-  business_address: string | null;
-  domain_type: string;
-  domain_name: string | null;
-}
-
 interface ActiveOrder {
   id: string;
   package_name: string;
@@ -38,7 +28,6 @@ interface ActiveOrder {
   status: string;
   refund_status: string | null;
   business_name?: string;
-  business?: BusinessDetail;
 }
 
 const StatCard = ({ icon: Icon, label, value, color = "text-primary" }: {
