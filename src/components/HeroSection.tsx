@@ -127,7 +127,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring" as const, stiffness: 80, damping: 15, delay: 0.5 }}
-          className="text-sm md:text-base text-muted-foreground/70 max-w-xl mx-auto mb-10"
+          className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto mb-10"
         >
           Creative design, development এবং marketing সবকিছু এক ছাদের নিচে।
         </motion.p>
