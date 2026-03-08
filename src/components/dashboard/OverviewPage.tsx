@@ -48,23 +48,27 @@ export default function OverviewPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl border border-border bg-card"
+        className="relative overflow-hidden rounded-2xl border border-border bg-card p-6"
       >
-        <div className="h-20 bg-gradient-primary opacity-15" />
-        <div className="px-6 pb-6 -mt-10 flex items-end gap-4">
-          <Avatar className="w-16 h-16 border-4 border-card shadow-lg">
+        <div className="absolute inset-0 bg-gradient-primary opacity-[0.04]" />
+        <div className="relative flex items-center gap-5">
+          <Avatar className="w-14 h-14 border-2 border-primary/20 shadow-glow">
             <AvatarImage src={profile.avatar_url || undefined} />
-            <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
+            <AvatarFallback className="text-base font-bold bg-primary/10 text-primary">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="pb-1">
-            <h1 className="text-xl font-bold font-display text-foreground">
+          <div className="flex-1">
+            <h1 className="text-lg font-bold font-display text-foreground">
               স্বাগতম, {profile.full_name || "ব্যবহারকারী"}! 👋
             </h1>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-0.5">
               আপনার ড্যাশবোর্ড থেকে সব কিছু ম্যানেজ করুন
             </p>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-secondary/50 px-3 py-1.5 rounded-full">
+            <Activity className="w-3 h-3 text-green-500" />
+            <span>{isAdmin ? "অ্যাডমিন" : "অ্যাক্টিভ"}</span>
           </div>
         </div>
       </motion.div>
