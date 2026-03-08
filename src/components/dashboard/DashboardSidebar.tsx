@@ -66,8 +66,9 @@ export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSideba
           </Avatar>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-sidebar-foreground truncate">
+              <p className="text-sm font-semibold text-sidebar-foreground truncate flex items-center gap-1">
                 {profile.full_name || "নাম সেট করুন"}
+                {isAdmin && <BadgeCheck className="w-4 h-4 text-primary shrink-0" />}
               </p>
               <p className="text-[11px] text-muted-foreground truncate">
                 {user?.email}
