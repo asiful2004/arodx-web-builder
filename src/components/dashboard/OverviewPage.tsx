@@ -26,6 +26,7 @@ interface ActiveOrder {
   is_active: boolean;
   status: string;
   refund_status: string | null;
+  business_name?: string;
 }
 
 const StatCard = ({ icon: Icon, label, value, color = "text-primary" }: {
