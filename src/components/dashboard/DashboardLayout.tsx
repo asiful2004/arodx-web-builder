@@ -21,6 +21,13 @@ export default function DashboardLayout() {
   const [profile, setProfile] = useState<Profile>({ full_name: null, avatar_url: null });
   const [isAdmin, setIsAdmin] = useState(false);
   const [userRole, setUserRole] = useState<string>("");
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    const stored = localStorage.getItem("notif_sound");
+    return stored !== "false";
+  });
+  const [notifications, setNotifications] = useState<Array<{ id: string; title: string; body: string; time: string; read: boolean }>>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
