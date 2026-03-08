@@ -163,16 +163,7 @@ const PricingSection = () => {
         </motion.div>
       </div>
 
-      {selectedPackage && (
-        <PaymentModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          packageName={selectedPackage.name}
-          amount={isYearly ? selectedPackage.firstYearYearlyPrice : selectedPackage.firstYearPrice}
-          currency={selectedPackage.currency}
-          billingPeriod={isYearly ? "yearly" : "monthly"}
-        />
-      )}
+      </div>
     </section>
   );
 };
