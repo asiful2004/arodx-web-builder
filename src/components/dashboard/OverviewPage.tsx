@@ -124,66 +124,22 @@ export default function OverviewPage() {
         <StatCard icon={ShoppingBag} label="মোট অর্ডার" value={`${orderCount}`} />
       </div>
 
-      {/* Active Subscription Summary */}
-      {activeOrders.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-2xl border border-border bg-card p-6"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold font-display text-foreground flex items-center gap-2">
-              <Package className="w-4 h-4 text-primary" />
-              আমার সাবস্ক্রিপশন
-            </h2>
-            <Button variant="ghost" size="sm" className="text-xs text-primary" onClick={() => navigate("/dashboard/orders")}>
-              বিস্তারিত →
-            </Button>
+      {/* Subscription Quick Stats */}
+      {activeOrders.length > 0 && (() => {
+        const order = activeOrders[0];
+        const statusInfo = getStatusInfo(order);
+        const expiryDate = order.renewal_date
+          ? new Date(order.renewal_date).toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" })
+          : "—";
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <StatCard icon={Package} label="প্যাকেজ" value={order.package_name} />
+            <StatCard icon={statusInfo.icon} label="স্ট্যাটাস" value={statusInfo.label} color={statusInfo.color} />
+            <StatCard icon={CreditCard} label="মূল্য" value={`৳${order.amount}/${order.billing_period === "yearly" ? "বছর" : "মাস"}`} />
+            <StatCard icon={CalendarClock} label="মেয়াদ শেষ" value={expiryDate} color="text-accent" />
           </div>
-          <div className="space-y-3">
-            {activeOrders.map((order) => {
-              const statusInfo = getStatusInfo(order);
-              const StatusIcon = statusInfo.icon;
-              const expiryDate = order.renewal_date
-                ? new Date(order.renewal_date).toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" })
-                : "—";
-
-              return (
-                <div key={order.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-xl bg-secondary/30 border border-border/50">
-                  {/* Package & Status */}
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className={`w-9 h-9 rounded-lg ${statusInfo.bg} flex items-center justify-center shrink-0`}>
-                      <StatusIcon className={`w-4.5 h-4.5 ${statusInfo.color}`} />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-foreground truncate">{order.package_name}</span>
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">
-                          {order.billing_period === "yearly" ? "বার্ষিক" : "মাসিক"}
-                        </Badge>
-                      </div>
-                      <p className={`text-xs mt-0.5 ${statusInfo.color}`}>{statusInfo.label}</p>
-                    </div>
-                  </div>
-
-                  {/* Price & Expiry */}
-                  <div className="flex items-center gap-4 sm:gap-6 text-xs pl-12 sm:pl-0">
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <CreditCard className="w-3.5 h-3.5" />
-                      <span>৳{order.amount}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-muted-foreground">
-                      <CalendarClock className="w-3.5 h-3.5" />
-                      <span>{expiryDate}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </motion.div>
-      )}
+        );
+      })()}
 
       {/* Recent Activity Placeholder */}
       <motion.div
