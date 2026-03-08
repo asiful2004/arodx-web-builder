@@ -15,6 +15,7 @@ import DashboardLayout from "./components/dashboard/DashboardLayout";
 import OverviewPage from "./components/dashboard/OverviewPage";
 import ProfilePage from "./components/dashboard/ProfilePage";
 import OrdersPage from "./components/dashboard/OrdersPage";
+import BusinessDetailPage from "./components/dashboard/BusinessDetailPage";
 import NotificationsPage from "./components/dashboard/NotificationsPage";
 import SettingsPage from "./components/dashboard/SettingsPage";
 import HelpPage from "./components/dashboard/HelpPage";

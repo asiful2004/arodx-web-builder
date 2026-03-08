@@ -6,14 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ShoppingBag, Calendar, Activity, TrendingUp, Clock,
   Package, CreditCard, CalendarClock, CheckCircle2, AlertTriangle, XCircle,
-  ExternalLink, Globe, Phone, MapPin, Building2, Hash, Layers
+  ExternalLink, Building2,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
 
 interface DashboardContext {
   user: UserType;
