@@ -1,8 +1,37 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, Globe, Phone, MapPin, Loader2 } from "lucide-react";
+import {
+  Building2, Globe, Phone, MapPin, Loader2,
+  Shirt, ShoppingCart, UtensilsCrossed, Stethoscope, GraduationCap, Briefcase,
+  Palette, Cpu, Car, Plane, Landmark, Dumbbell, Music, Camera, Wrench, Heart,
+  type LucideIcon,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
+const categoryIconMap: Record<string, LucideIcon> = {
+  "Fashion & Clothing": Shirt,
+  "E-commerce": ShoppingCart,
+  "Food & Restaurant": UtensilsCrossed,
+  "Health & Medical": Stethoscope,
+  "Education": GraduationCap,
+  "Business & Corporate": Briefcase,
+  "Creative & Design": Palette,
+  "Technology": Cpu,
+  "Automotive": Car,
+  "Travel & Tourism": Plane,
+  "Finance & Banking": Landmark,
+  "Fitness & Sports": Dumbbell,
+  "Entertainment & Media": Music,
+  "Photography": Camera,
+  "Services & Maintenance": Wrench,
+  "Beauty & Wellness": Heart,
+};
+
+const getCategoryIcon = (category?: string): LucideIcon => {
+  if (!category) return Building2;
+  return categoryIconMap[category] || Building2;
+};
 
 interface Business {
   id: string;
@@ -12,6 +41,7 @@ interface Business {
   business_address: string | null;
   domain_type: string;
   domain_name: string | null;
+  logo_url: string | null;
   created_at: string;
 }
 
