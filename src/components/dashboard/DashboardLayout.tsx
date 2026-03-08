@@ -16,6 +16,7 @@ export default function DashboardLayout() {
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile>({ full_name: null, avatar_url: null });
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
