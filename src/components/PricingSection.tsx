@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import PaymentModal from "@/components/PaymentModal";
+import { useNavigate } from "react-router-dom";
 import PricingCard from "@/components/PricingCard";
 
 const packages = [
