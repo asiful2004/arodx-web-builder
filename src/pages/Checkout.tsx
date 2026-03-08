@@ -202,6 +202,19 @@ export default function Checkout() {
 
       if (orderError) throw orderError;
 
+      // Upload logo
+      let logoUrl: string | null = null;
+      if (logoFile) {
+        const fileExt = logoFile.name.split(".").pop();
+        const filePath = `${user.id}/${order.id}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("business-logos")
+          .upload(filePath, logoFile, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage.from("business-logos").getPublicUrl(filePath);
+        logoUrl = urlData.publicUrl;
+      }
+
       // Insert business
       const { error: bizError } = await supabase.from("businesses" as any).insert({
         user_id: user.id,
@@ -212,6 +225,7 @@ export default function Checkout() {
         business_address: businessData.businessAddress || null,
         domain_type: businessData.domainType,
         domain_name: businessData.domainName || null,
+        logo_url: logoUrl,
       } as any);
 
       if (bizError) throw bizError;
