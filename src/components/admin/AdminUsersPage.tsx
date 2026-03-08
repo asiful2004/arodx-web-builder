@@ -191,6 +191,46 @@ export default function AdminUsersPage() {
     setRemovingRoleId(null);
   };
 
+  const openPasswordDialog = (user: UserProfile) => {
+    setSelectedUser(user);
+    setNewPassword("");
+    setShowPassword(false);
+    setPasswordDialogOpen(true);
+  };
+
+  const changePassword = async () => {
+    if (!selectedUser || !newPassword) return;
+    if (newPassword.length < 6) {
+      toast({ title: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে", variant: "destructive" });
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-update-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            target_user_id: selectedUser.user_id,
+            new_password: newPassword,
+          }),
+        }
+      );
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed");
+      toast({ title: "পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে" });
+      setPasswordDialogOpen(false);
+    } catch (err: any) {
+      toast({ title: "পাসওয়ার্ড পরিবর্তন ব্যর্থ", description: err.message, variant: "destructive" });
+    }
+    setChangingPassword(false);
+  };
+
   const stats = useMemo(() => ({
     total: profiles.length,
     admins: profiles.filter((u) => u.roles.includes("admin")).length,
