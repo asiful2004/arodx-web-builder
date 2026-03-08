@@ -241,8 +241,35 @@ export default function Checkout() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        {/* Skeleton top bar */}
+        <div className="border-b border-border bg-card/50 sticky top-0 z-40">
+          <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+            <div className="h-5 w-16 rounded bg-muted animate-pulse" />
+          </div>
+        </div>
+        <div className="max-w-3xl mx-auto px-4 py-8">
+          {/* Skeleton stepper */}
+          <div className="flex items-center justify-between mb-12">
+            {[1,2,3,4].map(i => (
+              <div key={i} className="flex flex-col items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
+                <div className="h-3 w-12 rounded bg-muted animate-pulse" />
+              </div>
+            ))}
+          </div>
+          {/* Skeleton content */}
+          <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+            <div className="h-7 w-48 rounded bg-muted animate-pulse" />
+            <div className="h-4 w-72 rounded bg-muted animate-pulse" />
+            <div className="space-y-3 mt-4">
+              {[1,2,3,4].map(i => (
+                <div key={i} className="h-4 rounded bg-muted animate-pulse" style={{ width: `${90 - i * 10}%` }} />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
