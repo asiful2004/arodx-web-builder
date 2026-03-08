@@ -177,6 +177,16 @@ export default function BusinessDetailPage() {
           <statusInfo.icon className="w-3 h-3 mr-1" />
           {statusInfo.label}
         </Badge>
+        {order.status === "confirmed" && order.is_active && (
+          <Button
+            size="sm"
+            className="gap-2 shrink-0"
+            onClick={() => navigate(`/dashboard/business/${orderId}/config`)}
+          >
+            <Settings2 className="w-4 h-4" />
+            কনফিগার করুন
+          </Button>
+        )}
       </div>
 
       {/* Business Info */}
