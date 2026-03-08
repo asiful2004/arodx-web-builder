@@ -192,8 +192,9 @@ export default function AdminUsersPage() {
   const stats = useMemo(() => ({
     total: profiles.length,
     admins: profiles.filter((u) => u.roles.includes("admin")).length,
+    clients: profiles.filter((u) => u.roles.includes("client")).length,
     moderators: profiles.filter((u) => u.roles.includes("moderator")).length,
-    noRole: profiles.filter((u) => u.roles.length === 0).length,
+    users: profiles.filter((u) => u.roles.includes("user")).length,
   }), [profiles]);
 
   if (loading) {
