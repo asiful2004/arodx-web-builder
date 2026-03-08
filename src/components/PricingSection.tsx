@@ -69,12 +69,23 @@ const packages = [
 
 const container = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.15 } },
+  show: { transition: { staggerChildren: 0.2 } },
 };
 
 const item = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  hidden: { opacity: 0, y: 60, rotateX: 15, scale: 0.9 },
+  show: {
+    opacity: 1,
+    y: 0,
+    rotateX: 0,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 12,
+      mass: 0.8,
+    },
+  },
 };
 
 const PricingSection = () => {
@@ -142,7 +153,17 @@ const PricingSection = () => {
             <motion.div
               key={pkg.name}
               variants={item}
-              className={`relative flex flex-col p-8 rounded-2xl border transition-all duration-300 ${
+              whileHover={{
+                y: -12,
+                scale: 1.03,
+                boxShadow: pkg.popular
+                  ? "0 25px 60px -15px hsl(var(--primary) / 0.4)"
+                  : "0 25px 50px -15px hsl(var(--primary) / 0.15)",
+                transition: { type: "spring" as const, stiffness: 300, damping: 20 },
+              }}
+              whileTap={{ scale: 0.98 }}
+              style={{ perspective: 1000 }}
+              className={`relative flex flex-col p-8 rounded-2xl border transition-colors duration-300 cursor-pointer ${
                 pkg.popular
                   ? "border-primary/50 bg-gradient-card shadow-glow scale-[1.02]"
                   : "border-border bg-card shadow-card hover:border-primary/20"
