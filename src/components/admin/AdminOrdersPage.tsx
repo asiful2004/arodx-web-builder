@@ -18,7 +18,7 @@ import {
   Search, RefreshCw, Package, CheckCircle2, Clock, XCircle,
   ChevronDown, Building2, CalendarDays, Globe, Phone, MapPin,
   FileText, Receipt, Download, AlertTriangle, Hash, CreditCard,
-  Layers, Eye,
+  Layers, Undo2, CheckCheck, X,
 } from "lucide-react";
 import { generateInvoicePDF } from "@/lib/invoice-pdf";
 
