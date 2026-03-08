@@ -3,7 +3,7 @@ import { HelpCircle } from "lucide-react";
 
 export default function HelpPage() {
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold font-display text-foreground">সাহায্য ও সাপোর্ট</h1>
         <p className="text-sm text-muted-foreground">আমাদের সাথে যোগাযোগ করুন</p>

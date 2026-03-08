@@ -215,7 +215,7 @@ export default function OrdersPage() {
   );
 
   return (
-    <div className="space-y-8 max-w-4xl">
+    <div className="space-y-8">
       <div>
         <h1 className="text-xl font-bold font-display text-foreground">আমার সাবস্ক্রিপশন ও অর্ডার</h1>
         <p className="text-sm text-muted-foreground">আপনার প্যাকেজ, বিলিং এবং ইনভয়েস ম্যানেজ করুন</p>

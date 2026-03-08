@@ -3,7 +3,7 @@ import { Settings } from "lucide-react";
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold font-display text-foreground">সেটিংস</h1>
         <p className="text-sm text-muted-foreground">আপনার অ্যাকাউন্ট সেটিংস ম্যানেজ করুন</p>
