@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingBag, Clock, CheckCircle, XCircle, Loader2, Package,
   ChevronDown, Globe, Phone, MapPin, Building2, CreditCard, Hash,
   CalendarDays, Layers, FileText, RefreshCw, AlertTriangle,
-  ArrowRight, Receipt,
+  Receipt, Download,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
+import { generateInvoicePDF } from "@/lib/invoice-pdf";
 
 interface Order {
   id: string;
@@ -94,36 +96,31 @@ const packageFeatures: Record<string, string[]> = {
 
 function getDaysUntilRenewal(renewalDate: string | null): number | null {
   if (!renewalDate) return null;
-  const diff = new Date(renewalDate).getTime() - Date.now();
-  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  return Math.ceil((new Date(renewalDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 }
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("bn-BD", {
-    year: "numeric", month: "long", day: "numeric",
-  });
+  return new Date(dateStr).toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" });
 }
 
 export default function OrdersPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [businesses, setBusinesses] = useState<Record<string, Business>>({});
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [invoiceDialogOrder, setInvoiceDialogOrder] = useState<Order | null>(null);
-  const [renewDialogOrder, setRenewDialogOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     if (!user) return;
-
     const fetchData = async () => {
       const [ordersRes, businessRes, invoicesRes] = await Promise.all([
         supabase.from("orders").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("businesses").select("*").eq("user_id", user.id),
         supabase.from("invoices").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
-
       if (ordersRes.data) setOrders(ordersRes.data as Order[]);
       if (businessRes.data) {
         const map: Record<string, Business> = {};
@@ -133,7 +130,6 @@ export default function OrdersPage() {
       if (invoicesRes.data) setInvoices(invoicesRes.data as Invoice[]);
       setLoading(false);
     };
-
     fetchData();
 
     const channel = supabase
@@ -141,9 +137,32 @@ export default function OrdersPage() {
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders", filter: `user_id=eq.${user.id}` },
         (payload) => { setOrders((prev) => prev.map((o) => (o.id === payload.new.id ? { ...o, ...payload.new } : o))); })
       .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, [user]);
+
+  const handleRenew = (order: Order) => {
+    navigate(`/renewal?order_id=${order.id}&package=${encodeURIComponent(order.package_name)}&amount=${encodeURIComponent(order.amount)}&billing=${order.billing_period}`);
+  };
+
+  const handleDownloadInvoice = (inv: Invoice, order: Order) => {
+    const business = businesses[inv.order_id];
+    generateInvoicePDF({
+      invoiceNumber: inv.invoice_number,
+      date: inv.created_at,
+      periodStart: inv.period_start,
+      periodEnd: inv.period_end,
+      customerName: order.customer_name,
+      customerEmail: order.customer_email,
+      customerPhone: order.customer_phone || business?.business_phone || "",
+      businessName: business?.business_name || "",
+      packageName: order.package_name,
+      billingPeriod: order.billing_period,
+      amount: inv.amount,
+      paymentMethod: inv.payment_method || order.payment_method,
+      transactionId: inv.transaction_id || order.transaction_id,
+      status: inv.status,
+    });
+  };
 
   if (loading) {
     return (
@@ -184,10 +203,11 @@ export default function OrdersPage() {
                   key={order.id}
                   order={order}
                   business={businesses[order.id]}
-                  invoices={invoices.filter((inv) => inv.order_id === order.id)}
+                  orderInvoices={invoices.filter((inv) => inv.order_id === order.id)}
                   index={i}
                   onViewInvoices={() => setInvoiceDialogOrder(order)}
-                  onRenew={() => setRenewDialogOrder(order)}
+                  onRenew={() => handleRenew(order)}
+                  onDownloadInvoice={(inv) => handleDownloadInvoice(inv, order)}
                   expanded={expandedId === order.id}
                   onToggle={() => setExpandedId(expandedId === order.id ? null : order.id)}
                 />
@@ -263,11 +283,22 @@ export default function OrdersPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs font-bold text-foreground">{inv.amount}</p>
-                    <Badge className="text-[10px] bg-green-500/10 text-green-600 border-green-500/20 border">
-                      {inv.status === "paid" ? "পেইড" : inv.status}
-                    </Badge>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <p className="text-xs font-bold text-foreground">{inv.amount}</p>
+                      <Badge className="text-[10px] bg-green-500/10 text-green-600 border-green-500/20 border">
+                        {inv.status === "paid" ? "পেইড" : inv.status}
+                      </Badge>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      onClick={() => invoiceDialogOrder && handleDownloadInvoice(inv, invoiceDialogOrder)}
+                      title="ইনভয়েস ডাউনলোড"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 </div>
               ))
@@ -278,78 +309,21 @@ export default function OrdersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Renew Payment Dialog */}
-      <Dialog open={!!renewDialogOrder} onOpenChange={() => setRenewDialogOrder(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-display flex items-center gap-2">
-              <RefreshCw className="w-5 h-5 text-primary" />
-              প্যাকেজ রিনিউ করুন
-            </DialogTitle>
-            <DialogDescription>
-              {renewDialogOrder?.package_name} প্যাকেজ রিনিউ করতে পেমেন্ট করুন
-            </DialogDescription>
-          </DialogHeader>
-          {renewDialogOrder && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-secondary/30 border border-border/30 space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">প্যাকেজ</span>
-                  <span className="font-semibold text-foreground">{renewDialogOrder.package_name}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">বিলিং পিরিয়ড</span>
-                  <span className="font-semibold text-foreground">{renewDialogOrder.billing_period === "monthly" ? "মাসিক" : "বার্ষিক"}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">রিনিউয়াল মূল্য</span>
-                  <span className="font-bold text-foreground text-base">{renewDialogOrder.amount}</span>
-                </div>
-                {renewDialogOrder.renewal_date && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">রিনিউয়াল ডেডলাইন</span>
-                    <span className="font-semibold text-foreground">{formatDate(renewDialogOrder.renewal_date)}</span>
-                  </div>
-                )}
-              </div>
-              <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
-                <p className="text-xs text-muted-foreground">
-                  রিনিউ করতে <strong>বিকাশ/নগদ</strong> এ পেমেন্ট পাঠান এবং ট্রানজেকশন ID সহ আমাদের সাপোর্ট এ জানান। আমরা দ্রুত আপনার প্যাকেজ রিনিউ করে দেবো।
-                </p>
-              </div>
-            </div>
-          )}
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setRenewDialogOrder(null)} className="rounded-xl">বন্ধ করুন</Button>
-            <Button
-              onClick={() => {
-                window.open("https://wa.me/8801926298571?text=" + encodeURIComponent(
-                  `আমি ${renewDialogOrder?.package_name} প্যাকেজ রিনিউ করতে চাই। অর্ডার ID: ${renewDialogOrder?.id}`
-                ), "_blank");
-              }}
-              className="gap-1.5 rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90"
-            >
-              <ArrowRight className="w-3.5 h-3.5" />
-              সাপোর্টে যোগাযোগ
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
 
 /* ─── Active Subscription Card ─── */
 function ActiveSubscriptionCard({
-  order, business, invoices, index, onViewInvoices, onRenew, expanded, onToggle,
+  order, business, orderInvoices, index, onViewInvoices, onRenew, onDownloadInvoice, expanded, onToggle,
 }: {
   order: Order;
   business?: Business;
-  invoices: Invoice[];
+  orderInvoices: Invoice[];
   index: number;
   onViewInvoices: () => void;
   onRenew: () => void;
+  onDownloadInvoice: (inv: Invoice) => void;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -357,6 +331,7 @@ function ActiveSubscriptionCard({
   const isUrgent = daysLeft !== null && daysLeft <= 7;
   const isOverdue = daysLeft !== null && daysLeft <= 0;
   const features = packageFeatures[order.package_name] || [];
+  const latestInvoice = orderInvoices[0];
 
   return (
     <motion.div
@@ -367,7 +342,6 @@ function ActiveSubscriptionCard({
         isOverdue ? "border-destructive/40" : isUrgent ? "border-yellow-500/40" : "border-border"
       }`}
     >
-      {/* Main card */}
       <div className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
@@ -375,7 +349,7 @@ function ActiveSubscriptionCard({
               <Package className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <p className="font-bold text-foreground">{order.package_name} প্যাকেজ</p>
                 <Badge className="bg-green-500/10 text-green-600 border-green-500/20 border text-[10px]">
                   <CheckCircle className="w-3 h-3 mr-0.5" />অ্যাক্টিভ
@@ -439,11 +413,17 @@ function ActiveSubscriptionCard({
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 mt-4">
+        <div className="flex items-center gap-2 mt-4 flex-wrap">
           <Button variant="outline" size="sm" onClick={onViewInvoices} className="gap-1.5 text-xs rounded-xl">
             <Receipt className="w-3.5 h-3.5" />
-            ইনভয়েস ({invoices.length})
+            ইনভয়েস ({orderInvoices.length})
           </Button>
+          {latestInvoice && (
+            <Button variant="outline" size="sm" onClick={() => onDownloadInvoice(latestInvoice)} className="gap-1.5 text-xs rounded-xl">
+              <Download className="w-3.5 h-3.5" />
+              PDF ডাউনলোড
+            </Button>
+          )}
           <Button variant="ghost" size="sm" onClick={onToggle} className="gap-1.5 text-xs text-muted-foreground rounded-xl ml-auto">
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expanded ? "rotate-180" : ""}`} />
             বিস্তারিত
@@ -462,7 +442,6 @@ function ActiveSubscriptionCard({
             className="overflow-hidden"
           >
             <div className="px-5 pb-5 space-y-4 border-t border-border/50 pt-4">
-              {/* Order Details */}
               <div>
                 <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">অর্ডার তথ্য</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -473,7 +452,6 @@ function ActiveSubscriptionCard({
                 </div>
               </div>
 
-              {/* Business Details */}
               {business && (
                 <div>
                   <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">ব্যবসার তথ্য</h3>
@@ -487,7 +465,6 @@ function ActiveSubscriptionCard({
                 </div>
               )}
 
-              {/* Package Features */}
               {features.length > 0 && (
                 <div>
                   <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">প্যাকেজে যা যা আছে</h3>
