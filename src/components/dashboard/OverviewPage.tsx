@@ -178,7 +178,7 @@ export default function OverviewPage() {
                 variant="ghost"
                 size="sm"
                 className="text-xs text-primary hover:text-primary/80 gap-1 h-7"
-                onClick={() => setSelectedOrder(order)}
+                onClick={() => navigate(`/dashboard/business/${order.id}`)}
               >
                 বিস্তারিত দেখুন
                 <ExternalLink className="w-3 h-3" />
