@@ -153,7 +153,17 @@ const PricingSection = () => {
             <motion.div
               key={pkg.name}
               variants={item}
-              className={`relative flex flex-col p-8 rounded-2xl border transition-all duration-300 ${
+              whileHover={{
+                y: -12,
+                scale: 1.03,
+                boxShadow: pkg.popular
+                  ? "0 25px 60px -15px hsl(var(--primary) / 0.4)"
+                  : "0 25px 50px -15px hsl(var(--primary) / 0.15)",
+                transition: { type: "spring" as const, stiffness: 300, damping: 20 },
+              }}
+              whileTap={{ scale: 0.98 }}
+              style={{ perspective: 1000 }}
+              className={`relative flex flex-col p-8 rounded-2xl border transition-colors duration-300 cursor-pointer ${
                 pkg.popular
                   ? "border-primary/50 bg-gradient-card shadow-glow scale-[1.02]"
                   : "border-border bg-card shadow-card hover:border-primary/20"
