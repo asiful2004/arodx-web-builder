@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ShoppingBag, Calendar, Activity, TrendingUp, Clock,
   Package, CreditCard, CalendarClock, CheckCircle2, AlertTriangle, XCircle,
-  ExternalLink, Building2,
+  ExternalLink, Building2, Phone, MapPin, Globe,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,17 @@ interface DashboardContext {
   isAdmin: boolean;
 }
 
+interface BusinessInfo {
+  business_name: string;
+  business_category: string;
+  business_phone: string;
+  business_address: string | null;
+  domain_type: string;
+  domain_name: string | null;
+  logo_url: string | null;
+  created_at: string;
+}
+
 interface ActiveOrder {
   id: string;
   package_name: string;
@@ -27,7 +38,7 @@ interface ActiveOrder {
   is_active: boolean;
   status: string;
   refund_status: string | null;
-  business_name?: string;
+  business?: BusinessInfo;
 }
 
 const StatCard = ({ icon: Icon, label, value, color = "text-primary" }: {
@@ -47,7 +58,6 @@ const StatCard = ({ icon: Icon, label, value, color = "text-primary" }: {
 );
 
 const getStatusInfo = (order: ActiveOrder) => {
-  // Match OrdersPage logic: if active & confirmed, show as active regardless of refund
   if (order.status === 'confirmed' && order.is_active) {
     if (order.renewal_date) {
       const daysLeft = Math.ceil((new Date(order.renewal_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -68,8 +78,6 @@ export default function OverviewPage() {
   const [activeOrders, setActiveOrders] = useState<ActiveOrder[]>([]);
   const navigate = useNavigate();
 
-  
-
   useEffect(() => {
     const fetchData = async () => {
       const [countRes, ordersRes] = await Promise.all([
@@ -84,12 +92,24 @@ export default function OverviewPage() {
         const orderIds = orders.map(o => o.id);
         const { data: businesses } = await supabase
           .from("businesses")
-          .select("order_id, business_name")
+          .select("order_id, business_name, business_category, business_phone, business_address, domain_type, domain_name, logo_url, created_at")
           .in("order_id", orderIds);
 
-        const bizMap = new Map((businesses || []).map(b => [b.order_id, b.business_name]));
+        const bizMap = new Map((businesses || []).map(b => [b.order_id, b]));
         orders.forEach(o => {
-          o.business_name = bizMap.get(o.id) || undefined;
+          const biz = bizMap.get(o.id);
+          if (biz) {
+            o.business = {
+              business_name: biz.business_name,
+              business_category: biz.business_category,
+              business_phone: biz.business_phone,
+              business_address: biz.business_address,
+              domain_type: biz.domain_type,
+              domain_name: biz.domain_name,
+              logo_url: biz.logo_url,
+              created_at: biz.created_at,
+            };
+          }
         });
       }
 
@@ -147,37 +167,100 @@ export default function OverviewPage() {
         <StatCard icon={ShoppingBag} label="মোট অর্ডার" value={`${orderCount}`} />
       </div>
 
-      {/* Subscription Quick Stats - All Orders */}
-      {activeOrders.map((order) => {
-        const statusInfo = getStatusInfo(order);
-        const expiryDate = order.renewal_date
-          ? new Date(order.renewal_date).toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" })
-          : "—";
-        return (
-          <div key={order.id} className="space-y-2">
-            <div className="flex items-center justify-between px-1">
-              <h3 className="text-sm font-semibold text-foreground font-display">
-                {order.business_name || order.package_name}
-              </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs text-primary hover:text-primary/80 gap-1 h-7"
-                onClick={() => navigate(`/dashboard/business/${order.id}`)}
-              >
-                বিস্তারিত দেখুন
-                <ExternalLink className="w-3 h-3" />
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-              <StatCard icon={Package} label="প্যাকেজ" value={order.package_name} />
-              <StatCard icon={statusInfo.icon} label="স্ট্যাটাস" value={statusInfo.label} color={statusInfo.color} />
-              <StatCard icon={CreditCard} label="মূল্য" value={`${order.amount}/${order.billing_period === "yearly" ? "বছর" : "মাস"}`} />
-              <StatCard icon={CalendarClock} label="মেয়াদ শেষ" value={expiryDate} color="text-accent" />
-            </div>
+      {/* Business Cards */}
+      {activeOrders.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold font-display text-foreground flex items-center gap-2 px-1">
+            <Building2 className="w-4 h-4 text-primary" />
+            আমার ব্যবসা সমূহ
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {activeOrders.map((order, i) => {
+              const statusInfo = getStatusInfo(order);
+              const biz = order.business;
+              const expiryDate = order.renewal_date
+                ? new Date(order.renewal_date).toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" })
+                : "—";
+
+              return (
+                <motion.div
+                  key={order.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="rounded-2xl border border-border bg-card/60 backdrop-blur-xl p-5 space-y-3 hover:border-primary/30 transition-colors"
+                >
+                  {/* Header */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
+                        {biz?.logo_url ? (
+                          <img src={biz.logo_url} alt={biz.business_name} className="w-full h-full object-cover rounded-xl" />
+                        ) : (
+                          <Building2 className="w-5 h-5 text-primary" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground text-sm">
+                          {biz?.business_name || order.package_name}
+                        </p>
+                        {biz && (
+                          <Badge variant="outline" className="text-[10px] mt-1">{biz.business_category}</Badge>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-primary hover:text-primary/80 gap-1 h-7 shrink-0"
+                      onClick={() => navigate(`/dashboard/business/${order.id}`)}
+                    >
+                      বিস্তারিত দেখুন
+                      <ExternalLink className="w-3 h-3" />
+                    </Button>
+                  </div>
+
+                  {/* Business Details */}
+                  {biz && (
+                    <div className="space-y-1.5 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-3 h-3" /> {biz.business_phone}
+                      </div>
+                      {biz.business_address && (
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3 h-3" /> {biz.business_address}
+                        </div>
+                      )}
+                      {biz.domain_name && (
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-3 h-3" /> {biz.domain_name}
+                          <Badge variant="secondary" className="text-[10px]">
+                            {biz.domain_type === "own" ? "নিজস্ব" : "প্যাকেজ"}
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Footer: Status + Package info */}
+                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className={`text-[10px] gap-1 ${statusInfo.color}`}>
+                        <statusInfo.icon className="w-3 h-3" />
+                        {statusInfo.label}
+                      </Badge>
+                      <Badge variant="secondary" className="text-[10px]">{order.package_name}</Badge>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground/60">
+                      ৳{order.amount}/{order.billing_period === "yearly" ? "বছর" : "মাস"}
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
-        );
-      })}
+        </div>
+      )}
 
       {/* Recent Activity Placeholder */}
       <motion.div
