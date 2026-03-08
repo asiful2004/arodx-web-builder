@@ -64,6 +64,56 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          amount: string
+          created_at: string
+          id: string
+          invoice_number: string
+          order_id: string
+          payment_method: string | null
+          period_end: string
+          period_start: string
+          status: string
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: string
+          created_at?: string
+          id?: string
+          invoice_number: string
+          order_id: string
+          payment_method?: string | null
+          period_end: string
+          period_start: string
+          status?: string
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: string
+          created_at?: string
+          id?: string
+          invoice_number?: string
+          order_id?: string
+          payment_method?: string | null
+          period_end?: string
+          period_start?: string
+          status?: string
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           amount: string
@@ -73,8 +123,10 @@ export type Database = {
           customer_name: string
           customer_phone: string
           id: string
+          is_active: boolean
           package_name: string
           payment_method: string
+          renewal_date: string | null
           status: string
           transaction_id: string
           user_id: string | null
@@ -87,8 +139,10 @@ export type Database = {
           customer_name: string
           customer_phone: string
           id?: string
+          is_active?: boolean
           package_name: string
           payment_method: string
+          renewal_date?: string | null
           status?: string
           transaction_id: string
           user_id?: string | null
@@ -101,8 +155,10 @@ export type Database = {
           customer_name?: string
           customer_phone?: string
           id?: string
+          is_active?: boolean
           package_name?: string
           payment_method?: string
+          renewal_date?: string | null
           status?: string
           transaction_id?: string
           user_id?: string | null
