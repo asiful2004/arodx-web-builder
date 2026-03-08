@@ -67,7 +67,7 @@ export default function OverviewPage() {
     const fetchData = async () => {
       const [countRes, ordersRes] = await Promise.all([
         supabase.from("orders").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("orders").select("id, package_name, amount, billing_period, renewal_date, is_active, status, refund_status").eq("user_id", user.id).eq("status", "confirmed").order("created_at", { ascending: false }),
+        supabase.from("orders").select("id, package_name, amount, billing_period, renewal_date, is_active, status, refund_status").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1),
       ]);
       setOrderCount(countRes.count || 0);
       setActiveOrders((ordersRes.data as ActiveOrder[]) || []);
