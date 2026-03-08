@@ -279,7 +279,16 @@ export default function AdminOrdersPage() {
                                 <AlertTriangle className="w-3 h-3" />{daysLeft} দিন বাকি
                               </Badge>
                             )}
-                          </div>
+                            {order.refund_status === "requested" && (
+                              <Badge className="bg-primary/10 text-primary border-primary/20 border text-[10px] gap-0.5">
+                                <Undo2 className="w-3 h-3" />রিফান্ড রিকোয়েস্ট
+                              </Badge>
+                            )}
+                            {order.refund_status === "approved" && (
+                              <Badge className="bg-muted text-muted-foreground border-border border text-[10px] gap-0.5">
+                                <Undo2 className="w-3 h-3" />রিফান্ডকৃত
+                              </Badge>
+                            )}
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
                             <span>{order.package_name} • {order.billing_period === "monthly" ? "মাসিক" : "বার্ষিক"}</span>
                             {biz && (
