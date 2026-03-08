@@ -70,6 +70,7 @@ const App = () => {
                 <Route path="settings" element={<AdminSettingsPage />} />
               </Route>
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/renewal" element={<RenewalPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
