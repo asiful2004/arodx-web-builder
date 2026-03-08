@@ -74,19 +74,19 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
       style={{ perspective: 800 }}
       className={`relative pt-4 ${pkg.popular ? "md:-mt-4 md:mb-[-16px]" : ""}`}
     >
-      {/* Popular badge — OUTSIDE the overflow-hidden card */}
+      {/* Popular badge — centered on top border of the card */}
       {pkg.popular && (
-        <motion.div
-          className="absolute top-0 left-1/2 -translate-x-1/2 z-20"
-          initial={{ y: -10, opacity: 0, scale: 0.8 }}
-          whileInView={{ y: 0, opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4, type: "spring" as const, stiffness: 200 }}
-        >
-          <span className="inline-flex items-center gap-1.5 px-5 py-1.5 text-xs font-semibold rounded-full bg-gradient-primary text-primary-foreground shadow-lg shadow-primary/25">
+        <div className="absolute top-[12px] left-1/2 -translate-x-1/2 z-20">
+          <motion.span
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4, type: "spring" as const, stiffness: 200 }}
+            className="inline-flex items-center gap-1.5 px-5 py-1.5 text-xs font-semibold rounded-full bg-gradient-primary text-primary-foreground shadow-lg shadow-primary/25 whitespace-nowrap"
+          >
             <Sparkles className="h-3 w-3" /> Most Popular
-          </span>
-        </motion.div>
+          </motion.span>
+        </div>
       )}
 
       <motion.div
