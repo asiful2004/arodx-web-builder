@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Check, Package, Building2, CreditCard,
-  CheckCircle, Copy, Loader2, Globe, ExternalLink
+  CheckCircle, Copy, Loader2, Globe, Search, X, AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,6 +116,11 @@ export default function Checkout() {
     domainName: "",
   });
 
+  const [domainCheck, setDomainCheck] = useState<{
+    checking: boolean;
+    result: null | { domain: string; available: boolean; checked: boolean };
+  }>({ checking: false, result: null });
+
   const selectedPayment = paymentMethods.find((m) => m.id === selectedMethod);
 
   // Redirect to signin if not logged in
@@ -145,6 +150,23 @@ export default function Checkout() {
     navigator.clipboard.writeText(number);
     toast.success("নম্বর কপি হয়েছে!");
   };
+
+  const checkDomain = useCallback(async (domainName: string) => {
+    if (!domainName || domainName.length < 3) {
+      setDomainCheck({ checking: false, result: null });
+      return;
+    }
+    setDomainCheck({ checking: true, result: null });
+    try {
+      const { data, error } = await supabase.functions.invoke("check-domain", {
+        body: { domain: domainName },
+      });
+      if (error) throw error;
+      setDomainCheck({ checking: false, result: data });
+    } catch {
+      setDomainCheck({ checking: false, result: null });
+    }
+  }, []);
 
   const handleSubmit = async () => {
     if (!transactionId || !selectedMethod) {
@@ -484,16 +506,68 @@ export default function Checkout() {
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
-                          className="mt-3"
+                          className="mt-3 space-y-3"
                         >
-                          <Input
-                            placeholder="আপনার পছন্দের domain নাম (যেমন: mybusiness.com)"
-                            value={businessData.domainName}
-                            onChange={(e) => setBusinessData({ ...businessData, domainName: e.target.value })}
-                            className="bg-background border-border h-10 text-sm"
-                          />
-                          <p className="text-[11px] text-muted-foreground mt-1.5">
-                            * ডোমেইন availability আমাদের টিম চেক করে জানাবে
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="mybusiness.com"
+                              value={businessData.domainName}
+                              onChange={(e) => {
+                                setBusinessData({ ...businessData, domainName: e.target.value });
+                                setDomainCheck({ checking: false, result: null });
+                              }}
+                              className="bg-background border-border h-10 text-sm flex-1"
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => checkDomain(businessData.domainName)}
+                              disabled={domainCheck.checking || !businessData.domainName || businessData.domainName.length < 3}
+                              className="h-10 px-4 bg-gradient-primary text-primary-foreground"
+                            >
+                              {domainCheck.checking ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <><Search className="w-4 h-4 mr-1" /> চেক</>
+                              )}
+                            </Button>
+                          </div>
+
+                          {/* Domain check result */}
+                          <AnimatePresence mode="wait">
+                            {domainCheck.result && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                                className={`flex items-center gap-2 p-3 rounded-lg text-sm ${
+                                  domainCheck.result.available
+                                    ? "bg-green-500/10 border border-green-500/20"
+                                    : "bg-destructive/10 border border-destructive/20"
+                                }`}
+                              >
+                                {domainCheck.result.available ? (
+                                  <>
+                                    <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
+                                    <span className="text-green-500 font-medium">
+                                      {domainCheck.result.domain} — available! ✨
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <X className="w-4 h-4 text-destructive shrink-0" />
+                                    <span className="text-destructive font-medium">
+                                      {domainCheck.result.domain} — already taken
+                                    </span>
+                                  </>
+                                )}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
+                          <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" />
+                            ফাইনাল availability আমাদের টিম কনফার্ম করবে
                           </p>
                         </motion.div>
                       )}
