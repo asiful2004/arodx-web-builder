@@ -37,6 +37,10 @@ interface Order {
   renewal_date: string | null;
   is_active: boolean;
   user_id: string | null;
+  refund_status: string | null;
+  refund_reason: string | null;
+  refund_requested_at: string | null;
+  refund_resolved_at: string | null;
 }
 
 interface Business {
