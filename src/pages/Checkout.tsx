@@ -632,6 +632,10 @@ export default function Checkout() {
                       toast.error("ব্যবসার নাম, ক্যাটাগরি ও ফোন নম্বর দিতে হবে");
                       return;
                     }
+                    if (!logoFile) {
+                      toast.error("ব্যবসার লোগো আপলোড করুন");
+                      return;
+                    }
                     if (businessData.domainType === "own" && !businessData.domainName) {
                       toast.error("আপনার ডোমেইন নাম লিখুন");
                       return;
