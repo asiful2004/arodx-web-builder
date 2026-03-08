@@ -84,16 +84,12 @@ export default function OverviewPage() {
         const orderIds = orders.map(o => o.id);
         const { data: businesses } = await supabase
           .from("businesses")
-          .select("order_id, business_name, business_category, business_phone, business_address, domain_type, domain_name, id")
+          .select("order_id, business_name")
           .in("order_id", orderIds);
 
-        const bizMap = new Map((businesses || []).map(b => [b.order_id, b]));
+        const bizMap = new Map((businesses || []).map(b => [b.order_id, b.business_name]));
         orders.forEach(o => {
-          const biz = bizMap.get(o.id);
-          if (biz) {
-            o.business_name = biz.business_name;
-            o.business = biz as BusinessDetail;
-          }
+          o.business_name = bizMap.get(o.id) || undefined;
         });
       }
 
