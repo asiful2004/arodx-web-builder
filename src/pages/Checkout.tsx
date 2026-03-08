@@ -194,6 +194,7 @@ export default function Checkout() {
         amount: `${currency}${amount}`,
         payment_method: selectedMethod,
         transaction_id: transactionId,
+        user_id: user.id,
       }).select("id").single();
 
       if (orderError) throw orderError;
