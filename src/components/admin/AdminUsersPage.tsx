@@ -72,9 +72,13 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [addingRole, setAddingRole] = useState(false);
   const [removingRoleId, setRemovingRoleId] = useState<string | null>(null);
   const [newRole, setNewRole] = useState<AppRole>("user");
+  const [newPassword, setNewPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
