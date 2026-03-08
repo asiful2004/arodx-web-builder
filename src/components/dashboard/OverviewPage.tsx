@@ -74,11 +74,10 @@ export default function OverviewPage() {
       </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard icon={Calendar} label="যোগদান" value={joinedDate} />
         <StatCard icon={Activity} label="সদস্যপদ" value={`${daysSinceJoin} দিন`} color="text-accent" />
         <StatCard icon={ShoppingBag} label="মোট অর্ডার" value="০" />
-        <StatCard icon={Shield} label="স্ট্যাটাস" value={isAdmin ? "অ্যাডমিন" : "অ্যাক্টিভ"} color="text-green-500" />
       </div>
 
       {/* Recent Activity Placeholder */}
