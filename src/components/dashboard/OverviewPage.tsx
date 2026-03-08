@@ -32,6 +32,18 @@ const StatCard = ({ icon: Icon, label, value, color = "text-primary" }: {
 
 export default function OverviewPage() {
   const { user, profile, isAdmin } = useOutletContext<DashboardContext>();
+  const [orderCount, setOrderCount] = useState(0);
+
+  useEffect(() => {
+    const fetchOrderCount = async () => {
+      const { count } = await supabase
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id);
+      setOrderCount(count || 0);
+    };
+    fetchOrderCount();
+  }, [user.id]);
 
   const initials = (profile.full_name || user.email || "U")
     .split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
