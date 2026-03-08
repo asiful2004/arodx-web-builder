@@ -458,6 +458,7 @@ export default function AdminUsersPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="admin">অ্যাডমিন</SelectItem>
+                      <SelectItem value="client">ক্লায়েন্ট</SelectItem>
                       <SelectItem value="moderator">মডারেটর</SelectItem>
                       <SelectItem value="user">ইউজার</SelectItem>
                     </SelectContent>
