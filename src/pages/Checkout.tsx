@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Check, Package, Building2, CreditCard,
-  CheckCircle, Copy, Loader2, Globe, Search, X, AlertCircle
+  CheckCircle, Copy, Loader2, Globe, Search, X, AlertCircle, Upload, ImageIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,6 +116,9 @@ export default function Checkout() {
     domainName: "",
   });
 
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
   const [domainCheck, setDomainCheck] = useState<{
     checking: boolean;
     result: null | { domain: string; available: boolean; checked: boolean };
@@ -199,6 +202,19 @@ export default function Checkout() {
 
       if (orderError) throw orderError;
 
+      // Upload logo
+      let logoUrl: string | null = null;
+      if (logoFile) {
+        const fileExt = logoFile.name.split(".").pop();
+        const filePath = `${user.id}/${order.id}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("business-logos")
+          .upload(filePath, logoFile, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage.from("business-logos").getPublicUrl(filePath);
+        logoUrl = urlData.publicUrl;
+      }
+
       // Insert business
       const { error: bizError } = await supabase.from("businesses" as any).insert({
         user_id: user.id,
@@ -209,6 +225,7 @@ export default function Checkout() {
         business_address: businessData.businessAddress || null,
         domain_type: businessData.domainType,
         domain_name: businessData.domainName || null,
+        logo_url: logoUrl,
       } as any);
 
       if (bizError) throw bizError;
@@ -386,7 +403,49 @@ export default function Checkout() {
                   />
                 </div>
 
-                {/* Business Category */}
+                {/* Business Logo */}
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-foreground">ব্যবসার লোগো *</label>
+                  <div className="flex items-center gap-4">
+                    {logoPreview ? (
+                      <div className="relative w-20 h-20 rounded-xl border-2 border-primary/20 overflow-hidden bg-secondary/50 shrink-0">
+                        <img src={logoPreview} alt="Logo preview" className="w-full h-full object-contain" />
+                        <button
+                          type="button"
+                          onClick={() => { setLogoFile(null); setLogoPreview(null); }}
+                          className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex flex-col items-center justify-center w-20 h-20 rounded-xl border-2 border-dashed border-border hover:border-primary/40 cursor-pointer transition-colors bg-secondary/30 shrink-0">
+                        <Upload className="w-5 h-5 text-muted-foreground mb-1" />
+                        <span className="text-[10px] text-muted-foreground">আপলোড</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              if (file.size > 5 * 1024 * 1024) {
+                                toast.error("ফাইল সাইজ ৫MB এর বেশি হতে পারবে না");
+                                return;
+                              }
+                              setLogoFile(file);
+                              setLogoPreview(URL.createObjectURL(file));
+                            }
+                          }}
+                        />
+                      </label>
+                    )}
+                    <div className="text-xs text-muted-foreground">
+                      <p>PNG, JPG, SVG বা WEBP</p>
+                      <p>সর্বোচ্চ ৫MB</p>
+                    </div>
+                  </div>
+                </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium text-foreground">ব্যবসার ক্যাটাগরি *</label>
                   <select
@@ -585,6 +644,10 @@ export default function Checkout() {
                   onClick={() => {
                     if (!businessData.businessName || !businessData.businessCategory || !businessData.businessPhone) {
                       toast.error("ব্যবসার নাম, ক্যাটাগরি ও ফোন নম্বর দিতে হবে");
+                      return;
+                    }
+                    if (!logoFile) {
+                      toast.error("ব্যবসার লোগো আপলোড করুন");
                       return;
                     }
                     if (businessData.domainType === "own" && !businessData.domainName) {

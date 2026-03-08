@@ -24,6 +24,7 @@ export type Database = {
           domain_name: string | null
           domain_type: string
           id: string
+          logo_url: string | null
           order_id: string | null
           updated_at: string
           user_id: string
@@ -37,6 +38,7 @@ export type Database = {
           domain_name?: string | null
           domain_type?: string
           id?: string
+          logo_url?: string | null
           order_id?: string | null
           updated_at?: string
           user_id: string
@@ -50,6 +52,7 @@ export type Database = {
           domain_name?: string | null
           domain_type?: string
           id?: string
+          logo_url?: string | null
           order_id?: string | null
           updated_at?: string
           user_id?: string
