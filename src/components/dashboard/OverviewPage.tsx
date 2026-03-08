@@ -7,10 +7,37 @@ import {
   ShoppingBag, Calendar, Activity, TrendingUp, Clock,
   Package, CreditCard, CalendarClock, CheckCircle2, AlertTriangle, XCircle,
   ExternalLink, Building2, Phone, MapPin, Globe,
+  Shirt, ShoppingCart, UtensilsCrossed, Stethoscope, GraduationCap, Briefcase,
+  Palette, Cpu, Car, Plane, Landmark, Dumbbell, Music, Camera, Wrench, Heart,
+  type LucideIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+const categoryIconMap: Record<string, LucideIcon> = {
+  "Fashion & Clothing": Shirt,
+  "E-commerce": ShoppingCart,
+  "Food & Restaurant": UtensilsCrossed,
+  "Health & Medical": Stethoscope,
+  "Education": GraduationCap,
+  "Business & Corporate": Briefcase,
+  "Creative & Design": Palette,
+  "Technology": Cpu,
+  "Automotive": Car,
+  "Travel & Tourism": Plane,
+  "Finance & Banking": Landmark,
+  "Fitness & Sports": Dumbbell,
+  "Entertainment & Media": Music,
+  "Photography": Camera,
+  "Services & Maintenance": Wrench,
+  "Beauty & Wellness": Heart,
+};
+
+const getCategoryIcon = (category?: string): LucideIcon => {
+  if (!category) return Building2;
+  return categoryIconMap[category] || Building2;
+};
 
 interface DashboardContext {
   user: UserType;
@@ -196,9 +223,10 @@ export default function OverviewPage() {
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 overflow-hidden">
                         {biz?.logo_url ? (
                           <img src={biz.logo_url} alt={biz.business_name} className="w-full h-full object-cover rounded-xl" />
-                        ) : (
-                          <Building2 className="w-5 h-5 text-primary" />
-                        )}
+                        ) : (() => {
+                          const CategoryIcon = getCategoryIcon(biz?.business_category);
+                          return <CategoryIcon className="w-5 h-5 text-primary" />;
+                        })()}
                       </div>
                       <div>
                         <p className="font-semibold text-foreground text-sm">
