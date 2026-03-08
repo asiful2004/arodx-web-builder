@@ -391,15 +391,26 @@ export default function AdminUsersPage() {
                         })}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openRoleDialog(u)}
-                          className="gap-1.5 text-xs text-muted-foreground hover:text-primary"
-                        >
-                          <UserCog className="w-3.5 h-3.5" />
-                          রোল ম্যানেজ
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openRoleDialog(u)}
+                            className="gap-1.5 text-xs text-muted-foreground hover:text-primary"
+                          >
+                            <UserCog className="w-3.5 h-3.5" />
+                            রোল
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openPasswordDialog(u)}
+                            className="gap-1.5 text-xs text-muted-foreground hover:text-accent-foreground"
+                          >
+                            <KeyRound className="w-3.5 h-3.5" />
+                            পাসওয়ার্ড
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
