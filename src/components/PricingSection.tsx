@@ -69,12 +69,12 @@ const packages = [
 
 const PricingSection = () => {
   const [isYearly, setIsYearly] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<typeof packages[0] | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleBuy = (pkg: typeof packages[0]) => {
-    setSelectedPackage(pkg);
-    setIsModalOpen(true);
+    const amount = isYearly ? pkg.firstYearYearlyPrice : pkg.firstYearPrice;
+    const billing = isYearly ? "yearly" : "monthly";
+    navigate(`/checkout?package=${pkg.name}&amount=${amount}&currency=${encodeURIComponent(pkg.currency)}&billing=${billing}`);
   };
 
   return (
