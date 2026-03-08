@@ -18,7 +18,12 @@ import OrdersPage from "./components/dashboard/OrdersPage";
 import NotificationsPage from "./components/dashboard/NotificationsPage";
 import SettingsPage from "./components/dashboard/SettingsPage";
 import HelpPage from "./components/dashboard/HelpPage";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminOverviewPage from "./components/admin/AdminOverviewPage";
+import AdminOrdersPage from "./components/admin/AdminOrdersPage";
+import AdminBusinessesPage from "./components/admin/AdminBusinessesPage";
+import AdminUsersPage from "./components/admin/AdminUsersPage";
+import AdminSettingsPage from "./components/admin/AdminSettingsPage";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 
@@ -56,8 +61,14 @@ const App = () => {
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="help" element={<HelpPage />} />
               </Route>
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminOverviewPage />} />
+                <Route path="orders" element={<AdminOrdersPage />} />
+                <Route path="businesses" element={<AdminBusinessesPage />} />
+                <Route path="users" element={<AdminUsersPage />} />
+                <Route path="settings" element={<AdminSettingsPage />} />
+              </Route>
               <Route path="/checkout" element={<Checkout />} />
-              <Route path="/admin" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
