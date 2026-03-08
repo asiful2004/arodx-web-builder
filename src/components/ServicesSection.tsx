@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
-import { Globe, TrendingUp, Video, Megaphone, Settings, PenTool } from "lucide-react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { Globe, TrendingUp, Video, Megaphone, Settings, PenTool, LucideIcon } from "lucide-react";
+import { useRef, useState } from "react";
 
 const services = [
   {
@@ -34,14 +35,73 @@ const services = [
   },
 ];
 
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1 } },
-};
+const ServiceCard = ({ service, index }: { service: typeof services[0]; index: number }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  const mouseX = useMotionValue(0.5);
+  const mouseY = useMotionValue(0.5);
+  const smoothX = useSpring(mouseX, { stiffness: 200, damping: 25 });
+  const smoothY = useSpring(mouseY, { stiffness: 200, damping: 25 });
+
+  const glowBackground = useTransform(
+    [smoothX, smoothY],
+    ([x, y]) =>
+      `radial-gradient(400px circle at ${(x as number) * 100}% ${(y as number) * 100}%, hsl(190 90% 50% / 0.06), transparent 50%)`
+  );
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width);
+    mouseY.set((e.clientY - rect.top) / rect.height);
+  };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{
+        type: "spring" as const,
+        stiffness: 100,
+        damping: 18,
+        delay: index * 0.08,
+      }}
+      whileHover={{ y: -6, transition: { type: "spring" as const, stiffness: 300, damping: 25 } }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        mouseX.set(0.5);
+        mouseY.set(0.5);
+        setIsHovered(false);
+      }}
+      className="group relative p-6 rounded-2xl bg-card border border-border hover:border-primary/30 transition-colors duration-300 shadow-card overflow-hidden"
+    >
+      {/* Cursor glow */}
+      <motion.div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: glowBackground,
+          opacity: isHovered ? 1 : 0,
+          transition: "opacity 0.4s ease",
+        }}
+      />
+
+      <div className="relative z-10">
+        <motion.div
+          className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center mb-5"
+          whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <service.icon className="h-6 w-6 text-primary-foreground" />
+        </motion.div>
+        <h3 className="text-xl font-semibold font-display mb-2 group-hover:text-primary transition-colors duration-300">{service.title}</h3>
+        <p className="text-muted-foreground text-sm leading-relaxed">{service.description}</p>
+      </div>
+    </motion.div>
+  );
 };
 
 const ServicesSection = () => {
@@ -49,9 +109,10 @@ const ServicesSection = () => {
     <section className="py-24 px-4" id="services">
       <div className="max-w-6xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ type: "spring" as const, stiffness: 80, damping: 15 }}
           className="text-center mb-16"
         >
           <span className="text-primary text-sm font-semibold uppercase tracking-widest">Our Services</span>
@@ -60,27 +121,11 @@ const ServicesSection = () => {
           </h2>
         </motion.div>
 
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {services.map((service) => (
-            <motion.div
-              key={service.title}
-              variants={item}
-              className="group p-6 rounded-2xl bg-card border border-border hover:border-primary/30 transition-all duration-300 shadow-card hover:shadow-glow"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center mb-5">
-                <service.icon className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <h3 className="text-xl font-semibold font-display mb-2">{service.title}</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed">{service.description}</p>
-            </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services.map((service, index) => (
+            <ServiceCard key={service.title} service={service} index={index} />
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

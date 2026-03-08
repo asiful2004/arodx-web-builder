@@ -72,8 +72,23 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
         delay: index * 0.12,
       }}
       style={{ perspective: 800 }}
-      className={`relative ${pkg.popular ? "md:-mt-4 md:mb-[-16px]" : ""}`}
+      className={`relative pt-4 ${pkg.popular ? "md:-mt-4 md:mb-[-16px]" : ""}`}
     >
+      {/* Popular badge — OUTSIDE the overflow-hidden card */}
+      {pkg.popular && (
+        <motion.div
+          className="absolute top-0 left-1/2 -translate-x-1/2 z-20"
+          initial={{ y: -10, opacity: 0, scale: 0.8 }}
+          whileInView={{ y: 0, opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4, type: "spring" as const, stiffness: 200 }}
+        >
+          <span className="inline-flex items-center gap-1.5 px-5 py-1.5 text-xs font-semibold rounded-full bg-gradient-primary text-primary-foreground shadow-lg shadow-primary/25">
+            <Sparkles className="h-3 w-3" /> Most Popular
+          </span>
+        </motion.div>
+      )}
+
       <motion.div
         ref={cardRef}
         onMouseMove={handleMouseMove}
@@ -84,7 +99,7 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
           rotateY: isHovered ? rotateY : 0,
           transformStyle: "preserve-3d",
         }}
-        whileHover={{ y: -6, transition: { type: "spring" as const, stiffness: 300, damping: 25 } }}
+        whileHover={{ y: -8, transition: { type: "spring" as const, stiffness: 300, damping: 25 } }}
         className={`relative flex flex-col h-full p-8 rounded-2xl border overflow-hidden transition-colors duration-300 ${
           pkg.popular
             ? "border-primary/40 bg-gradient-card shadow-glow"
@@ -104,21 +119,6 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
         {/* Top edge glow for popular */}
         {pkg.popular && (
           <div className="absolute top-0 left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
-        )}
-
-        {/* Popular badge */}
-        {pkg.popular && (
-          <motion.div
-            className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10"
-            initial={{ y: -10, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4, type: "spring" as const, stiffness: 200 }}
-          >
-            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-full bg-gradient-primary text-primary-foreground shadow-lg shadow-primary/25">
-              <Sparkles className="h-3 w-3" /> Most Popular
-            </span>
-          </motion.div>
         )}
 
         {/* Content */}
@@ -174,13 +174,15 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
           <motion.div whileTap={{ scale: 0.97 }}>
             <Button
               onClick={onBuy}
-              className={`w-full py-5 font-semibold relative overflow-hidden ${
+              className={`w-full py-5 font-semibold relative overflow-hidden group ${
                 pkg.popular
-                  ? "bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
+                  ? "bg-gradient-primary text-primary-foreground shadow-glow"
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
               } transition-all`}
             >
-              শুরু করুন
+              {/* Shine sweep */}
+              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              <span className="relative z-10">শুরু করুন</span>
             </Button>
           </motion.div>
         </div>
