@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
   LayoutDashboard, User, ShoppingBag, Settings, LogOut, Shield,
-  HelpCircle, Bell
+  HelpCircle
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -16,7 +16,6 @@ import { useAuth } from "@/contexts/AuthContext";
 const mainItems = [
   { title: "ওভারভিউ", url: "/dashboard", icon: LayoutDashboard },
   { title: "অর্ডার", url: "/dashboard/orders", icon: ShoppingBag },
-  { title: "নোটিফিকেশন", url: "/dashboard/notifications", icon: Bell },
 ];
 
 const accountItems = [
