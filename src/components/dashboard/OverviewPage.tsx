@@ -82,6 +82,8 @@ export default function OverviewPage() {
   const [activeOrders, setActiveOrders] = useState<ActiveOrder[]>([]);
   const navigate = useNavigate();
 
+  const [selectedOrder, setSelectedOrder] = useState<ActiveOrder | null>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       const [countRes, ordersRes] = await Promise.all([
@@ -92,17 +94,20 @@ export default function OverviewPage() {
 
       const orders = (ordersRes.data || []) as ActiveOrder[];
 
-      // Fetch business names linked to each order
       if (orders.length > 0) {
         const orderIds = orders.map(o => o.id);
         const { data: businesses } = await supabase
           .from("businesses")
-          .select("order_id, business_name")
+          .select("order_id, business_name, business_category, business_phone, business_address, domain_type, domain_name, id")
           .in("order_id", orderIds);
 
-        const bizMap = new Map((businesses || []).map(b => [b.order_id, b.business_name]));
+        const bizMap = new Map((businesses || []).map(b => [b.order_id, b]));
         orders.forEach(o => {
-          o.business_name = bizMap.get(o.id) || undefined;
+          const biz = bizMap.get(o.id);
+          if (biz) {
+            o.business_name = biz.business_name;
+            o.business = biz as BusinessDetail;
+          }
         });
       }
 
