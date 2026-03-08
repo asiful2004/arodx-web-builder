@@ -412,8 +412,53 @@ export default function AdminOrdersPage() {
                             </div>
                           )}
 
+                          {/* Refund Request Section */}
+                          {order.refund_status === "requested" && (
+                            <div className="space-y-3">
+                              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">রিফান্ড রিকোয়েস্ট</h3>
+                              <div className="p-4 rounded-xl border border-primary/20 bg-primary/5">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div>
+                                    <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                      <Undo2 className="w-4 h-4 text-primary" />রিফান্ড অপেক্ষমাণ
+                                    </p>
+                                    {order.refund_reason && (
+                                      <p className="text-xs text-muted-foreground mt-1">কারণ: {order.refund_reason}</p>
+                                    )}
+                                    {order.refund_requested_at && (
+                                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                                        রিকোয়েস্ট: {formatDate(order.refund_requested_at)}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <Button size="sm" onClick={() => handleRefund(order.id, "approved")}
+                                      disabled={updatingId === order.id}
+                                      className="gap-1 text-xs rounded-xl bg-green-600 hover:bg-green-700 text-white">
+                                      <CheckCheck className="w-3 h-3" />অ্যাপ্রুভ
+                                    </Button>
+                                    <Button size="sm" variant="outline" onClick={() => handleRefund(order.id, "rejected")}
+                                      disabled={updatingId === order.id}
+                                      className="gap-1 text-xs rounded-xl text-destructive border-destructive/20 hover:bg-destructive/5">
+                                      <X className="w-3 h-3" />রিজেক্ট
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {order.refund_status === "approved" && (
+                            <div className="p-4 rounded-xl border border-border bg-muted/30">
+                              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                <Undo2 className="w-4 h-4" />রিফান্ড অ্যাপ্রুভ করা হয়েছে
+                                {order.refund_resolved_at && <span className="text-[10px]">({formatDate(order.refund_resolved_at)})</span>}
+                              </p>
+                            </div>
+                          )}
+
                           {/* Invoice Section */}
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <Button variant="outline" size="sm" onClick={() => setInvoiceDialogOrder(order)}
                               className="gap-1.5 text-xs rounded-xl">
                               <Receipt className="w-3.5 h-3.5" />
