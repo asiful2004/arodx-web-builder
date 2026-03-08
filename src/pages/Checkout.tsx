@@ -116,6 +116,11 @@ export default function Checkout() {
     domainName: "",
   });
 
+  const [domainCheck, setDomainCheck] = useState<{
+    checking: boolean;
+    result: null | { domain: string; available: boolean; checked: boolean };
+  }>({ checking: false, result: null });
+
   const selectedPayment = paymentMethods.find((m) => m.id === selectedMethod);
 
   // Redirect to signin if not logged in
