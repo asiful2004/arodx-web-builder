@@ -68,55 +68,67 @@ export default function RenewalPage() {
   };
 
   const handleSubmit = async () => {
-    if (!transactionId || !selectedMethod || !user) {
+    if (!transactionId || !selectedMethod || !user || !orderId) {
       toast.error("পেমেন্ট তথ্য পূরণ করুন");
       return;
     }
 
     setLoading(true);
     try {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
+      // Fetch the existing order to get current renewal_date
+      const { data: existingOrder, error: fetchErr } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("id", orderId)
         .eq("user_id", user.id)
         .single();
 
-      // Create a renewal order linked to the same business
-      const { data: newOrder, error: orderError } = await supabase.from("orders").insert({
-        customer_name: profile?.full_name || user.email || "Unknown",
-        customer_phone: "",
-        customer_email: user.email || null,
-        package_name: packageName,
-        billing_period: billingPeriod,
+      if (fetchErr || !existingOrder) throw new Error("অর্ডার খুঁজে পাওয়া যায়নি");
+
+      // Calculate new renewal date from current renewal_date (or now if expired)
+      const currentRenewal = existingOrder.renewal_date
+        ? new Date(existingOrder.renewal_date)
+        : new Date();
+      const baseDate = currentRenewal > new Date() ? currentRenewal : new Date();
+
+      let newRenewalDate: Date;
+      if (billingPeriod === "monthly") {
+        newRenewalDate = new Date(baseDate);
+        newRenewalDate.setMonth(newRenewalDate.getMonth() + 1);
+      } else {
+        newRenewalDate = new Date(baseDate);
+        newRenewalDate.setFullYear(newRenewalDate.getFullYear() + 1);
+      }
+
+      // Update existing order with extended renewal date
+      const { error: updateErr } = await supabase
+        .from("orders")
+        .update({
+          renewal_date: newRenewalDate.toISOString(),
+          is_active: true,
+          transaction_id: transactionId,
+          payment_method: selectedMethod,
+        })
+        .eq("id", orderId);
+
+      if (updateErr) throw updateErr;
+
+      // Create invoice for this renewal payment
+      const invNumber = "INV-" + new Date().toISOString().slice(0, 10).replace(/-/g, "") + "-" + orderId.slice(0, 8);
+      const periodStart = existingOrder.renewal_date || new Date().toISOString();
+      const periodEnd = newRenewalDate.toISOString();
+
+      await supabase.from("invoices").insert({
+        order_id: orderId,
+        user_id: user.id,
+        invoice_number: invNumber,
         amount: amount,
+        period_start: periodStart,
+        period_end: periodEnd,
+        status: "paid",
         payment_method: selectedMethod,
         transaction_id: transactionId,
-        user_id: user.id,
-      }).select("id").single();
-
-      if (orderError) throw orderError;
-
-      // Link to existing business if original order had one
-      if (orderId) {
-        const { data: existingBiz } = await supabase
-          .from("businesses")
-          .select("*")
-          .eq("order_id", orderId)
-          .single();
-
-        if (existingBiz) {
-          await (supabase.from("businesses") as any).insert({
-            user_id: user.id,
-            order_id: newOrder.id,
-            business_name: existingBiz.business_name,
-            business_category: existingBiz.business_category,
-            business_phone: existingBiz.business_phone,
-            business_address: existingBiz.business_address,
-            domain_type: existingBiz.domain_type,
-            domain_name: existingBiz.domain_name,
-          });
-        }
-      }
+      });
 
       goNext();
     } catch (err) {
@@ -193,7 +205,7 @@ export default function RenewalPage() {
               transition={{ duration: 0.3 }} className="space-y-6">
               <div>
                 <h2 className="text-2xl font-bold font-display">রিনিউয়াল সামারি</h2>
-                <p className="text-muted-foreground text-sm mt-1">আপনার প্যাকেজ রিনিউ করুন</p>
+                <p className="text-muted-foreground text-sm mt-1">আপনার বিদ্যমান প্যাকেজের মেয়াদ বাড়ান</p>
               </div>
 
               <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
@@ -214,8 +226,8 @@ export default function RenewalPage() {
 
                 <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
                   <p className="text-xs text-muted-foreground">
-                    পেমেন্ট কনফার্ম হলে আপনার প্যাকেজ আরও{" "}
-                    <strong>{billingPeriod === "monthly" ? "১ মাস" : "১ বছরের"}</strong> জন্য রিনিউ হয়ে যাবে।
+                    পেমেন্ট কনফার্ম হলে আপনার বিদ্যমান প্যাকেজের মেয়াদ আরও{" "}
+                    <strong>{billingPeriod === "monthly" ? "১ মাস" : "১ বছর"}</strong> বাড়িয়ে দেওয়া হবে। নতুন কোনো অর্ডার তৈরি হবে না।
                   </p>
                 </div>
               </div>
@@ -328,7 +340,7 @@ export default function RenewalPage() {
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
                 <h2 className="text-3xl font-bold font-display">রিনিউয়াল সফল! 🎉</h2>
                 <p className="text-muted-foreground mt-3 max-w-md mx-auto">
-                  আমরা আপনার পেমেন্ট ভেরিফাই করে শীঘ্রই আপনার প্যাকেজ রিনিউ করে দেবো। ধন্যবাদ!
+                  আপনার প্যাকেজের মেয়াদ বাড়ানো হয়েছে। ধন্যবাদ!
                 </p>
               </motion.div>
 
