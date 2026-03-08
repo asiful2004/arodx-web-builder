@@ -15,6 +15,30 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
+const categoryIconMap: Record<string, LucideIcon> = {
+  "Fashion & Clothing": Shirt,
+  "E-commerce": ShoppingCart,
+  "Food & Restaurant": UtensilsCrossed,
+  "Health & Medical": Stethoscope,
+  "Education": GraduationCap,
+  "Business & Corporate": Briefcase,
+  "Creative & Design": Palette,
+  "Technology": Cpu,
+  "Automotive": Car,
+  "Travel & Tourism": Plane,
+  "Finance & Banking": Landmark,
+  "Fitness & Sports": Dumbbell,
+  "Entertainment & Media": Music,
+  "Photography": Camera,
+  "Services & Maintenance": Wrench,
+  "Beauty & Wellness": Heart,
+};
+
+const getCategoryIcon = (category?: string): LucideIcon => {
+  if (!category) return Building2;
+  return categoryIconMap[category] || Building2;
+};
+
 interface DashboardContext {
   user: UserType;
   profile: { full_name: string | null; avatar_url: string | null };
