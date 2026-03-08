@@ -28,6 +28,7 @@ const accountItems = [
 interface DashboardSidebarProps {
   profile: { full_name: string | null; avatar_url: string | null };
   isAdmin: boolean;
+  userRole?: string;
 }
 
 export function DashboardSidebar({ profile, isAdmin }: DashboardSidebarProps) {
