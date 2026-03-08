@@ -84,9 +84,9 @@ const packageInfo: Record<string, { features: string[]; description: string; has
 };
 
 const slideVariants = {
-  enter: (direction: number) => ({ x: direction > 0 ? 80 : -80, opacity: 0 }),
+  enter: (direction: number) => ({ x: direction > 0 ? 40 : -40, opacity: 0 }),
   center: { x: 0, opacity: 1 },
-  exit: (direction: number) => ({ x: direction > 0 ? -80 : 80, opacity: 0 }),
+  exit: (direction: number) => ({ x: direction > 0 ? -40 : 40, opacity: 0 }),
 };
 
 export default function Checkout() {
