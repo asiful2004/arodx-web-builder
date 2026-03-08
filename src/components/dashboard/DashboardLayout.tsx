@@ -63,7 +63,7 @@ export default function DashboardLayout() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <DashboardSidebar profile={profile} isAdmin={isAdmin} />
+        <DashboardSidebar profile={profile} isAdmin={isAdmin} userRole={userRole} />
 
         <div className="flex-1 flex flex-col min-w-0">
           <header className="sticky top-0 z-40 h-14 flex items-center gap-3 border-b border-border bg-background/80 backdrop-blur-xl px-4">
