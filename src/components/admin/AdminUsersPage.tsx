@@ -543,6 +543,81 @@ export default function AdminUsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Password Change Dialog */}
+      <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display flex items-center gap-2">
+              <KeyRound className="w-5 h-5 text-primary" />
+              পাসওয়ার্ড পরিবর্তন
+            </DialogTitle>
+            <DialogDescription>
+              {selectedUser?.full_name || "ইউজার"} এর পাসওয়ার্ড পরিবর্তন করুন
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedUser && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/30 border border-border/30">
+                <Avatar className="w-10 h-10">
+                  <AvatarImage src={selectedUser.avatar_url || undefined} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                    {(selectedUser.full_name || "U").split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {selectedUser.full_name || "নাম সেট করা হয়নি"}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground font-mono">
+                    ID: {selectedUser.user_id.slice(0, 12)}...
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-foreground">নতুন পাসওয়ার্ড</Label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="নতুন পাসওয়ার্ড লিখুন (কমপক্ষে ৬ অক্ষর)"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="pr-10 bg-secondary/50 border-border rounded-xl"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </Button>
+                </div>
+                {newPassword && newPassword.length < 6 && (
+                  <p className="text-[11px] text-destructive">পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setPasswordDialogOpen(false)} className="rounded-xl">
+              বাতিল
+            </Button>
+            <Button
+              onClick={changePassword}
+              disabled={changingPassword || !newPassword || newPassword.length < 6}
+              className="gap-1.5 rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90"
+            >
+              {changingPassword ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <KeyRound className="w-3.5 h-3.5" />}
+              পরিবর্তন করুন
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
