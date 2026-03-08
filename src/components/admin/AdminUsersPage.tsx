@@ -105,11 +105,7 @@ export default function AdminUsersPage() {
   const filteredUsers = useMemo(() => {
     let result = profiles;
     if (roleFilter !== "all") {
-      result = result.filter((u) =>
-        roleFilter === "no_role"
-          ? u.roles.length === 0
-          : u.roles.includes(roleFilter as AppRole)
-      );
+      result = result.filter((u) => u.roles.includes(roleFilter as AppRole));
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
