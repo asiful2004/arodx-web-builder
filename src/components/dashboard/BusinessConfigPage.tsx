@@ -234,7 +234,7 @@ export default function BusinessConfigPage() {
 
   if (!order || !business) {
     return (
-      <div className="space-y-4 max-w-3xl">
+      <div className="space-y-4">
         <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")} className="gap-2">
           <ArrowLeft className="w-4 h-4" /> ফিরে যান
         </Button>
