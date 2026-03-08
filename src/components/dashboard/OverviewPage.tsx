@@ -242,7 +242,7 @@ export default function OverviewPage() {
                     </div>
                   )}
 
-                  {/* Footer: Status + Package info */}
+                  {/* Footer: Status + Package + Price + Renewal */}
                   <div className="flex items-center justify-between pt-2 border-t border-border/50">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className={`text-[10px] gap-1 ${statusInfo.color}`}>
@@ -251,9 +251,17 @@ export default function OverviewPage() {
                       </Badge>
                       <Badge variant="secondary" className="text-[10px]">{order.package_name}</Badge>
                     </div>
-                    <span className="text-[11px] text-muted-foreground/60">
-                      ৳{order.amount}/{order.billing_period === "yearly" ? "বছর" : "মাস"}
-                    </span>
+                    <div className="flex flex-col items-end gap-0.5">
+                      <span className="text-sm font-bold text-primary">
+                        {order.amount.startsWith("৳") ? order.amount : `৳${order.amount}`}
+                        <span className="text-[10px] font-normal text-muted-foreground">/{order.billing_period === "yearly" ? "বছর" : "মাস"}</span>
+                      </span>
+                      {expiryDate !== "—" && (
+                        <span className="text-[10px] text-muted-foreground/50">
+                          রিনিউ: {expiryDate}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               );
