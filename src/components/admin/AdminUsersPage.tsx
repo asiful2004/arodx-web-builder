@@ -20,7 +20,9 @@ import {
 import {
   Users, Loader2, Search, Shield, ShieldCheck, UserCog,
   RefreshCw, Calendar, UserPlus, Trash2, Crown, User as UserIcon,
+  KeyRound, Eye, EyeOff,
 } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 type AppRole = "admin" | "moderator" | "user" | "client";
 
