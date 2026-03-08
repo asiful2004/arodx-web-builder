@@ -691,10 +691,7 @@ export default function Checkout() {
               key="step3"
               custom={direction}
               variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="space-y-6"
             >
               <div>
