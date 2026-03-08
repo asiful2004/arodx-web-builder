@@ -251,16 +251,27 @@ export default function OverviewPage() {
                       </Badge>
                       <Badge variant="secondary" className="text-[10px]">{order.package_name}</Badge>
                     </div>
-                    <div className="flex flex-col items-end gap-0.5">
+                    <div className="flex flex-col items-end gap-1">
                       <span className="text-sm font-bold text-primary">
                         {order.amount.startsWith("৳") ? order.amount : `৳${order.amount}`}
                         <span className="text-[10px] font-normal text-muted-foreground">/{order.billing_period === "yearly" ? "বছর" : "মাস"}</span>
                       </span>
-                      {expiryDate !== "—" && (
-                        <span className="text-[10px] text-muted-foreground/50">
-                          রিনিউ: {expiryDate}
-                        </span>
-                      )}
+                      {order.renewal_date && (() => {
+                        const daysLeft = Math.ceil((new Date(order.renewal_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                        const isUrgent = daysLeft <= 7;
+                        const isExpired = daysLeft <= 0;
+                        return (
+                          <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
+                            isExpired 
+                              ? "bg-destructive/15 text-destructive" 
+                              : isUrgent 
+                                ? "bg-yellow-500/15 text-yellow-500" 
+                                : "bg-accent/15 text-accent-foreground"
+                          }`}>
+                            {isExpired ? "মেয়াদ শেষ!" : `${daysLeft} দিন বাকি`}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
                 </motion.div>
