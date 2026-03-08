@@ -289,6 +289,7 @@ export default function AdminOrdersPage() {
                                 <Undo2 className="w-3 h-3" />রিফান্ডকৃত
                               </Badge>
                             )}
+                          </div>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
                             <span>{order.package_name} • {order.billing_period === "monthly" ? "মাসিক" : "বার্ষিক"}</span>
                             {biz && (
