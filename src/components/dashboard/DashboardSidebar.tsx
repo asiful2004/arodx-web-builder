@@ -73,6 +73,11 @@ export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSideba
               <p className="text-[11px] text-muted-foreground truncate">
                 {user?.email}
               </p>
+              {userRole && (
+                <span className="inline-block mt-0.5 px-2 py-0.5 text-[10px] font-medium rounded-full bg-primary/10 text-primary capitalize">
+                  {userRole === 'admin' ? 'অ্যাডমিন' : userRole === 'client' ? 'ক্লায়েন্ট' : userRole === 'moderator' ? 'মডারেটর' : 'ইউজার'}
+                </span>
+              )}
             </div>
           )}
         </div>
