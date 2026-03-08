@@ -22,7 +22,7 @@ import {
   RefreshCw, Calendar, UserPlus, Trash2, Crown, User as UserIcon,
 } from "lucide-react";
 
-type AppRole = "admin" | "moderator" | "user";
+type AppRole = "admin" | "moderator" | "user" | "client";
 
 interface UserProfile {
   id: string;
@@ -49,6 +49,11 @@ const roleConfig: Record<AppRole, { label: string; icon: typeof Shield; classNam
     label: "মডারেটর",
     icon: ShieldCheck,
     className: "bg-accent/20 text-accent-foreground border-accent/30",
+  },
+  client: {
+    label: "ক্লায়েন্ট",
+    icon: ShieldCheck,
+    className: "bg-green-500/10 text-green-600 border-green-500/20",
   },
   user: {
     label: "ইউজার",
@@ -100,11 +105,7 @@ export default function AdminUsersPage() {
   const filteredUsers = useMemo(() => {
     let result = profiles;
     if (roleFilter !== "all") {
-      result = result.filter((u) =>
-        roleFilter === "no_role"
-          ? u.roles.length === 0
-          : u.roles.includes(roleFilter as AppRole)
-      );
+      result = result.filter((u) => u.roles.includes(roleFilter as AppRole));
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -187,8 +188,9 @@ export default function AdminUsersPage() {
   const stats = useMemo(() => ({
     total: profiles.length,
     admins: profiles.filter((u) => u.roles.includes("admin")).length,
+    clients: profiles.filter((u) => u.roles.includes("client")).length,
     moderators: profiles.filter((u) => u.roles.includes("moderator")).length,
-    noRole: profiles.filter((u) => u.roles.length === 0).length,
+    users: profiles.filter((u) => u.roles.includes("user")).length,
   }), [profiles]);
 
   if (loading) {
@@ -218,8 +220,8 @@ export default function AdminUsersPage() {
         {[
           { label: "মোট ইউজার", value: stats.total, icon: Users, color: "bg-primary/10 text-primary" },
           { label: "অ্যাডমিন", value: stats.admins, icon: Crown, color: "bg-yellow-500/10 text-yellow-600" },
-          { label: "মডারেটর", value: stats.moderators, icon: ShieldCheck, color: "bg-green-500/10 text-green-600" },
-          { label: "নো রোল", value: stats.noRole, icon: UserIcon, color: "bg-secondary text-muted-foreground" },
+          { label: "ক্লায়েন্ট", value: stats.clients, icon: ShieldCheck, color: "bg-green-500/10 text-green-600" },
+          { label: "ইউজার", value: stats.users, icon: UserIcon, color: "bg-secondary text-muted-foreground" },
         ].map((s, i) => (
           <motion.div
             key={s.label}
@@ -261,9 +263,9 @@ export default function AdminUsersPage() {
           <SelectContent>
             <SelectItem value="all">সব ইউজার</SelectItem>
             <SelectItem value="admin">অ্যাডমিন</SelectItem>
+            <SelectItem value="client">ক্লায়েন্ট</SelectItem>
             <SelectItem value="moderator">মডারেটর</SelectItem>
             <SelectItem value="user">ইউজার</SelectItem>
-            <SelectItem value="no_role">নো রোল</SelectItem>
           </SelectContent>
         </Select>
       </motion.div>
@@ -452,6 +454,7 @@ export default function AdminUsersPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="admin">অ্যাডমিন</SelectItem>
+                      <SelectItem value="client">ক্লায়েন্ট</SelectItem>
                       <SelectItem value="moderator">মডারেটর</SelectItem>
                       <SelectItem value="user">ইউজার</SelectItem>
                     </SelectContent>
