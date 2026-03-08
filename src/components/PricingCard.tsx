@@ -30,8 +30,8 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
   const smoothX = useSpring(mouseX, { stiffness: 150, damping: 20 });
   const smoothY = useSpring(mouseY, { stiffness: 150, damping: 20 });
 
-  const rotateX = useTransform(smoothY, [0, 1], [4, -4]);
-  const rotateY = useTransform(smoothX, [0, 1], [-4, 4]);
+  const rotateX = useTransform(smoothY, [0, 1], [2, -2]);
+  const rotateY = useTransform(smoothX, [0, 1], [-2, 2]);
 
   const glowBackground = useTransform(
     [smoothX, smoothY],
