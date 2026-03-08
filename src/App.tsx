@@ -25,6 +25,7 @@ import AdminBusinessesPage from "./components/admin/AdminBusinessesPage";
 import AdminUsersPage from "./components/admin/AdminUsersPage";
 import AdminSettingsPage from "./components/admin/AdminSettingsPage";
 import Checkout from "./pages/Checkout";
+import RenewalPage from "./pages/Renewal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,7 @@ const App = () => {
                 <Route path="settings" element={<AdminSettingsPage />} />
               </Route>
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/renewal" element={<RenewalPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
