@@ -71,10 +71,27 @@ export default function OverviewPage() {
     const fetchData = async () => {
       const [countRes, ordersRes] = await Promise.all([
         supabase.from("orders").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("orders").select("id, package_name, amount, billing_period, renewal_date, is_active, status, refund_status").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1),
+        supabase.from("orders").select("id, package_name, amount, billing_period, renewal_date, is_active, status, refund_status").eq("user_id", user.id).order("created_at", { ascending: false }),
       ]);
       setOrderCount(countRes.count || 0);
-      setActiveOrders((ordersRes.data as ActiveOrder[]) || []);
+
+      const orders = (ordersRes.data || []) as ActiveOrder[];
+
+      // Fetch business names linked to each order
+      if (orders.length > 0) {
+        const orderIds = orders.map(o => o.id);
+        const { data: businesses } = await supabase
+          .from("businesses")
+          .select("order_id, business_name")
+          .in("order_id", orderIds);
+
+        const bizMap = new Map((businesses || []).map(b => [b.order_id, b.business_name]));
+        orders.forEach(o => {
+          o.business_name = bizMap.get(o.id) || undefined;
+        });
+      }
+
+      setActiveOrders(orders);
     };
     fetchData();
   }, [user.id]);
