@@ -138,7 +138,7 @@ export default function OverviewPage() {
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <StatCard icon={Package} label="প্যাকেজ" value={order.package_name} />
             <StatCard icon={statusInfo.icon} label="স্ট্যাটাস" value={statusInfo.label} color={statusInfo.color} />
-            <StatCard icon={CreditCard} label="মূল্য" value={`৳${order.amount}/${order.billing_period === "yearly" ? "বছর" : "মাস"}`} />
+            <StatCard icon={CreditCard} label="মূল্য" value={`${order.amount}/${order.billing_period === "yearly" ? "বছর" : "মাস"}`} />
             <StatCard icon={CalendarClock} label="মেয়াদ শেষ" value={expiryDate} color="text-accent" />
           </div>
         );
