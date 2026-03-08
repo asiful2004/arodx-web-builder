@@ -22,7 +22,7 @@ import {
   RefreshCw, Calendar, UserPlus, Trash2, Crown, User as UserIcon,
 } from "lucide-react";
 
-type AppRole = "admin" | "moderator" | "user";
+type AppRole = "admin" | "moderator" | "user" | "client";
 
 interface UserProfile {
   id: string;
@@ -49,6 +49,11 @@ const roleConfig: Record<AppRole, { label: string; icon: typeof Shield; classNam
     label: "মডারেটর",
     icon: ShieldCheck,
     className: "bg-accent/20 text-accent-foreground border-accent/30",
+  },
+  client: {
+    label: "ক্লায়েন্ট",
+    icon: ShieldCheck,
+    className: "bg-green-500/10 text-green-600 border-green-500/20",
   },
   user: {
     label: "ইউজার",
