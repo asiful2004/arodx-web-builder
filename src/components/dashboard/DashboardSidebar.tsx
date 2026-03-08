@@ -31,7 +31,7 @@ interface DashboardSidebarProps {
   userRole?: string;
 }
 
-export function DashboardSidebar({ profile, isAdmin }: DashboardSidebarProps) {
+export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSidebarProps) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
