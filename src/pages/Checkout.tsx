@@ -802,10 +802,7 @@ export default function Checkout() {
               key="step4"
               custom={direction}
               variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
               className="text-center py-16 space-y-6"
             >
               <motion.div
