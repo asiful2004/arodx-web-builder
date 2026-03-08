@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import { Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import PaymentModal from "@/components/PaymentModal";
+import PricingCard from "@/components/PricingCard";
 
 const packages = [
   {
@@ -67,27 +67,6 @@ const packages = [
   },
 ];
 
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.2 } },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 60, rotateX: 15, scale: 0.9 },
-  show: {
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    scale: 1,
-    transition: {
-      type: "spring" as const,
-      stiffness: 100,
-      damping: 12,
-      mass: 0.8,
-    },
-  },
-};
-
 const PricingSection = () => {
   const [isYearly, setIsYearly] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<typeof packages[0] | null>(null);
@@ -136,113 +115,27 @@ const PricingSection = () => {
             <span className={`text-sm font-medium transition-colors ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>
               Yearly
             </span>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary">
+            <motion.span
+              className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
               2 মাস ফ্রি!
-            </span>
+            </motion.span>
           </div>
         </motion.div>
 
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch"
-        >
-          {packages.map((pkg) => (
-            <motion.div
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+          {packages.map((pkg, index) => (
+            <PricingCard
               key={pkg.name}
-              variants={item}
-              whileHover={{
-                y: -12,
-                scale: 1.03,
-                boxShadow: pkg.popular
-                  ? "0 25px 60px -15px hsl(var(--primary) / 0.4)"
-                  : "0 25px 50px -15px hsl(var(--primary) / 0.15)",
-                transition: { type: "spring" as const, stiffness: 300, damping: 20 },
-              }}
-              whileTap={{ scale: 0.98 }}
-              style={{ perspective: 1000 }}
-              className={`relative flex flex-col p-8 rounded-2xl border transition-colors duration-300 cursor-pointer ${
-                pkg.popular
-                  ? "border-primary/50 bg-gradient-card shadow-glow scale-[1.02]"
-                  : "border-border bg-card shadow-card hover:border-primary/20"
-              }`}
-            >
-              {pkg.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex items-center gap-1 px-4 py-1 text-xs font-semibold rounded-full bg-gradient-primary text-primary-foreground">
-                    <Star className="h-3 w-3" /> Most Popular
-                  </span>
-                </div>
-              )}
-
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold font-display">{pkg.name}</h3>
-                <p className="text-muted-foreground text-sm mt-1">{pkg.description}</p>
-              </div>
-
-              <div className="mb-6">
-                <motion.div
-                  key={isYearly ? "yearly" : "monthly"}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {(() => {
-                    const regular = parseInt((isYearly ? pkg.regularYearlyPrice : pkg.regularPrice).replace(/,/g, ''));
-                    const discounted = parseInt((isYearly ? pkg.firstYearYearlyPrice : pkg.firstYearPrice).replace(/,/g, ''));
-                    const discountPercent = Math.round(((regular - discounted) / regular) * 100);
-                    return (
-                      <>
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="text-lg text-muted-foreground line-through font-medium">
-                            {pkg.currency}{isYearly ? pkg.regularYearlyPrice : pkg.regularPrice}
-                          </span>
-                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                            {isYearly ? "১ম বছর ছাড়!" : "১ম মাস ছাড়!"}
-                          </span>
-                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">
-                            {discountPercent}% OFF
-                          </span>
-                        </div>
-                        <span className="text-4xl font-bold font-display text-primary">
-                          {pkg.currency}{isYearly ? pkg.firstYearYearlyPrice : pkg.firstYearPrice}
-                        </span>
-                        <span className="text-muted-foreground text-sm">
-                          /{isYearly ? "year" : "month"}
-                        </span>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          রিনিউয়াল: {pkg.currency}{isYearly ? pkg.regularYearlyPrice : pkg.regularPrice}/{isYearly ? "year" : "month"}
-                        </p>
-                      </>
-                    );
-                  })()}
-                </motion.div>
-              </div>
-
-              <ul className="space-y-3 mb-8 flex-1">
-                {pkg.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3 text-sm">
-                    <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span className="text-secondary-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Button
-                onClick={() => handleBuy(pkg)}
-                className={`w-full py-5 font-semibold ${
-                  pkg.popular
-                    ? "bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                } transition-all`}
-              >
-                শুরু করুন
-              </Button>
-            </motion.div>
+              pkg={pkg}
+              isYearly={isYearly}
+              onBuy={() => handleBuy(pkg)}
+              index={index}
+            />
           ))}
-        </motion.div>
+        </div>
 
         {/* Custom Package CTA */}
         <motion.div
