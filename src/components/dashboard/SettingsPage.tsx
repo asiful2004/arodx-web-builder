@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useOutletContext, useNavigate } from "react-router-dom";
 import { User as UserType } from "@supabase/supabase-js";
+import { useTheme } from "next-themes";
 import {
   Lock, Mail, Bell, Trash2, Shield, Eye, EyeOff,
   Save, Loader2, LogOut, Monitor, Globe, KeyRound,
-  BellRing, Volume2, VolumeX, ChevronRight,
+  BellRing, Volume2, VolumeX, ChevronRight, Sun, Moon, Laptop,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
