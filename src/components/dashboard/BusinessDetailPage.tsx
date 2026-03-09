@@ -207,11 +207,19 @@ export default function BusinessDetailPage() {
             {business.business_address && (
               <InfoRow icon={MapPin} label="ঠিকানা" value={business.business_address} />
             )}
-            <InfoRow
-              icon={Globe}
-              label="ডোমেইন"
-              value={business.domain_name || (business.domain_type === "own" ? "নিজস্ব ডোমেইন" : "প্যাকেজ ডোমেইন")}
-            />
+            {(business.domain_name || business.domain_type === "own" || order.package_name.toLowerCase().includes("enterprise")) && (
+              <InfoRow
+                icon={Globe}
+                label="ডোমেইন"
+                value={
+                  business.domain_name
+                    ? business.domain_name
+                    : business.domain_type === "own"
+                    ? "নিজস্ব ডোমেইন (সেটআপ হচ্ছে)"
+                    : "প্যাকেজ ডোমেইন (ফ্রি .com)"
+                }
+              />
+            )}
           </div>
         </motion.div>
       )}
