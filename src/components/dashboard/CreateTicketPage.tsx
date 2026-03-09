@@ -26,16 +26,37 @@ export default function CreateTicketPage() {
   const [category, setCategory] = useState("general");
   const [priority, setPriority] = useState("medium");
   const [orderId, setOrderId] = useState<string>("");
-  const [orders, setOrders] = useState<{ id: string; package_name: string }[]>([]);
+  const [orders, setOrders] = useState<{ id: string; package_name: string; domain_name: string | null; business_name: string | null }[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    supabase
-      .from("orders")
-      .select("id, package_name")
-      .eq("user_id", user.id)
-      .eq("status", "confirmed")
-      .then(({ data }) => setOrders(data || []));
+    const fetchOrders = async () => {
+      const { data: orderData } = await supabase
+        .from("orders")
+        .select("id, package_name")
+        .eq("user_id", user.id)
+        .eq("status", "confirmed");
+
+      if (!orderData) { setOrders([]); return; }
+
+      // Fetch businesses linked to these orders
+      const orderIds = orderData.map((o) => o.id);
+      const { data: bizData } = await supabase
+        .from("businesses")
+        .select("order_id, business_name, domain_name")
+        .eq("user_id", user.id)
+        .in("order_id", orderIds);
+
+      const bizMap = new Map((bizData || []).map((b) => [b.order_id, b]));
+      setOrders(
+        orderData.map((o) => ({
+          ...o,
+          business_name: bizMap.get(o.id)?.business_name || null,
+          domain_name: bizMap.get(o.id)?.domain_name || null,
+        }))
+      );
+    };
+    fetchOrders();
   }, [user.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -110,7 +131,9 @@ export default function CreateTicketPage() {
               <SelectContent>
                 <SelectItem value="none">কোনো অর্ডার নয়</SelectItem>
                 {orders.map((o) => (
-                  <SelectItem key={o.id} value={o.id}>{o.package_name} ({o.id.slice(0, 8)})</SelectItem>
+                  <SelectItem key={o.id} value={o.id}>
+                    {o.package_name} ({o.domain_name || o.business_name || o.id.slice(0, 8)})
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
