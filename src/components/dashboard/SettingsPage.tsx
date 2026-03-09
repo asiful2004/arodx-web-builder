@@ -189,7 +189,7 @@ export default function SettingsPage() {
   const strengthLabels = ["", "দুর্বল", "মাঝারি", "শক্তিশালী"];
 
   return (
-    <div className="space-y-5 max-w-2xl pb-10">
+    <div className="space-y-5 w-full pb-10">
       {/* Page Title */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-xl font-bold font-display text-foreground">সেটিংস</h1>
