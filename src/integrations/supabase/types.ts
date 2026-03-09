@@ -256,28 +256,41 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          image_url: string | null
           is_admin_reply: boolean
           message: string
+          reply_to_id: string | null
           ticket_id: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          image_url?: string | null
           is_admin_reply?: boolean
           message: string
+          reply_to_id?: string | null
           ticket_id: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          image_url?: string | null
           is_admin_reply?: boolean
           message?: string
+          reply_to_id?: string | null
           ticket_id?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ticket_replies_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_replies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ticket_replies_ticket_id_fkey"
             columns: ["ticket_id"]
