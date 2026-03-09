@@ -371,7 +371,7 @@ export default function SettingsPage() {
             </div>
             <div className="rounded-xl bg-muted/30 border border-border/40 px-4 py-3 text-center">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">ইউজার আইডি</p>
-              <p className="text-xs font-mono text-foreground truncate">{user.id.slice(0, 14)}...</p>
+              <p className="text-sm font-mono font-medium text-foreground">#{parseInt(user.id.replace(/-/g, "").slice(0, 12), 16) % 1000000}</p>
             </div>
           </div>
         </div>
