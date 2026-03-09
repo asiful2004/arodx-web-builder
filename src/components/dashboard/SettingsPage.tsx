@@ -111,6 +111,7 @@ export default function SettingsPage() {
   const { user } = useOutletContext<DashboardContext>();
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
 
   // Password
   const [currentPassword, setCurrentPassword] = useState("");
