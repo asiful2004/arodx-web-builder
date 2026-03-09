@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { useState, useCallback } from "react";
 import Preloader from "@/components/Preloader";
 import Index from "./pages/Index";
@@ -48,9 +49,9 @@ const App = () => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="app-theme">
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
         <Sonner />
         {loading && <Preloader onComplete={handleComplete} />}
         <BrowserRouter>
@@ -91,6 +92,7 @@ const App = () => {
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
+  </ThemeProvider>
   );
 };
 
