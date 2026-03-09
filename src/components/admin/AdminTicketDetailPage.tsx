@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, Send, Clock, CheckCircle2, AlertTriangle, XCircle,
-  Loader2, User, Shield,
+  Loader2, User, Shield, ImagePlus, X, Reply,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +37,8 @@ interface ReplyData {
   is_admin_reply: boolean;
   created_at: string;
   user_id: string;
+  image_url: string | null;
+  reply_to_id: string | null;
 }
 
 const statusMap: Record<string, { label: string; icon: any; color: string; bg: string }> = {
@@ -68,7 +70,11 @@ export default function AdminTicketDetailPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [replyTo, setReplyTo] = useState<ReplyData | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [customerProfile, setCustomerProfile] = useState<{ full_name: string | null } | null>(null);
 
   const fetchData = async () => {
@@ -106,20 +112,56 @@ export default function AdminTicketDetailPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [replies]);
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "ফাইল সাইজ ৫MB এর বেশি হতে পারবে না", variant: "destructive" });
+      return;
+    }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleSend = async () => {
-    if (!message.trim() || !ticketId || !user) return;
+    if ((!message.trim() && !imageFile) || !ticketId || !user) return;
     setSending(true);
+
+    let imageUrl: string | null = null;
+    if (imageFile) {
+      const ext = imageFile.name.split(".").pop();
+      const path = `${ticketId}/${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("ticket-attachments").upload(path, imageFile);
+      if (upErr) {
+        toast({ title: "ইমেজ আপলোড ব্যর্থ", variant: "destructive" });
+        setSending(false);
+        return;
+      }
+      const { data: urlData } = supabase.storage.from("ticket-attachments").getPublicUrl(path);
+      imageUrl = urlData.publicUrl;
+    }
+
     const { error } = await supabase.from("ticket_replies").insert({
       ticket_id: ticketId,
       user_id: user.id,
-      message: message.trim(),
+      message: message.trim() || (imageUrl ? "📷 ইমেজ পাঠানো হয়েছে" : ""),
       is_admin_reply: true,
-    });
+      image_url: imageUrl,
+      reply_to_id: replyTo?.id || null,
+    } as any);
+
     if (error) {
       toast({ title: "মেসেজ পাঠাতে সমস্যা", description: error.message, variant: "destructive" });
     } else {
       setMessage("");
-      // Set status to waiting (waiting for user response)
+      removeImage();
+      setReplyTo(null);
       await supabase.from("tickets").update({ status: "waiting" }).eq("id", ticketId);
     }
     setSending(false);
@@ -130,7 +172,6 @@ export default function AdminTicketDetailPage() {
     const updates: any = { status };
     if (status === "resolved") updates.resolved_at = new Date().toISOString();
     if (status === "closed") updates.closed_at = new Date().toISOString();
-
     await supabase.from("tickets").update(updates).eq("id", ticketId);
     toast({ title: `স্ট্যাটাস "${statusMap[status]?.label}" এ পরিবর্তন হয়েছে` });
   };
@@ -139,6 +180,11 @@ export default function AdminTicketDetailPage() {
     if (!ticketId) return;
     await supabase.from("tickets").update({ priority: priority as any }).eq("id", ticketId);
     toast({ title: `প্রায়োরিটি "${priorityMap[priority]?.label}" এ পরিবর্তন হয়েছে` });
+  };
+
+  const getReplyPreview = (replyId: string | null) => {
+    if (!replyId) return null;
+    return replies.find(r => r.id === replyId);
   };
 
   if (loading) {
@@ -224,51 +270,107 @@ export default function AdminTicketDetailPage() {
         <div className="space-y-3">
           <Separator />
           <h2 className="text-sm font-semibold text-foreground">কথোপকথন</h2>
-          {replies.map((reply, i) => (
-            <motion.div
-              key={reply.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
-              className={`rounded-xl p-4 ${
-                reply.is_admin_reply
-                  ? "bg-primary/5 border border-primary/20 ml-0 mr-8"
-                  : "bg-muted/50 border border-border ml-8 mr-0"
-              }`}
-            >
-              <div className="flex items-center gap-2 mb-1.5">
-                {reply.is_admin_reply ? (
-                  <Shield className="w-3.5 h-3.5 text-primary" />
-                ) : (
-                  <User className="w-3.5 h-3.5 text-muted-foreground" />
+          {replies.map((reply, i) => {
+            const quotedReply = getReplyPreview(reply.reply_to_id);
+            return (
+              <motion.div
+                key={reply.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.03 }}
+                className={`rounded-xl p-4 group relative ${
+                  reply.is_admin_reply
+                    ? "bg-primary/5 border border-primary/20 ml-0 mr-8"
+                    : "bg-muted/50 border border-border ml-8 mr-0"
+                }`}
+              >
+                {/* Quoted reply */}
+                {quotedReply && (
+                  <div className="mb-2 rounded-lg bg-muted/70 border-l-2 border-primary/40 px-3 py-1.5 text-xs text-muted-foreground">
+                    <span className="font-medium">
+                      {quotedReply.is_admin_reply ? "আপনি (অ্যাডমিন)" : customerProfile?.full_name || "ক্লায়েন্ট"}: 
+                    </span>
+                    {quotedReply.message.length > 80 ? quotedReply.message.slice(0, 80) + "..." : quotedReply.message}
+                  </div>
                 )}
-                <span className="text-xs font-medium text-foreground">
-                  {reply.is_admin_reply ? "আপনি (অ্যাডমিন)" : customerProfile?.full_name || "ক্লায়েন্ট"}
-                </span>
-                <span className="text-[10px] text-muted-foreground">
-                  {new Date(reply.created_at).toLocaleDateString("bn-BD", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                </span>
-              </div>
-              <p className="text-sm text-foreground whitespace-pre-wrap">{reply.message}</p>
-            </motion.div>
-          ))}
+                <div className="flex items-center gap-2 mb-1.5">
+                  {reply.is_admin_reply ? (
+                    <Shield className="w-3.5 h-3.5 text-primary" />
+                  ) : (
+                    <User className="w-3.5 h-3.5 text-muted-foreground" />
+                  )}
+                  <span className="text-xs font-medium text-foreground">
+                    {reply.is_admin_reply ? "আপনি (অ্যাডমিন)" : customerProfile?.full_name || "ক্লায়েন্ট"}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {new Date(reply.created_at).toLocaleDateString("bn-BD", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+                <p className="text-sm text-foreground whitespace-pre-wrap">{reply.message}</p>
+                {reply.image_url && (
+                  <a href={reply.image_url} target="_blank" rel="noopener noreferrer" className="mt-2 block">
+                    <img src={reply.image_url} alt="attachment" className="rounded-lg max-h-60 max-w-full object-contain border border-border" />
+                  </a>
+                )}
+                {/* Reply button */}
+                <button
+                  onClick={() => setReplyTo(reply)}
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-muted"
+                  title="রিপ্লাই"
+                >
+                  <Reply className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              </motion.div>
+            );
+          })}
           <div ref={bottomRef} />
         </div>
       )}
 
       {/* Reply box */}
-      <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        {/* Reply-to indicator */}
+        {replyTo && (
+          <div className="flex items-center gap-2 rounded-lg bg-muted/60 border-l-2 border-primary/40 px-3 py-2 text-xs">
+            <Reply className="w-3.5 h-3.5 text-primary shrink-0" />
+            <div className="flex-1 min-w-0">
+              <span className="font-medium text-foreground">
+                {replyTo.is_admin_reply ? "আপনি (অ্যাডমিন)" : customerProfile?.full_name || "ক্লায়েন্ট"}: 
+              </span>
+              <span className="text-muted-foreground">
+                {replyTo.message.length > 60 ? replyTo.message.slice(0, 60) + "..." : replyTo.message}
+              </span>
+            </div>
+            <button onClick={() => setReplyTo(null)} className="p-0.5 hover:bg-muted rounded">
+              <X className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+          </div>
+        )}
+        {/* Image preview */}
+        {imagePreview && (
+          <div className="relative inline-block">
+            <img src={imagePreview} alt="preview" className="rounded-lg max-h-32 border border-border" />
+            <button onClick={removeImage} className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
         <Textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="অ্যাডমিন রিপ্লাই লিখুন..."
           rows={3}
-          className="mb-3"
         />
-        <Button onClick={handleSend} disabled={sending || !message.trim()} className="gap-2">
-          <Send className="w-4 h-4" />
-          {sending ? "পাঠানো হচ্ছে..." : "রিপ্লাই পাঠান"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+          <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => fileInputRef.current?.click()}>
+            <ImagePlus className="w-4 h-4" />
+          </Button>
+          <Button onClick={handleSend} disabled={sending || (!message.trim() && !imageFile)} className="gap-2">
+            <Send className="w-4 h-4" />
+            {sending ? "পাঠানো হচ্ছে..." : "রিপ্লাই পাঠান"}
+          </Button>
+        </div>
       </div>
     </div>
   );
