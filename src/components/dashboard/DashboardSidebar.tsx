@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const mainItems = [
   { title: "ওভারভিউ", url: "/dashboard", icon: LayoutDashboard },
   { title: "অর্ডার", url: "/dashboard/orders", icon: ShoppingBag },
+  { title: "সাপোর্ট টিকেট", url: "/dashboard/tickets", icon: Ticket },
 ];
 
 const accountItems = [

@@ -17,6 +17,7 @@ const mainItems = [
   { title: "অর্ডার ম্যানেজমেন্ট", url: "/admin/orders", icon: ShoppingBag },
   { title: "ব্যবসা সমূহ", url: "/admin/businesses", icon: Building2 },
   { title: "ইউজার ম্যানেজমেন্ট", url: "/admin/users", icon: Users },
+  { title: "টিকেট ম্যানেজমেন্ট", url: "/admin/tickets", icon: Ticket },
 ];
 
 const settingsItems = [

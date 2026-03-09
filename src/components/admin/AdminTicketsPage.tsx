@@ -59,8 +59,8 @@ export default function AdminTicketsPage() {
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (statusFilter !== "all") query = query.eq("status", statusFilter);
-    if (categoryFilter !== "all") query = query.eq("category", categoryFilter);
+    if (statusFilter !== "all") query = query.eq("status", statusFilter as any);
+    if (categoryFilter !== "all") query = query.eq("category", categoryFilter as any);
 
     const { data } = await query;
     setTickets((data as TicketRow[]) || []);

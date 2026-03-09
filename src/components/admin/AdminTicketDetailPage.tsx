@@ -137,7 +137,7 @@ export default function AdminTicketDetailPage() {
 
   const updatePriority = async (priority: string) => {
     if (!ticketId) return;
-    await supabase.from("tickets").update({ priority }).eq("id", ticketId);
+    await supabase.from("tickets").update({ priority: priority as any }).eq("id", ticketId);
     toast({ title: `প্রায়োরিটি "${priorityMap[priority]?.label}" এ পরিবর্তন হয়েছে` });
   };
 
