@@ -301,7 +301,43 @@ export default function SettingsPage() {
         </div>
       </SectionCard>
 
-      {/* === Security & Sessions === */}
+      {/* === Theme / Appearance === */}
+      <SectionCard delay={0.12}>
+        <SectionHeader icon={Sun} title="অ্যাপিয়ারেন্স" desc="থিম ও ডিসপ্লে কাস্টমাইজ করুন" />
+        <div className="p-5">
+          <p className="text-xs text-muted-foreground mb-3">থিম নির্বাচন করুন</p>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { value: "system", label: "সিস্টেম", icon: Laptop, desc: "ডিভাইসের থিম অনুসরণ" },
+              { value: "light", label: "লাইট", icon: Sun, desc: "সাদা ব্যাকগ্রাউন্ড" },
+              { value: "dark", label: "ডার্ক", icon: Moon, desc: "কালো ব্যাকগ্রাউন্ড" },
+            ].map((t) => (
+              <button
+                key={t.value}
+                onClick={() => setTheme(t.value)}
+                className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all duration-200 ${
+                  theme === t.value
+                    ? "border-primary bg-primary/5 shadow-sm"
+                    : "border-border hover:border-primary/40 hover:bg-muted/40"
+                }`}
+              >
+                {theme === t.value && (
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />
+                )}
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                  theme === t.value ? "bg-primary/10" : "bg-muted/50"
+                }`}>
+                  <t.icon className={`w-5 h-5 ${theme === t.value ? "text-primary" : "text-muted-foreground"}`} />
+                </div>
+                <div className="text-center">
+                  <p className={`text-sm font-medium ${theme === t.value ? "text-foreground" : "text-muted-foreground"}`}>{t.label}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{t.desc}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </SectionCard>
       <SectionCard delay={0.15}>
         <SectionHeader icon={Shield} title="নিরাপত্তা" desc="সেশন ও অ্যাক্সেস ম্যানেজ করুন" />
         <div className="p-5 space-y-4">
