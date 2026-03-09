@@ -219,6 +219,100 @@ export type Database = {
         }
         Relationships: []
       }
+      ticket_replies: {
+        Row: {
+          created_at: string
+          id: string
+          is_admin_reply: boolean
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_admin_reply?: boolean
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_admin_reply?: boolean
+          message?: string
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_replies_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tickets: {
+        Row: {
+          assigned_to: string | null
+          category: Database["public"]["Enums"]["ticket_category"]
+          closed_at: string | null
+          created_at: string
+          description: string
+          id: string
+          order_id: string | null
+          priority: Database["public"]["Enums"]["ticket_priority"]
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          ticket_number: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: Database["public"]["Enums"]["ticket_category"]
+          closed_at?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          order_id?: string | null
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject: string
+          ticket_number: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: Database["public"]["Enums"]["ticket_category"]
+          closed_at?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          order_id?: string | null
+          priority?: Database["public"]["Enums"]["ticket_priority"]
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          subject?: string
+          ticket_number?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -252,6 +346,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user" | "client"
+      ticket_category:
+        | "billing"
+        | "technical"
+        | "domain"
+        | "general"
+        | "feature_request"
+        | "bug_report"
+      ticket_priority: "low" | "medium" | "high" | "urgent"
+      ticket_status: "open" | "in_progress" | "waiting" | "resolved" | "closed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -380,6 +483,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user", "client"],
+      ticket_category: [
+        "billing",
+        "technical",
+        "domain",
+        "general",
+        "feature_request",
+        "bug_report",
+      ],
+      ticket_priority: ["low", "medium", "high", "urgent"],
+      ticket_status: ["open", "in_progress", "waiting", "resolved", "closed"],
     },
   },
 } as const

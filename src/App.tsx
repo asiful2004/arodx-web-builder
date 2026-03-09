@@ -20,11 +20,16 @@ import BusinessConfigPage from "./components/dashboard/BusinessConfigPage";
 import NotificationsPage from "./components/dashboard/NotificationsPage";
 import SettingsPage from "./components/dashboard/SettingsPage";
 import HelpPage from "./components/dashboard/HelpPage";
+import TicketsPage from "./components/dashboard/TicketsPage";
+import CreateTicketPage from "./components/dashboard/CreateTicketPage";
+import TicketDetailPage from "./components/dashboard/TicketDetailPage";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminOverviewPage from "./components/admin/AdminOverviewPage";
 import AdminOrdersPage from "./components/admin/AdminOrdersPage";
 import AdminBusinessesPage from "./components/admin/AdminBusinessesPage";
 import AdminUsersPage from "./components/admin/AdminUsersPage";
+import AdminTicketsPage from "./components/admin/AdminTicketsPage";
+import AdminTicketDetailPage from "./components/admin/AdminTicketDetailPage";
 import AdminSettingsPage from "./components/admin/AdminSettingsPage";
 import Checkout from "./pages/Checkout";
 import RenewalPage from "./pages/Renewal";
@@ -63,6 +68,9 @@ const App = () => {
                 <Route path="business/:orderId" element={<BusinessDetailPage />} />
                 <Route path="business/:orderId/config" element={<BusinessConfigPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="tickets" element={<TicketsPage />} />
+                <Route path="tickets/new" element={<CreateTicketPage />} />
+                <Route path="tickets/:ticketId" element={<TicketDetailPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="help" element={<HelpPage />} />
               </Route>
@@ -71,6 +79,8 @@ const App = () => {
                 <Route path="orders" element={<AdminOrdersPage />} />
                 <Route path="businesses" element={<AdminBusinessesPage />} />
                 <Route path="users" element={<AdminUsersPage />} />
+                <Route path="tickets" element={<AdminTicketsPage />} />
+                <Route path="tickets/:ticketId" element={<AdminTicketDetailPage />} />
                 <Route path="settings" element={<AdminSettingsPage />} />
               </Route>
               <Route path="/checkout" element={<Checkout />} />
