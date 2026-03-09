@@ -6,50 +6,50 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 20% 10%;
+    --background: 210 30% 97%;
+    --foreground: 220 25% 12%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 220 20% 10%;
+    --card: 210 25% 95%;
+    --card-foreground: 220 25% 12%;
 
-    --popover: 0 0% 98%;
-    --popover-foreground: 220 20% 10%;
+    --popover: 210 25% 95%;
+    --popover-foreground: 220 25% 12%;
 
-    --primary: 190 90% 40%;
+    --primary: 190 85% 38%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 220 16% 25%;
+    --secondary: 210 20% 90%;
+    --secondary-foreground: 220 18% 22%;
 
-    --muted: 220 14% 95%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 210 18% 92%;
+    --muted-foreground: 220 12% 42%;
 
-    --accent: 260 60% 55%;
+    --accent: 255 55% 52%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 55%;
+    --destructive: 0 80% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 14% 88%;
-    --input: 220 14% 88%;
-    --ring: 190 90% 40%;
+    --border: 210 18% 85%;
+    --input: 210 18% 85%;
+    --ring: 190 85% 38%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 97%;
-    --sidebar-foreground: 220 16% 25%;
-    --sidebar-primary: 190 90% 40%;
+    --sidebar-background: 210 25% 95%;
+    --sidebar-foreground: 220 18% 22%;
+    --sidebar-primary: 190 85% 38%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 93%;
-    --sidebar-accent-foreground: 220 16% 25%;
-    --sidebar-border: 220 14% 88%;
-    --sidebar-ring: 190 90% 40%;
+    --sidebar-accent: 210 20% 91%;
+    --sidebar-accent-foreground: 220 18% 22%;
+    --sidebar-border: 210 18% 85%;
+    --sidebar-ring: 190 85% 38%;
 
     /* Custom tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(190 90% 40%), hsl(260 60% 55%));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 99%), hsl(0 0% 96%));
-    --shadow-glow: 0 0 40px -10px hsl(190 90% 40% / 0.2);
-    --shadow-card: 0 8px 32px -8px hsl(220 20% 10% / 0.08);
+    --gradient-primary: linear-gradient(135deg, hsl(190 85% 38%), hsl(255 55% 52%));
+    --gradient-card: linear-gradient(145deg, hsl(210 25% 96%), hsl(210 25% 93%));
+    --shadow-glow: 0 0 40px -10px hsl(190 85% 38% / 0.18);
+    --shadow-card: 0 8px 32px -8px hsl(220 25% 12% / 0.06);
 
     font-family: 'Inter', sans-serif;
   }
