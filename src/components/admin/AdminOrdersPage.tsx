@@ -189,7 +189,7 @@ export default function AdminOrdersPage() {
   }).length;
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold font-display text-foreground">অর্ডার ম্যানেজমেন্ট</h1>

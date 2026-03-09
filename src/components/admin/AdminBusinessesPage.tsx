@@ -69,7 +69,7 @@ export default function AdminBusinessesPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold font-display text-foreground">ব্যবসা সমূহ</h1>
         <p className="text-sm text-muted-foreground">রেজিস্টার্ড সকল ব্যবসার তালিকা</p>
@@ -85,7 +85,7 @@ export default function AdminBusinessesPage() {
           <p className="text-sm text-muted-foreground">এখনো কোনো ব্যবসা নেই</p>
         </motion.div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {businesses.map((biz, i) => (
             <motion.div
               key={biz.id}

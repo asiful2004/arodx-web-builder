@@ -84,7 +84,7 @@ export default function AdminOverviewPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl">
+    <div className="space-y-6">
       <div>
         <h1 className="text-xl font-bold font-display text-foreground">অ্যাডমিন ওভারভিউ</h1>
         <p className="text-sm text-muted-foreground">সব কিছু এক নজরে দেখুন</p>
