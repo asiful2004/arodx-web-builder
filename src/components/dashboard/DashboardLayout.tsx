@@ -8,12 +8,20 @@ import { ArrowLeft, Bell, BellOff, Volume2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 
 interface Profile {
   full_name: string | null;
   avatar_url: string | null;
+}
+
+interface Notification {
+  id: string;
+  title: string;
+  body: string;
+  type: string;
+  link: string | null;
+  is_read: boolean;
+  created_at: string;
 }
 
 export default function DashboardLayout() {
@@ -26,7 +34,7 @@ export default function DashboardLayout() {
     const stored = localStorage.getItem("notif_sound");
     return stored !== "false";
   });
-  const [notifications, setNotifications] = useState<Array<{ id: string; title: string; body: string; time: string; read: boolean }>>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const navigate = useNavigate();
 
@@ -79,24 +87,33 @@ export default function DashboardLayout() {
     localStorage.setItem("notif_sound", String(next));
   };
 
-  // Listen for realtime order status changes as notifications
+  // Fetch notifications from DB
+  const fetchNotifications = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (data) setNotifications(data as Notification[]);
+  }, [user]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  // Realtime notifications
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel('order-notifications')
+      .channel("client-notifications")
       .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'orders', filter: `user_id=eq.${user.id}` },
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
         (payload) => {
-          const order = payload.new as any;
-          const notif = {
-            id: crypto.randomUUID(),
-            title: order.status === 'confirmed' ? 'অর্ডার কনফার্ম হয়েছে!' : `অর্ডার আপডেট: ${order.status}`,
-            body: `${order.package_name} - ${order.customer_name}`,
-            time: new Date().toISOString(),
-            read: false,
-          };
-          setNotifications(prev => [notif, ...prev]);
+          const notif = payload.new as Notification;
+          setNotifications((prev) => [notif, ...prev]);
           playNotifSound();
         }
       )
@@ -105,10 +122,28 @@ export default function DashboardLayout() {
     return () => { supabase.removeChannel(channel); };
   }, [user, playNotifSound]);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
-  const markAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  const markAllRead = async () => {
+    if (!user) return;
+    await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("user_id", user.id)
+      .eq("is_read", false);
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+  };
+
+  const handleNotifClick = (notif: Notification) => {
+    if (!notif.is_read) {
+      supabase.from("notifications").update({ is_read: true }).eq("id", notif.id).then(() => {
+        setNotifications((prev) => prev.map((n) => n.id === notif.id ? { ...n, is_read: true } : n));
+      });
+    }
+    if (notif.link) {
+      setNotifOpen(false);
+      navigate(notif.link);
+    }
   };
 
   if (authLoading || !user) {
@@ -185,17 +220,18 @@ export default function DashboardLayout() {
                       {notifications.map((n) => (
                         <div
                           key={n.id}
-                          className={`px-3 py-3 rounded-lg transition-colors ${
-                            n.read ? "bg-transparent" : "bg-primary/5"
+                          onClick={() => handleNotifClick(n)}
+                          className={`px-3 py-3 rounded-lg transition-colors cursor-pointer hover:bg-accent/50 ${
+                            n.is_read ? "bg-transparent" : "bg-primary/5"
                           }`}
                         >
                           <div className="flex items-start gap-2">
-                            {!n.read && <span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />}
+                            {!n.is_read && <span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />}
                             <div className="min-w-0 flex-1">
                               <p className="text-sm font-medium text-foreground">{n.title}</p>
                               <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>
                               <p className="text-[10px] text-muted-foreground/60 mt-1">
-                                {new Date(n.time).toLocaleString("bn-BD")}
+                                {new Date(n.created_at).toLocaleString("bn-BD")}
                               </p>
                             </div>
                           </div>
