@@ -49,9 +49,9 @@ const App = () => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="app-theme">
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
         <Sonner />
         {loading && <Preloader onComplete={handleComplete} />}
         <BrowserRouter>
