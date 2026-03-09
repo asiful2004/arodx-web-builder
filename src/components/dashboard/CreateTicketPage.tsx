@@ -131,7 +131,9 @@ export default function CreateTicketPage() {
               <SelectContent>
                 <SelectItem value="none">কোনো অর্ডার নয়</SelectItem>
                 {orders.map((o) => (
-                  <SelectItem key={o.id} value={o.id}>{o.package_name} ({o.id.slice(0, 8)})</SelectItem>
+                  <SelectItem key={o.id} value={o.id}>
+                    {o.package_name} ({o.domain_name || o.business_name || o.id.slice(0, 8)})
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
