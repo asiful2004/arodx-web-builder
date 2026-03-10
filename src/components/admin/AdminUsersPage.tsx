@@ -262,7 +262,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         {[
           { label: "মোট ইউজার", value: stats.total, icon: Users, color: "bg-primary/10 text-primary" },
           { label: "অ্যাডমিন", value: stats.admins, icon: Crown, color: "bg-yellow-500/10 text-yellow-600" },
