@@ -74,13 +74,13 @@ const StatCard = ({ icon: Icon, label, value, color = "text-primary" }: {
   <motion.div
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
-    className="flex flex-col gap-2 p-5 rounded-xl bg-card border border-border"
+    className="flex flex-col gap-1.5 p-3 sm:p-5 rounded-xl bg-card border border-border"
   >
     <div className="flex items-center justify-between">
-      <span className="text-xs text-muted-foreground uppercase tracking-wider">{label}</span>
-      <Icon className={`w-4 h-4 ${color}`} />
+      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">{label}</span>
+      <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${color}`} />
     </div>
-    <span className="text-xl font-bold text-foreground">{value}</span>
+    <span className="text-sm sm:text-xl font-bold text-foreground truncate">{value}</span>
   </motion.div>
 );
 
