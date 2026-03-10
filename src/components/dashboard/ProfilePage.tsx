@@ -71,19 +71,19 @@ export default function ProfilePage() {
         animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl border border-border bg-card overflow-hidden"
       >
-        <div className="h-20 bg-gradient-primary opacity-15" />
-        <div className="px-6 pb-6 -mt-10 flex items-end gap-4">
-          <Avatar className="w-16 h-16 border-4 border-card shadow-lg">
+        <div className="h-16 sm:h-20 bg-gradient-primary opacity-15" />
+        <div className="px-4 sm:px-6 pb-4 sm:pb-6 -mt-8 sm:-mt-10 flex items-end gap-3 sm:gap-4">
+          <Avatar className="w-14 h-14 sm:w-16 sm:h-16 border-4 border-card shadow-lg shrink-0">
             <AvatarImage src={profile.avatar_url || undefined} />
-            <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
+            <AvatarFallback className="text-base sm:text-lg font-bold bg-primary/10 text-primary">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="pb-1">
-            <h1 className="text-xl font-bold font-display text-foreground">
+          <div className="pb-1 min-w-0">
+            <h1 className="text-base sm:text-xl font-bold font-display text-foreground truncate">
               {profile.full_name || "নাম সেট করুন"}
             </h1>
-            <p className="text-sm text-muted-foreground">{user.email}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
           </div>
         </div>
       </motion.div>

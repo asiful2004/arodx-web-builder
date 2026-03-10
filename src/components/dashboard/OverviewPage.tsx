@@ -162,21 +162,21 @@ export default function OverviewPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl border border-border bg-card p-6"
+        className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 sm:p-6"
       >
         <div className="absolute inset-0 bg-gradient-primary opacity-[0.04]" />
-        <div className="relative flex items-center gap-5">
-          <Avatar className="w-14 h-14 border-2 border-primary/20 shadow-glow">
+        <div className="relative flex items-center gap-3 sm:gap-5">
+          <Avatar className="w-10 h-10 sm:w-14 sm:h-14 border-2 border-primary/20 shadow-glow shrink-0">
             <AvatarImage src={profile.avatar_url || undefined} />
-            <AvatarFallback className="text-base font-bold bg-primary/10 text-primary">
+            <AvatarFallback className="text-xs sm:text-base font-bold bg-primary/10 text-primary">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1">
-            <h1 className="text-lg font-bold font-display text-foreground">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-sm sm:text-lg font-bold font-display text-foreground truncate">
               স্বাগতম, {profile.full_name || "ব্যবহারকারী"}! 👋
             </h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
               আপনার ড্যাশবোর্ড থেকে সব কিছু ম্যানেজ করুন
             </p>
           </div>
@@ -216,7 +216,7 @@ export default function OverviewPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="rounded-2xl border border-border bg-card/60 backdrop-blur-xl p-5 space-y-3 hover:border-primary/30 transition-colors"
+                  className="rounded-2xl border border-border bg-card/60 backdrop-blur-xl p-3 sm:p-5 space-y-3 hover:border-primary/30 transition-colors"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between">
@@ -272,7 +272,7 @@ export default function OverviewPage() {
                   )}
 
                   {/* Footer: Status + Package + Price + Renewal */}
-                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-2 border-t border-border/50 gap-2">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className={`text-[10px] gap-1 ${statusInfo.color}`}>
                         <statusInfo.icon className="w-3 h-3" />

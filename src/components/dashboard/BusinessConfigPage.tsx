@@ -265,21 +265,21 @@ export default function BusinessConfigPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/dashboard/business/${orderId}`)}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/dashboard/business/${orderId}`)}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <div>
-            <h1 className="text-lg font-bold font-display text-foreground">
-              {business.business_name} — কনফিগারেশন
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-lg font-bold font-display text-foreground truncate">
+              {business.business_name} — কনফিগ
             </h1>
             <p className="text-xs text-muted-foreground flex items-center gap-2">
               প্যাকেজ: <Badge variant="secondary" className="text-[10px]">{order.package_name}</Badge>
             </p>
           </div>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2">
+        <Button onClick={handleSave} disabled={saving} className="gap-2 ml-11 sm:ml-0 w-fit">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           সংরক্ষণ করুন
         </Button>

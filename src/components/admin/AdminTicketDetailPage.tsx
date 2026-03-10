@@ -229,7 +229,7 @@ export default function AdminTicketDetailPage() {
       </div>
 
       {/* Admin controls */}
-      <div className="rounded-2xl border border-border bg-card p-4 flex flex-wrap items-center gap-4">
+      <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3 sm:gap-4">
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground">স্ট্যাটাস পরিবর্তন</p>
           <Select value={ticket.status} onValueChange={updateStatus}>
@@ -278,10 +278,10 @@ export default function AdminTicketDetailPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
-                className={`rounded-xl p-4 group relative ${
+                className={`rounded-xl p-3 sm:p-4 group relative ${
                   reply.is_admin_reply
-                    ? "bg-primary/5 border border-primary/20 ml-0 mr-8"
-                    : "bg-muted/50 border border-border ml-8 mr-0"
+                    ? "bg-primary/5 border border-primary/20 ml-0 mr-2 sm:mr-8"
+                    : "bg-muted/50 border border-border ml-2 sm:ml-8 mr-0"
                 }`}
               >
                 {/* Quoted reply */}

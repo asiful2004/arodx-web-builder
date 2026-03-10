@@ -262,7 +262,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
         {[
           { label: "মোট ইউজার", value: stats.total, icon: Users, color: "bg-primary/10 text-primary" },
           { label: "অ্যাডমিন", value: stats.admins, icon: Crown, color: "bg-yellow-500/10 text-yellow-600" },
@@ -274,15 +274,15 @@ export default function AdminUsersPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="flex flex-col gap-2 p-5 rounded-xl bg-card border border-border"
+            className="flex flex-col gap-1.5 sm:gap-2 p-3 sm:p-5 rounded-xl bg-card border border-border"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider">{s.label}</span>
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${s.color}`}>
-                <s.icon className="w-4 h-4" />
+              <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">{s.label}</span>
+              <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center ${s.color}`}>
+                <s.icon className="w-3 h-3 sm:w-4 sm:h-4" />
               </div>
             </div>
-            <span className="text-2xl font-bold font-display text-foreground">{s.value}</span>
+            <span className="text-lg sm:text-2xl font-bold font-display text-foreground">{s.value}</span>
           </motion.div>
         ))}
       </div>
