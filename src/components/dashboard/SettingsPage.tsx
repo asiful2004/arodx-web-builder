@@ -306,7 +306,7 @@ export default function SettingsPage() {
         <SectionHeader icon={Sun} title="অ্যাপিয়ারেন্স" desc="থিম ও ডিসপ্লে কাস্টমাইজ করুন" />
         <div className="p-5">
           <p className="text-xs text-muted-foreground mb-3">থিম নির্বাচন করুন</p>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {[
               { value: "system", label: "সিস্টেম", icon: Laptop, desc: "ডিভাইসের থিম অনুসরণ" },
               { value: "light", label: "লাইট", icon: Sun, desc: "সাদা ব্যাকগ্রাউন্ড" },
