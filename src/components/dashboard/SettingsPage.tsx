@@ -315,7 +315,7 @@ export default function SettingsPage() {
               <button
                 key={t.value}
                 onClick={() => setTheme(t.value)}
-                className={`relative flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all duration-200 ${
+                className={`relative flex flex-col items-center gap-1.5 sm:gap-2 rounded-xl border-2 p-2.5 sm:p-4 transition-all duration-200 ${
                   theme === t.value
                     ? "border-primary bg-primary/5 shadow-sm"
                     : "border-border hover:border-primary/40 hover:bg-muted/40"
