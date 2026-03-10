@@ -538,12 +538,12 @@ export default function AdminOrdersPage() {
 /* ─── Stat Card ─── */
 function StatCard({ label, value, icon: Icon, color }: { label: string; value: number; icon: any; color?: string }) {
   return (
-    <div className="rounded-xl border border-border bg-card/60 p-4">
-      <div className="flex items-center gap-2 mb-1">
-        <Icon className={`w-4 h-4 ${color || "text-muted-foreground"}`} />
-        <span className="text-xs text-muted-foreground">{label}</span>
+    <div className="rounded-xl border border-border bg-card/60 p-2.5 sm:p-4">
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+        <Icon className={`w-3 h-3 sm:w-4 sm:h-4 ${color || "text-muted-foreground"}`} />
+        <span className="text-[10px] sm:text-xs text-muted-foreground">{label}</span>
       </div>
-      <p className="text-2xl font-bold text-foreground">{value}</p>
+      <p className="text-lg sm:text-2xl font-bold text-foreground">{value}</p>
     </div>
   );
 }
