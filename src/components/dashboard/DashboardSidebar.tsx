@@ -150,6 +150,7 @@ export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSideba
                       to="/admin"
                       className="hover:bg-sidebar-accent/50"
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      onClick={closeMobileMenu}
                     >
                       <Shield className="mr-2 h-4 w-4" />
                       {!collapsed && <span>অ্যাডমিন প্যানেল</span>}
