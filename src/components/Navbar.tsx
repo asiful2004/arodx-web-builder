@@ -129,7 +129,7 @@ const Navbar = ({ logo }: NavbarProps) => {
         <div className="md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="relative z-50" onClick={(e) => { e.stopPropagation(); setMobileOpen(true); }}>
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
