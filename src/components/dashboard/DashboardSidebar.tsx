@@ -12,6 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const mainItems = [
   { title: "ওভারভিউ", url: "/dashboard", icon: LayoutDashboard },
@@ -32,11 +33,16 @@ interface DashboardSidebarProps {
 }
 
 export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSidebarProps) {
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const isMobile = useIsMobile();
+
+  const closeMobileMenu = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   const isActive = (path: string) =>
     path === "/dashboard"
@@ -100,6 +106,7 @@ export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSideba
                       end={item.url === "/dashboard"}
                       className="hover:bg-sidebar-accent/50"
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      onClick={closeMobileMenu}
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
@@ -125,6 +132,7 @@ export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSideba
                       to={item.url}
                       className="hover:bg-sidebar-accent/50"
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      onClick={closeMobileMenu}
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
@@ -142,6 +150,7 @@ export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSideba
                       to="/admin"
                       className="hover:bg-sidebar-accent/50"
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      onClick={closeMobileMenu}
                     >
                       <Shield className="mr-2 h-4 w-4" />
                       {!collapsed && <span>অ্যাডমিন প্যানেল</span>}
