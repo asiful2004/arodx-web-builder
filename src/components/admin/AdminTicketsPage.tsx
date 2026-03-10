@@ -96,15 +96,15 @@ export default function AdminTicketsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         {[
           { label: "ওপেন টিকেট", count: counts.open, color: "text-blue-500", bg: "bg-blue-500/10" },
           { label: "প্রগ্রেসে", count: counts.in_progress, color: "text-yellow-500", bg: "bg-yellow-500/10" },
           { label: "জরুরি", count: counts.urgent, color: "text-destructive", bg: "bg-destructive/10" },
         ].map((s) => (
-          <div key={s.label} className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">{s.label}</p>
-            <p className={`text-2xl font-bold ${s.color}`}>{s.count}</p>
+          <div key={s.label} className="rounded-2xl border border-border bg-card p-3 sm:p-4">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">{s.label}</p>
+            <p className={`text-lg sm:text-2xl font-bold ${s.color}`}>{s.count}</p>
           </div>
         ))}
       </div>

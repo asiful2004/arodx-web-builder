@@ -330,8 +330,8 @@ export default function SettingsPage() {
                   <t.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${theme === t.value ? "text-primary" : "text-muted-foreground"}`} />
                 </div>
                 <div className="text-center">
-                  <p className={`text-sm font-medium ${theme === t.value ? "text-foreground" : "text-muted-foreground"}`}>{t.label}</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">{t.desc}</p>
+                  <p className={`text-xs sm:text-sm font-medium ${theme === t.value ? "text-foreground" : "text-muted-foreground"}`}>{t.label}</p>
+                  <p className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5 hidden sm:block">{t.desc}</p>
                 </div>
               </button>
             ))}

@@ -231,10 +231,10 @@ export default function TicketDetailPage() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.03 }}
-                className={`rounded-xl p-4 group relative ${
+                className={`rounded-xl p-3 sm:p-4 group relative ${
                   reply.is_admin_reply
-                    ? "bg-primary/5 border border-primary/20 ml-0 mr-8"
-                    : "bg-muted/50 border border-border ml-8 mr-0"
+                    ? "bg-primary/5 border border-primary/20 ml-0 mr-2 sm:mr-8"
+                    : "bg-muted/50 border border-border ml-2 sm:ml-8 mr-0"
                 }`}
               >
                 {/* Quoted reply */}

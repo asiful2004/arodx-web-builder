@@ -201,7 +201,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3">
         <StatCard label="মোট অর্ডার" value={orders.length} icon={Package} />
         <StatCard label="অ্যাক্টিভ" value={activeCount} icon={CheckCircle2} color="text-green-500" />
         <StatCard label="পেন্ডিং" value={pendingCount} icon={Clock} color="text-yellow-500" />

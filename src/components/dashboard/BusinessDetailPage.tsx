@@ -163,30 +163,35 @@ export default function BusinessDetailPage() {
   return (
     <div className="space-y-6">
       {/* Back + Title */}
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/dashboard")}>
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-bold font-display text-foreground truncate">
-            {business?.business_name || order.package_name}
-          </h1>
-          <p className="text-xs text-muted-foreground">অর্ডার: {orderDate}</p>
-        </div>
-        <Badge variant="outline" className={`${statusInfo.bg} ${statusInfo.color} border-0 shrink-0`}>
-          <statusInfo.icon className="w-3 h-3 mr-1" />
-          {statusInfo.label}
-        </Badge>
-        {order.status === "confirmed" && order.is_active && (
-          <Button
-            size="sm"
-            className="gap-2 shrink-0"
-            onClick={() => navigate(`/dashboard/business/${orderId}/config`)}
-          >
-            <Settings2 className="w-4 h-4" />
-            কনফিগার করুন
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate("/dashboard")}>
+            <ArrowLeft className="w-4 h-4" />
           </Button>
-        )}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-base sm:text-lg font-bold font-display text-foreground truncate">
+              {business?.business_name || order.package_name}
+            </h1>
+            <p className="text-xs text-muted-foreground">অর্ডার: {orderDate}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 ml-11 sm:ml-0">
+          <Badge variant="outline" className={`${statusInfo.bg} ${statusInfo.color} border-0 shrink-0`}>
+            <statusInfo.icon className="w-3 h-3 mr-1" />
+            {statusInfo.label}
+          </Badge>
+          {order.status === "confirmed" && order.is_active && (
+            <Button
+              size="sm"
+              className="gap-2 shrink-0 text-xs"
+              onClick={() => navigate(`/dashboard/business/${orderId}/config`)}
+            >
+              <Settings2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">কনফিগার করুন</span>
+              <span className="sm:hidden">কনফিগ</span>
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Business Info */}

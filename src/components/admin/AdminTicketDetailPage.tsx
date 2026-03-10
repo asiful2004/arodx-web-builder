@@ -229,7 +229,7 @@ export default function AdminTicketDetailPage() {
       </div>
 
       {/* Admin controls */}
-      <div className="rounded-2xl border border-border bg-card p-4 flex flex-wrap items-center gap-4">
+      <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3 sm:gap-4">
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground">স্ট্যাটাস পরিবর্তন</p>
           <Select value={ticket.status} onValueChange={updateStatus}>

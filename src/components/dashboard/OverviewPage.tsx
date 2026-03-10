@@ -272,7 +272,7 @@ export default function OverviewPage() {
                   )}
 
                   {/* Footer: Status + Package + Price + Renewal */}
-                  <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-2 border-t border-border/50 gap-2">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className={`text-[10px] gap-1 ${statusInfo.color}`}>
                         <statusInfo.icon className="w-3 h-3" />
