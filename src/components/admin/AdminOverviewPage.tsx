@@ -91,7 +91,7 @@ export default function AdminOverviewPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4">
         <StatCard icon={ShoppingBag} label="মোট অর্ডার" value={stats.totalOrders} color="bg-primary/10 text-primary" delay={0} />
         <StatCard icon={Clock} label="পেন্ডিং" value={stats.pending} color="bg-yellow-500/10 text-yellow-600" delay={0.05} />
         <StatCard icon={CheckCircle2} label="কনফার্মড" value={stats.confirmed} color="bg-green-500/10 text-green-600" delay={0.1} />
