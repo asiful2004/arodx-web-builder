@@ -270,7 +270,7 @@ export default function AdminUsersPage() {
           { label: "ইউজার", value: stats.users, icon: UserIcon, color: "bg-secondary text-muted-foreground" },
         ].map((s, i) => (
           <motion.div
-273:             key={s.label}
+            key={s.label}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
