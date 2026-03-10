@@ -132,6 +132,7 @@ export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSideba
                       to={item.url}
                       className="hover:bg-sidebar-accent/50"
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      onClick={closeMobileMenu}
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
