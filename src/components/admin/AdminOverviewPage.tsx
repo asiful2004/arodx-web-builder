@@ -21,15 +21,15 @@ const StatCard = ({ icon: Icon, label, value, color, delay = 0 }: {
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
-    className="flex flex-col gap-3 p-5 rounded-xl bg-card border border-border"
+    className="flex flex-col gap-1.5 sm:gap-3 p-3 sm:p-5 rounded-xl bg-card border border-border"
   >
     <div className="flex items-center justify-between">
-      <span className="text-xs text-muted-foreground uppercase tracking-wider">{label}</span>
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${color}`}>
-        <Icon className="w-4 h-4" />
+      <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider">{label}</span>
+      <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center ${color}`}>
+        <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
       </div>
     </div>
-    <span className="text-2xl font-bold font-display text-foreground">{value}</span>
+    <span className="text-lg sm:text-2xl font-bold font-display text-foreground">{value}</span>
   </motion.div>
 );
 
@@ -91,7 +91,7 @@ export default function AdminOverviewPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4">
         <StatCard icon={ShoppingBag} label="মোট অর্ডার" value={stats.totalOrders} color="bg-primary/10 text-primary" delay={0} />
         <StatCard icon={Clock} label="পেন্ডিং" value={stats.pending} color="bg-yellow-500/10 text-yellow-600" delay={0.05} />
         <StatCard icon={CheckCircle2} label="কনফার্মড" value={stats.confirmed} color="bg-green-500/10 text-green-600" delay={0.1} />
