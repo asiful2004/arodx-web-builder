@@ -216,7 +216,7 @@ export default function OverviewPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="rounded-2xl border border-border bg-card/60 backdrop-blur-xl p-5 space-y-3 hover:border-primary/30 transition-colors"
+                  className="rounded-2xl border border-border bg-card/60 backdrop-blur-xl p-3 sm:p-5 space-y-3 hover:border-primary/30 transition-colors"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between">
