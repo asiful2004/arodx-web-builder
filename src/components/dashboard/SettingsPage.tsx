@@ -324,10 +324,10 @@ export default function SettingsPage() {
                 {theme === t.value && (
                   <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />
                 )}
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center ${
                   theme === t.value ? "bg-primary/10" : "bg-muted/50"
                 }`}>
-                  <t.icon className={`w-5 h-5 ${theme === t.value ? "text-primary" : "text-muted-foreground"}`} />
+                  <t.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${theme === t.value ? "text-primary" : "text-muted-foreground"}`} />
                 </div>
                 <div className="text-center">
                   <p className={`text-sm font-medium ${theme === t.value ? "text-foreground" : "text-muted-foreground"}`}>{t.label}</p>
