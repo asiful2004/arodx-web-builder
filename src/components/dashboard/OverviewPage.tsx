@@ -140,7 +140,9 @@ export default function OverviewPage() {
         });
       }
 
-      setActiveOrders(orders);
+      // Filter out refunded orders from overview
+      const visibleOrders = orders.filter(o => o.refund_status !== 'approved');
+      setActiveOrders(visibleOrders);
     };
     fetchData();
   }, [user.id]);
