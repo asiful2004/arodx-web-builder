@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Building2, Globe, Phone, MapPin, Loader2,
+  Building2, Globe, Phone, MapPin, Loader2, User, Mail,
   Shirt, ShoppingCart, UtensilsCrossed, Stethoscope, GraduationCap, Briefcase,
   Palette, Cpu, Car, Plane, Landmark, Dumbbell, Music, Camera, Wrench, Heart,
   type LucideIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const categoryIconMap: Record<string, LucideIcon> = {
   "Fashion & Clothing": Shirt,
