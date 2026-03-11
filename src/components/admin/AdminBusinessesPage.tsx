@@ -56,10 +56,10 @@ export default function AdminBusinessesPage() {
   useEffect(() => {
     supabase
       .from("businesses")
-      .select("*")
+      .select("*, profiles!businesses_user_id_fkey(full_name, avatar_url), orders(customer_email, package_name)")
       .order("created_at", { ascending: false })
       .then(({ data }) => {
-        setBusinesses(data || []);
+        setBusinesses((data as any) || []);
         setLoading(false);
       });
   }, []);
