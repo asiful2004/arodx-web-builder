@@ -44,6 +44,9 @@ interface Business {
   domain_name: string | null;
   logo_url: string | null;
   created_at: string;
+  user_id: string;
+  profiles: { full_name: string | null; avatar_url: string | null } | null;
+  orders: { customer_email: string | null; package_name: string | null } | null;
 }
 
 export default function AdminBusinessesPage() {
