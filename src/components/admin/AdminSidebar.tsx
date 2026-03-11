@@ -91,6 +91,7 @@ export function AdminSidebar({ profile }: AdminSidebarProps) {
                       end={item.url === "/admin"}
                       className="hover:bg-sidebar-accent/50"
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      onClick={closeMobileMenu}
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
