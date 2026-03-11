@@ -45,8 +45,10 @@ interface Business {
   logo_url: string | null;
   created_at: string;
   user_id: string;
-  profiles: { full_name: string | null; avatar_url: string | null } | null;
-  orders: { customer_email: string | null; package_name: string | null } | null;
+  owner_name?: string | null;
+  owner_avatar?: string | null;
+  owner_email?: string | null;
+  package_name?: string | null;
 }
 
 export default function AdminBusinessesPage() {
@@ -54,14 +56,44 @@ export default function AdminBusinessesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase
-      .from("businesses")
-      .select("*, profiles!businesses_user_id_fkey(full_name, avatar_url), orders(customer_email, package_name)")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setBusinesses((data as any) || []);
+    const fetchData = async () => {
+      const { data: bizData } = await supabase
+        .from("businesses")
+        .select("*, orders(customer_email, package_name)")
+        .order("created_at", { ascending: false });
+
+      if (!bizData || bizData.length === 0) {
+        setBusinesses([]);
         setLoading(false);
+        return;
+      }
+
+      const userIds = [...new Set(bizData.map((b) => b.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url")
+        .in("user_id", userIds);
+
+      const profileMap = new Map(
+        (profiles || []).map((p) => [p.user_id, p])
+      );
+
+      const enriched: Business[] = bizData.map((b: any) => {
+        const profile = profileMap.get(b.user_id);
+        const order = b.orders;
+        return {
+          ...b,
+          owner_name: profile?.full_name || null,
+          owner_avatar: profile?.avatar_url || null,
+          owner_email: order?.customer_email || null,
+          package_name: order?.package_name || null,
+        };
       });
+
+      setBusinesses(enriched);
+      setLoading(false);
+    };
+    fetchData();
   }, []);
 
   if (loading) {
