@@ -30,11 +30,16 @@ interface AdminSidebarProps {
 }
 
 export function AdminSidebar({ profile }: AdminSidebarProps) {
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const isMobile = useIsMobile();
+
+  const closeMobileMenu = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   const isActive = (path: string) =>
     path === "/admin"
