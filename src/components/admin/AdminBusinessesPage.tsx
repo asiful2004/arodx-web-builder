@@ -166,6 +166,31 @@ export default function AdminBusinessesPage() {
                 )}
               </div>
 
+              {/* Owner info */}
+              <div className="flex items-center gap-2 pt-2 border-t border-border">
+                <Avatar className="w-6 h-6 shrink-0">
+                  <AvatarImage src={biz.owner_avatar || undefined} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-bold">
+                    {(biz.owner_name || "U").charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-foreground truncate">
+                    {biz.owner_name || "নাম নেই"}
+                  </p>
+                  {biz.owner_email && (
+                    <p className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
+                      <Mail className="w-2.5 h-2.5 shrink-0" /> {biz.owner_email}
+                    </p>
+                  )}
+                </div>
+                {biz.package_name && (
+                  <Badge variant="secondary" className="text-[9px] shrink-0">
+                    {biz.package_name}
+                  </Badge>
+                )}
+              </div>
+
               <p className="text-[11px] text-muted-foreground/60">
                 {new Date(biz.created_at).toLocaleDateString("bn-BD", {
                   day: "numeric", month: "long", year: "numeric",
