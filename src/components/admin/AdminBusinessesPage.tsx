@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Building2, Globe, Phone, MapPin, Loader2,
+  Building2, Globe, Phone, MapPin, Loader2, User, Mail,
   Shirt, ShoppingCart, UtensilsCrossed, Stethoscope, GraduationCap, Briefcase,
   Palette, Cpu, Car, Plane, Landmark, Dumbbell, Music, Camera, Wrench, Heart,
   type LucideIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const categoryIconMap: Record<string, LucideIcon> = {
   "Fashion & Clothing": Shirt,
@@ -43,6 +44,11 @@ interface Business {
   domain_name: string | null;
   logo_url: string | null;
   created_at: string;
+  user_id: string;
+  owner_name?: string | null;
+  owner_avatar?: string | null;
+  owner_email?: string | null;
+  package_name?: string | null;
 }
 
 export default function AdminBusinessesPage() {
@@ -50,14 +56,44 @@ export default function AdminBusinessesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase
-      .from("businesses")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setBusinesses(data || []);
+    const fetchData = async () => {
+      const { data: bizData } = await supabase
+        .from("businesses")
+        .select("*, orders(customer_email, package_name)")
+        .order("created_at", { ascending: false });
+
+      if (!bizData || bizData.length === 0) {
+        setBusinesses([]);
         setLoading(false);
+        return;
+      }
+
+      const userIds = [...new Set(bizData.map((b) => b.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url")
+        .in("user_id", userIds);
+
+      const profileMap = new Map(
+        (profiles || []).map((p) => [p.user_id, p])
+      );
+
+      const enriched: Business[] = bizData.map((b: any) => {
+        const profile = profileMap.get(b.user_id);
+        const order = b.orders;
+        return {
+          ...b,
+          owner_name: profile?.full_name || null,
+          owner_avatar: profile?.avatar_url || null,
+          owner_email: order?.customer_email || null,
+          package_name: order?.package_name || null,
+        };
       });
+
+      setBusinesses(enriched);
+      setLoading(false);
+    };
+    fetchData();
   }, []);
 
   if (loading) {
@@ -127,6 +163,31 @@ export default function AdminBusinessesPage() {
                       {biz.domain_type === "own" ? "নিজস্ব" : "প্যাকেজ"}
                     </Badge>
                   </div>
+                )}
+              </div>
+
+              {/* Owner info */}
+              <div className="flex items-center gap-2 pt-2 border-t border-border">
+                <Avatar className="w-6 h-6 shrink-0">
+                  <AvatarImage src={biz.owner_avatar || undefined} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-bold">
+                    {(biz.owner_name || "U").charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-foreground truncate">
+                    {biz.owner_name || "নাম নেই"}
+                  </p>
+                  {biz.owner_email && (
+                    <p className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
+                      <Mail className="w-2.5 h-2.5 shrink-0" /> {biz.owner_email}
+                    </p>
+                  )}
+                </div>
+                {biz.package_name && (
+                  <Badge variant="secondary" className="text-[9px] shrink-0">
+                    {biz.package_name}
+                  </Badge>
                 )}
               </div>
 
