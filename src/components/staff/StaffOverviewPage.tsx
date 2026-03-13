@@ -1,14 +1,33 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { LayoutDashboard, MessageCircle, Ticket, UserCog } from "lucide-react";
+import { MessageCircle, Ticket, UserCog, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
-const quickLinks = [
+const baseLinks = [
   { title: "টিকেট সাপোর্ট", description: "ক্লায়েন্টদের টিকেট দেখুন ও উত্তর দিন", icon: Ticket, url: "/staff/tickets", color: "bg-primary/10 text-primary" },
   { title: "লাইভ চ্যাট", description: "রিয়েল-টাইম চ্যাটে ক্লায়েন্টদের সাপোর্ট দিন", icon: MessageCircle, url: "/staff/chat", color: "bg-green-500/10 text-green-600" },
 ];
 
+const hrLink = { title: "স্টাফ ম্যানেজমেন্ট", description: "স্টাফদের রোল অ্যাসাইন ও ম্যানেজ করুন", icon: Users, url: "/staff/hr", color: "bg-purple-500/10 text-purple-600" };
+
 export default function StaffOverviewPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [showHR, setShowHR] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([
+      supabase.rpc("has_role", { _user_id: user.id, _role: "hr" as any }),
+      supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
+    ]).then(([hrRes, adminRes]) => {
+      setShowHR(!!hrRes.data || !!adminRes.data);
+    });
+  }, [user]);
+
+  const quickLinks = showHR ? [...baseLinks, hrLink] : baseLinks;
 
   return (
     <div className="space-y-6">

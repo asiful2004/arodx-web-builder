@@ -37,12 +37,17 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
   const { user, signOut } = useAuth();
   const isMobile = useIsMobile();
   const [isHR, setIsHR] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .rpc("has_role", { _user_id: user.id, _role: "hr" as any })
-      .then(({ data }) => setIsHR(!!data));
+    Promise.all([
+      supabase.rpc("has_role", { _user_id: user.id, _role: "hr" as any }),
+      supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
+    ]).then(([hrRes, adminRes]) => {
+      setIsHR(!!hrRes.data);
+      setIsAdmin(!!adminRes.data);
+    });
   }, [user]);
 
   const closeMobileMenu = () => {
@@ -111,7 +116,7 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {isHR && (
+        {(isHR || isAdmin) && (
           <SidebarGroup>
             <SidebarGroupLabel>এইচআর</SidebarGroupLabel>
             <SidebarGroupContent>
