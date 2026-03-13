@@ -37,6 +37,8 @@ import StaffPanelPage from "./components/admin/StaffPanelPage";
 import StaffLayout from "./components/staff/StaffLayout";
 import StaffOverviewPage from "./components/staff/StaffOverviewPage";
 import StaffHRPage from "./components/staff/StaffHRPage";
+import AttendancePanel from "./components/staff/AttendancePanel";
+import StaffAttendanceReportPage from "./components/staff/StaffAttendanceReportPage";
 import GraphicsDesignerPanel from "./components/staff/panels/GraphicsDesignerPanel";
 import WebDeveloperPanel from "./components/staff/panels/WebDeveloperPanel";
 import ProjectManagerPanel from "./components/staff/panels/ProjectManagerPanel";
@@ -102,6 +104,8 @@ const App = () => {
                 <Route path="tickets/:ticketId" element={<AdminTicketDetailPage />} />
                 <Route path="chat" element={<AdminChatPage />} />
                 <Route path="hr" element={<StaffHRPage />} />
+                <Route path="attendance" element={<AttendancePanel />} />
+                <Route path="attendance-report" element={<StaffAttendanceReportPage />} />
                 <Route path="graphics-designer" element={<GraphicsDesignerPanel />} />
                 <Route path="web-developer" element={<WebDeveloperPanel />} />
                 <Route path="project-manager" element={<ProjectManagerPanel />} />

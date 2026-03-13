@@ -4,6 +4,7 @@ import { useStaffTasks } from "@/hooks/useStaffTasks";
 import TaskCard from "@/components/staff/TaskCard";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import AttendanceWidget from "@/components/staff/AttendanceWidget";
 
 export default function DigitalMarketerPanel() {
   const { tasks, loading, refetch } = useStaffTasks("digital_marketer");
@@ -28,6 +29,8 @@ export default function DigitalMarketerPanel() {
           </div>
         </div>
       </motion.div>
+
+      <AttendanceWidget />
 
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-border bg-card p-3.5 text-center">

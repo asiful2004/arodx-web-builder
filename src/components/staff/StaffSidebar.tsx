@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "@/components/NavLink";
 import {
   LayoutDashboard, LogOut, UserCog, MessageCircle, Ticket, Users,
-  Palette, Code, Briefcase, Megaphone,
+  Palette, Code, Briefcase, Megaphone, Clock, TrendingUp,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -18,12 +18,14 @@ import { supabase } from "@/integrations/supabase/client";
 
 const commonItems = [
   { title: "ওভারভিউ", url: "/staff", icon: LayoutDashboard },
+  { title: "অ্যাটেন্ডেন্স", url: "/staff/attendance", icon: Clock },
   { title: "টিকেট সাপোর্ট", url: "/staff/tickets", icon: Ticket },
   { title: "লাইভ চ্যাট", url: "/staff/chat", icon: MessageCircle },
 ];
 
 const hrManagementItems = [
   { title: "স্টাফ ম্যানেজমেন্ট", url: "/staff/hr", icon: Users },
+  { title: "অ্যাটেন্ডেন্স রিপোর্ট", url: "/staff/attendance-report", icon: TrendingUp },
 ];
 
 const subRolePanels = [
