@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
-  LayoutDashboard, ShoppingBag, Building2, Users, Settings, LogOut, Shield, Ticket,
+  LayoutDashboard, ShoppingBag, Building2, Users, Settings, LogOut, Shield, Ticket, MessageCircle,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
