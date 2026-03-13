@@ -19,6 +19,7 @@ const mainItems = [
   { title: "ব্যবসা সমূহ", url: "/admin/businesses", icon: Building2 },
   { title: "ইউজার ম্যানেজমেন্ট", url: "/admin/users", icon: Users },
   { title: "টিকেট ম্যানেজমেন্ট", url: "/admin/tickets", icon: Ticket },
+  { title: "লাইভ চ্যাট", url: "/admin/chat", icon: MessageCircle },
 ];
 
 const settingsItems = [
