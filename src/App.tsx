@@ -97,6 +97,7 @@ const App = () => {
                 <Route path="tickets" element={<AdminTicketsPage />} />
                 <Route path="tickets/:ticketId" element={<AdminTicketDetailPage />} />
                 <Route path="chat" element={<AdminChatPage />} />
+                <Route path="hr" element={<StaffHRPage />} />
               </Route>
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/renewal" element={<RenewalPage />} />
