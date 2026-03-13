@@ -321,6 +321,8 @@ export default function AdminUsersPage() {
             <SelectItem value="admin">অ্যাডমিন</SelectItem>
             <SelectItem value="client">ক্লায়েন্ট</SelectItem>
             <SelectItem value="moderator">মডারেটর</SelectItem>
+            <SelectItem value="staff">স্টাফ</SelectItem>
+            <SelectItem value="hr">এইচআর</SelectItem>
             <SelectItem value="user">ইউজার</SelectItem>
           </SelectContent>
         </Select>
