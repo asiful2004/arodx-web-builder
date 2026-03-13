@@ -33,6 +33,7 @@ interface UserProfile {
   avatar_url: string | null;
   created_at: string;
   roles: AppRole[];
+  email: string | null;
 }
 
 interface UserRole {
