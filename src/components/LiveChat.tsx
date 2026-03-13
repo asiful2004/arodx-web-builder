@@ -311,7 +311,7 @@ export default function LiveChat() {
                           <AvatarFallback className={`text-[10px] font-bold ${
                             isClient ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground"
                           }`}>
-                            {sender.avatar ? null : getInitials(sender.name)}
+                            {sender.isGuest ? <User className="h-3.5 w-3.5" /> : getInitials(sender.name)}
                           </AvatarFallback>
                         </Avatar>
                         <div className={`max-w-[75%] ${isClient ? "items-end" : "items-start"} flex flex-col`}>
