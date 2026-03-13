@@ -145,11 +145,12 @@ export default function LiveChat() {
       <AnimatePresence>
         {!open && (
           <motion.button
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0 }}
+            initial={{ scale: 0, x: -40, opacity: 0 }}
+            animate={{ scale: 1, x: 0, opacity: 1 }}
+            exit={{ scale: 0, x: -40, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.5 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-5 right-5 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl flex items-center justify-center hover:opacity-90 transition-opacity"
+            className="fixed bottom-5 left-5 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl flex items-center justify-center hover:opacity-90 transition-opacity"
           >
             <MessageCircle className="h-6 w-6" />
             {unread > 0 && (
