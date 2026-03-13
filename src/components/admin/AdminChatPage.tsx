@@ -322,30 +322,53 @@ export default function AdminChatPage() {
               </div>
 
               {/* Messages */}
-              <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-2">
-                {messages.map((m) => (
-                  <div
-                    key={m.id}
-                    className={`flex ${m.sender_type === "admin" ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`max-w-[70%] px-3 py-2 rounded-xl text-sm ${
-                        m.sender_type === "admin"
-                          ? "bg-primary text-primary-foreground rounded-br-sm"
-                          : m.sender_type === "system"
-                          ? "bg-muted text-muted-foreground text-xs text-center w-full rounded-lg"
-                          : "bg-accent text-accent-foreground rounded-bl-sm"
-                      }`}
-                    >
-                      {m.message}
-                      <p className={`text-[9px] mt-1 ${
-                        m.sender_type === "admin" ? "text-primary-foreground/60" : "text-muted-foreground/60"
-                      }`}>
-                        {new Date(m.created_at).toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" })}
-                      </p>
+              <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+                {messages.map((m) => {
+                  if (m.sender_type === "system") {
+                    return (
+                      <div key={m.id} className="flex justify-center">
+                        <div className="bg-muted text-muted-foreground text-xs text-center px-3 py-2 rounded-lg max-w-[90%]">
+                          {m.message}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  const isAdmin = m.sender_type === "admin";
+                  const sender = getSenderInfo(m);
+
+                  return (
+                    <div key={m.id} className={`flex gap-2 ${isAdmin ? "flex-row-reverse" : "flex-row"}`}>
+                      <Avatar className="h-7 w-7 shrink-0 mt-0.5">
+                        <AvatarImage src={sender.avatar || undefined} />
+                        <AvatarFallback className={`text-[10px] font-bold ${
+                          isAdmin ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground"
+                        }`}>
+                          {getInitials(sender.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className={`max-w-[70%] flex flex-col ${isAdmin ? "items-end" : "items-start"}`}>
+                        <p className={`text-[10px] mb-0.5 text-muted-foreground ${isAdmin ? "text-right" : "text-left"}`}>
+                          {sender.name}
+                        </p>
+                        <div
+                          className={`px-3 py-2 rounded-xl text-sm ${
+                            isAdmin
+                              ? "bg-primary text-primary-foreground rounded-tr-sm"
+                              : "bg-accent text-accent-foreground rounded-tl-sm"
+                          }`}
+                        >
+                          {m.message}
+                          <p className={`text-[9px] mt-1 ${
+                            isAdmin ? "text-primary-foreground/60" : "text-muted-foreground/60"
+                          }`}>
+                            {new Date(m.created_at).toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Input */}
