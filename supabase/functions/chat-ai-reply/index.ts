@@ -185,8 +185,9 @@ serve(async (req) => {
         return new Response(JSON.stringify({ reply: reply || "রিপ্লাই পাওয়া যায়নি" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-      } catch (err) {
-        return new Response(JSON.stringify({ error: String(err) }), {
+      } catch (err: any) {
+        const msg = err?.message || String(err);
+        return new Response(JSON.stringify({ error: msg }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
