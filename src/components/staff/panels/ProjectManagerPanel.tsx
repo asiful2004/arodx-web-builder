@@ -4,6 +4,7 @@ import { useStaffTasks } from "@/hooks/useStaffTasks";
 import TaskCard from "@/components/staff/TaskCard";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import AttendanceWidget from "@/components/staff/AttendanceWidget";
 
 export default function ProjectManagerPanel() {
   const { tasks, loading, refetch } = useStaffTasks("project_manager");
