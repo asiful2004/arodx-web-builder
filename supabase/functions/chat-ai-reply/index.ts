@@ -149,7 +149,7 @@ serve(async (req) => {
         if (provider === "claude") {
           await callClaude(api_key, model, testMessages);
         } else {
-          await callOpenAICompatible(url, api_key, model, testMessages, skipAuth);
+          await callOpenAICompatible(url, api_key, model, testMessages, skipAuth, provider);
         }
         return new Response(JSON.stringify({ success: true, message: `${provider} API কানেকশন সফল! মডেল: ${model}` }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
