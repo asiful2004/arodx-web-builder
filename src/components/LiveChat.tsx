@@ -204,47 +204,36 @@ export default function LiveChat() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Audio recording
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      audioChunksRef.current = [];
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunksRef.current.push(e.data);
-      };
-      mediaRecorder.onstop = async () => {
-        stream.getTracks().forEach(t => t.stop());
-        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-        const url = await uploadFile(audioBlob, "webm");
-        if (url) await sendMessage("audio", url);
-        setRecordingTime(0);
-      };
-      mediaRecorder.start();
-      mediaRecorderRef.current = mediaRecorder;
-      setIsRecording(true);
-      setRecordingTime(0);
-      recordingTimerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
-    } catch { /* mic permission denied */ }
+  // Speech-to-text
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+    const recognition = new SpeechRecognition();
+    recognition.lang = "bn-BD";
+    recognition.interimResults = true;
+    recognition.continuous = true;
+    let finalTranscript = input;
+    recognition.onresult = (e: any) => {
+      let interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) {
+          finalTranscript += e.results[i][0].transcript;
+        } else {
+          interim += e.results[i][0].transcript;
+        }
+      }
+      setInput(finalTranscript + interim);
+    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+    recognitionRef.current = recognition;
+    setIsListening(true);
   };
 
-  const stopRecording = () => {
-    mediaRecorderRef.current?.stop();
-    setIsRecording(false);
-    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-  };
-
-  const cancelRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.ondataavailable = null;
-      mediaRecorderRef.current.onstop = () => {
-        mediaRecorderRef.current?.stream.getTracks().forEach(t => t.stop());
-      };
-      mediaRecorderRef.current.stop();
-    }
-    setIsRecording(false);
-    setRecordingTime(0);
-    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+  const stopListening = () => {
+    recognitionRef.current?.stop();
+    setIsListening(false);
   };
 
   const toggleAudioPlayback = (msgId: string, url: string) => {
