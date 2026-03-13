@@ -72,6 +72,26 @@ const roleConfig: Record<AppRole, { label: string; icon: typeof Shield; classNam
     icon: Users,
     className: "bg-purple-500/10 text-purple-600 border-purple-500/20",
   },
+  graphics_designer: {
+    label: "গ্রাফিক্স ডিজাইনার",
+    icon: Palette,
+    className: "bg-pink-500/10 text-pink-600 border-pink-500/20",
+  },
+  web_developer: {
+    label: "ওয়েব ডেভেলপার",
+    icon: Code,
+    className: "bg-cyan-500/10 text-cyan-600 border-cyan-500/20",
+  },
+  project_manager: {
+    label: "প্রজেক্ট ম্যানেজার",
+    icon: Briefcase,
+    className: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+  },
+  digital_marketer: {
+    label: "ডিজিটাল মার্কেটার",
+    icon: Megaphone,
+    className: "bg-green-500/10 text-green-600 border-green-500/20",
+  },
 };
 
 export default function AdminUsersPage() {
