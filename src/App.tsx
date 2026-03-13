@@ -36,6 +36,7 @@ import AdminChatPage from "./components/admin/AdminChatPage";
 import StaffPanelPage from "./components/admin/StaffPanelPage";
 import StaffLayout from "./components/staff/StaffLayout";
 import StaffOverviewPage from "./components/staff/StaffOverviewPage";
+import StaffHRPage from "./components/staff/StaffHRPage";
 import LiveChat from "./components/LiveChat";
 import Checkout from "./pages/Checkout";
 import RenewalPage from "./pages/Renewal";
