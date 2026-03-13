@@ -284,7 +284,7 @@ export default function AdminChatPage() {
     setPlayingAudioId(msgId);
   };
 
-  const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+  
 
   const renderMessageContent = (m: ChatMessage, isAdmin: boolean) => {
     if (m.message_type === "image" && m.attachment_url) {
