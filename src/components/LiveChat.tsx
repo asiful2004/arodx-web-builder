@@ -51,15 +51,22 @@ export default function LiveChat() {
       });
   }, [user]);
 
-  // Restore session and guest name
+  // Restore session and guest name from DB
   useEffect(() => {
     const stored = localStorage.getItem(SESSION_KEY);
     if (stored) {
       setSessionId(stored);
       setStarted(true);
+      // Fetch guest name from DB
+      supabase
+        .from("chat_sessions")
+        .select("guest_name")
+        .eq("id", stored)
+        .single()
+        .then(({ data }) => {
+          if (data?.guest_name) setGuestName(data.guest_name);
+        });
     }
-    const storedName = localStorage.getItem("live_chat_guest_name");
-    if (storedName) setGuestName(storedName);
   }, []);
 
   // Fetch sender profiles for messages
@@ -150,7 +157,7 @@ export default function LiveChat() {
     if (data && !error) {
       setSessionId(data.id);
       localStorage.setItem(SESSION_KEY, data.id);
-      if (!user) localStorage.setItem("live_chat_guest_name", name);
+      if (!user) setGuestName(name);
       setStarted(true);
 
       await supabase.from("chat_messages").insert({
@@ -179,7 +186,7 @@ export default function LiveChat() {
 
   const endChat = () => {
     localStorage.removeItem(SESSION_KEY);
-    localStorage.removeItem("live_chat_guest_name");
+    localStorage.removeItem(SESSION_KEY);
     setSessionId(null);
     setStarted(false);
     setMessages([]);
