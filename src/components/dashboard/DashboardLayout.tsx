@@ -179,24 +179,11 @@ export default function DashboardLayout() {
                 <SheetHeader className="border-b border-border pb-3">
                   <div className="flex items-center justify-between">
                     <SheetTitle className="text-base">নোটিফিকেশন</SheetTitle>
-                    <div className="flex items-center gap-2">
-                      {unreadCount > 0 && (
-                        <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
-                          সব পঠিত
-                        </Button>
-                      )}
-                      <button
-                        onClick={toggleSound}
-                        className="p-1.5 rounded-md hover:bg-accent transition-colors"
-                        title={soundEnabled ? "সাউন্ড বন্ধ করুন" : "সাউন্ড চালু করুন"}
-                      >
-                        {soundEnabled ? (
-                          <Volume2 className="h-4 w-4 text-primary" />
-                        ) : (
-                          <BellOff className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </button>
-                    </div>
+                    {unreadCount > 0 && (
+                      <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
+                        সব পঠিত
+                      </Button>
+                    )}
                   </div>
                 </SheetHeader>
 
