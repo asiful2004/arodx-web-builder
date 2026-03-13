@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import { Clock, LogIn, LogOut, CalendarDays, Timer, AlertTriangle, Coffee } from "lucide-react";
+import { Clock, LogIn, LogOut, CalendarDays, Timer, AlertTriangle, Coffee, Palmtree } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useMyAttendance, isOfficeOpen } from "@/hooks/useAttendance";
+import { useMyAttendance, isOfficeOpen, LEAVE_TYPE_CONFIG } from "@/hooks/useAttendance";
 import { format } from "date-fns";
 import { bn } from "date-fns/locale";
 
@@ -14,7 +14,7 @@ const TYPE_LABELS: Record<string, { label: string; color: string; icon: typeof C
 };
 
 export default function AttendanceWidget() {
-  const { todayRecord, loading, checkIn, checkOut } = useMyAttendance();
+  const { todayRecord, loading, checkIn, checkOut, onApprovedLeave, activeLeave } = useMyAttendance();
   const officeOpen = isOfficeOpen();
 
   const isCheckedIn = !!todayRecord?.check_in;
@@ -25,7 +25,6 @@ export default function AttendanceWidget() {
     return format(new Date(iso), "hh:mm a", { locale: bn });
   };
 
-  // Calculate live duration
   const getLiveHours = () => {
     if (!todayRecord?.check_in) return "০:০০";
     const start = new Date(todayRecord.check_in);
@@ -37,6 +36,7 @@ export default function AttendanceWidget() {
   };
 
   const typeInfo = todayRecord ? TYPE_LABELS[todayRecord.attendance_type] || TYPE_LABELS.present : null;
+  const leaveTypeCfg = activeLeave ? LEAVE_TYPE_CONFIG[activeLeave.leave_type as keyof typeof LEAVE_TYPE_CONFIG] : null;
 
   return (
     <motion.div
@@ -57,16 +57,62 @@ export default function AttendanceWidget() {
           </div>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className={`h-2 w-2 rounded-full ${officeOpen ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
-          <span className="text-[10px] text-muted-foreground">
-            {officeOpen ? "অফিস চালু" : "অফিস বন্ধ"}
-          </span>
+          {onApprovedLeave ? (
+            <>
+              <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+              <span className="text-[10px] text-amber-600 font-medium">আপনি ছুটিতে</span>
+            </>
+          ) : (
+            <>
+              <span className={`h-2 w-2 rounded-full ${officeOpen ? "bg-green-500 animate-pulse" : "bg-red-500"}`} />
+              <span className="text-[10px] text-muted-foreground">
+                {officeOpen ? "অফিস চালু" : "অফিস বন্ধ"}
+              </span>
+            </>
+          )}
         </div>
       </div>
 
       {loading ? (
         <div className="h-20 flex items-center justify-center">
           <div className="h-5 w-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        </div>
+      ) : onApprovedLeave && activeLeave ? (
+        /* On approved leave - show leave info, block attendance */
+        <div className="space-y-3">
+          <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3 text-center">
+            <Palmtree className="h-8 w-8 text-amber-600 mx-auto mb-2" />
+            <p className="text-sm font-semibold text-amber-700">আপনি ছুটিতে আছেন</p>
+            <p className="text-[11px] text-amber-600/80 mt-1">অ্যাটেন্ডেন্স নিষ্ক্রিয়</p>
+          </div>
+
+          <div className="rounded-lg bg-muted/50 p-3 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground">ছুটির ধরন</span>
+              {leaveTypeCfg && (
+                <Badge variant="outline" className={`text-[10px] ${leaveTypeCfg.color}`}>
+                  {leaveTypeCfg.label}
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground">শুরু</span>
+              <span className="text-[10px] font-medium text-foreground">
+                {format(new Date(activeLeave.start_date), "dd MMM yyyy", { locale: bn })}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground">শেষ</span>
+              <span className="text-[10px] font-medium text-foreground">
+                {format(new Date(activeLeave.end_date), "dd MMM yyyy", { locale: bn })}
+              </span>
+            </div>
+            {activeLeave.reason && (
+              <div className="pt-1 border-t border-border">
+                <p className="text-[10px] text-muted-foreground">{activeLeave.reason}</p>
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         <>

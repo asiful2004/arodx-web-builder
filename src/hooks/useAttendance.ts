@@ -75,8 +75,22 @@ export function useMyAttendance() {
   const [todayRecord, setTodayRecord] = useState<AttendanceRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<AttendanceRecord[]>([]);
+  const [activeLeave, setActiveLeave] = useState<LeaveRequest | null>(null);
 
   const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Dhaka" });
+
+  const fetchActiveLeave = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("staff_leave_requests" as any)
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("status", "approved")
+      .lte("start_date", today)
+      .gte("end_date", today)
+      .maybeSingle();
+    setActiveLeave(data as any);
+  }, [user, today]);
 
   const fetchToday = useCallback(async () => {
     if (!user) return;
@@ -107,7 +121,6 @@ export function useMyAttendance() {
   const checkIn = useCallback(async () => {
     if (!user) return;
     const now = new Date().toISOString();
-    // Check if late (after 8:30 AM Dhaka time)
     const dhakaTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
     const isLate = dhakaTime.getHours() > 8 || (dhakaTime.getHours() === 8 && dhakaTime.getMinutes() > 30);
 
@@ -152,7 +165,7 @@ export function useMyAttendance() {
     }
   }, [user, todayRecord, fetchToday]);
 
-  useEffect(() => { fetchToday(); fetchHistory(); }, [fetchToday, fetchHistory]);
+  useEffect(() => { fetchToday(); fetchHistory(); fetchActiveLeave(); }, [fetchToday, fetchHistory, fetchActiveLeave]);
 
   // Realtime
   useEffect(() => {
@@ -166,7 +179,20 @@ export function useMyAttendance() {
     return () => { supabase.removeChannel(channel); };
   }, [fetchToday, fetchHistory]);
 
-  return { todayRecord, loading, history, checkIn, checkOut, refetch: fetchToday };
+  // Listen for leave request changes too
+  useEffect(() => {
+    const channel = supabase
+      .channel("my-leave-status")
+      .on("postgres_changes", { event: "*", schema: "public", table: "staff_leave_requests" }, () => {
+        fetchActiveLeave();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [fetchActiveLeave]);
+
+  const onApprovedLeave = !!activeLeave;
+
+  return { todayRecord, loading, history, checkIn, checkOut, refetch: fetchToday, onApprovedLeave, activeLeave };
 }
 
 export function useLeaveRequests(allUsers = false) {
