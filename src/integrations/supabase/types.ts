@@ -362,6 +362,87 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_attendance: {
+        Row: {
+          attendance_type: Database["public"]["Enums"]["attendance_type"]
+          check_in: string | null
+          check_out: string | null
+          created_at: string
+          date: string
+          id: string
+          note: string | null
+          total_hours: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attendance_type?: Database["public"]["Enums"]["attendance_type"]
+          check_in?: string | null
+          check_out?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          note?: string | null
+          total_hours?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attendance_type?: Database["public"]["Enums"]["attendance_type"]
+          check_in?: string | null
+          check_out?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          note?: string | null
+          total_hours?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      staff_leave_requests: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          leave_type: Database["public"]["Enums"]["leave_type"]
+          reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["leave_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          leave_type?: Database["public"]["Enums"]["leave_type"]
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date: string
+          status?: Database["public"]["Enums"]["leave_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          leave_type?: Database["public"]["Enums"]["leave_type"]
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["leave_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       staff_tasks: {
         Row: {
           assigned_by: string
@@ -560,6 +641,9 @@ export type Database = {
         | "web_developer"
         | "project_manager"
         | "digital_marketer"
+      attendance_type: "present" | "leave" | "half_day" | "late"
+      leave_status: "pending" | "approved" | "rejected"
+      leave_type: "sick" | "casual" | "annual" | "emergency" | "other"
       staff_task_priority: "low" | "medium" | "high" | "urgent"
       staff_task_status:
         | "pending"
@@ -715,6 +799,9 @@ export const Constants = {
         "project_manager",
         "digital_marketer",
       ],
+      attendance_type: ["present", "leave", "half_day", "late"],
+      leave_status: ["pending", "approved", "rejected"],
+      leave_type: ["sick", "casual", "annual", "emergency", "other"],
       staff_task_priority: ["low", "medium", "high", "urgent"],
       staff_task_status: [
         "pending",
