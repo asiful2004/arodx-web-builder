@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const DEFAULT_MODEL = "google/gemini-2.5-flash";
+const DEFAULT_MODEL = "google/gemini-3-flash-preview";
 
 const DEFAULT_SYSTEM_PROMPT = `তুমি ArodX এর একজন বাংলা ভাষী AI সাপোর্ট এজেন্ট। তোমার নাম "ArodX সাপোর্ট"।
 তোমার কাজ হলো ক্লায়েন্টদের সাহায্য করা যতক্ষণ না একজন সত্যিকারের অ্যাডমিন আসে।
