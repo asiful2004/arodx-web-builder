@@ -100,6 +100,21 @@ export default function AdminChatPage() {
     fetchSessions();
   }, [fetchSessions]);
 
+  // Fetch sender profiles for messages
+  const fetchMsgProfiles = useCallback(async (msgs: ChatMessage[]) => {
+    const senderIds = [...new Set(msgs.filter(m => m.sender_id).map(m => m.sender_id!))];
+    const newIds = senderIds.filter(id => !senderProfiles.has(id));
+    if (newIds.length === 0) return;
+    const { data } = await supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", newIds);
+    if (data) {
+      setSenderProfiles(prev => {
+        const next = new Map(prev);
+        data.forEach(p => next.set(p.user_id, { full_name: p.full_name, avatar_url: p.avatar_url }));
+        return next;
+      });
+    }
+  }, [senderProfiles]);
+
   // Fetch messages for active session
   const fetchMessages = useCallback(async () => {
     if (!activeSession) return;
@@ -108,7 +123,10 @@ export default function AdminChatPage() {
       .select("*")
       .eq("session_id", activeSession)
       .order("created_at", { ascending: true });
-    if (data) setMessages(data as ChatMessage[]);
+    if (data) {
+      setMessages(data as ChatMessage[]);
+      fetchMsgProfiles(data as ChatMessage[]);
+    }
 
     // Mark client messages as read
     await supabase
