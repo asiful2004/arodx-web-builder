@@ -28,8 +28,12 @@ export default function AiTestPanel({ settings, customEndpoint, customModel }: A
   const [testing, setTesting] = useState(false);
 
   const sendTestMessage = async () => {
-    if (!settings.api_key || !testMsg.trim()) {
-      toast.error("API কী ও মেসেজ দিন");
+    if (!settings.api_key && settings.provider !== "ollama") {
+      toast.error("API কী দিন");
+      return;
+    }
+    if (!testMsg.trim()) {
+      toast.error("মেসেজ লিখুন");
       return;
     }
     setTesting(true);

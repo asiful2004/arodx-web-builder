@@ -51,6 +51,12 @@ const PROVIDERS = [
     endpoint: "https://api.anthropic.com/v1/messages",
   },
   {
+    value: "ollama",
+    label: "Ollama (লোকাল AI)",
+    models: ["llama3.1", "llama3", "mistral", "gemma2", "phi3", "codellama", "qwen2"],
+    endpoint: "http://localhost:11434/v1/chat/completions",
+  },
+  {
     value: "custom",
     label: "Custom (OpenAI Compatible)",
     models: [],
@@ -106,6 +112,9 @@ export default function ChatAiConfigPanel() {
 
     if (settings.provider === "custom") {
       updateData.model_name = `${customEndpoint}||${customModel}`;
+    } else if (settings.provider === "ollama") {
+      const ollamaUrl = customEndpoint || "http://localhost:11434";
+      updateData.model_name = `${ollamaUrl}||${settings.model_name}`;
     }
 
     const { error } = await supabase
@@ -184,13 +193,15 @@ export default function ChatAiConfigPanel() {
 
         {/* API Key */}
         <div className="space-y-1.5">
-          <Label className="text-xs">API কী</Label>
+          <Label className="text-xs">
+            API কী {settings.provider === "ollama" && <span className="text-muted-foreground">(ঐচ্ছিক)</span>}
+          </Label>
           <div className="relative">
             <Input
               type={showKey ? "text" : "password"}
               value={settings.api_key}
               onChange={(e) => updateField("api_key", e.target.value)}
-              placeholder="sk-... বা আপনার API কী"
+              placeholder={settings.provider === "ollama" ? "খালি রাখতে পারেন (লোকাল)" : "sk-... বা আপনার API কী"}
               className="text-sm h-9 pr-10 font-mono"
             />
             <button
@@ -207,9 +218,26 @@ export default function ChatAiConfigPanel() {
             {settings.provider === "grok" && "console.x.ai থেকে API কী নিন"}
             {settings.provider === "deepseek" && "platform.deepseek.com থেকে API কী নিন"}
             {settings.provider === "claude" && "console.anthropic.com থেকে API কী নিন"}
+            {settings.provider === "ollama" && "Ollama লোকালে চললে API কী লাগবে না"}
             {settings.provider === "custom" && "আপনার OpenAI-compatible API কী দিন"}
           </p>
         </div>
+
+        {/* Ollama Endpoint */}
+        {settings.provider === "ollama" && (
+          <div className="space-y-1.5">
+            <Label className="text-xs">Ollama Endpoint URL</Label>
+            <Input
+              value={customEndpoint || "http://localhost:11434"}
+              onChange={(e) => setCustomEndpoint(e.target.value)}
+              placeholder="http://localhost:11434"
+              className="text-sm h-9 font-mono"
+            />
+            <p className="text-[10px] text-muted-foreground">
+              ডিফল্ট: http://localhost:11434
+            </p>
+          </div>
+        )}
 
         {/* Model */}
         {settings.provider !== "custom" ? (

@@ -20,7 +20,7 @@ const DEFAULT_SYSTEM_PROMPT = `তুমি ArodX এর একজন বাং�
 - উত্তর ২-৩ বাক্যে সীমাবদ্ধ রাখো`;
 
 // Provider endpoint mapping
-function getEndpoint(provider: string, modelName: string): { url: string; model: string } {
+function getEndpoint(provider: string, modelName: string): { url: string; model: string; skipAuth?: boolean } {
   switch (provider) {
     case "openai":
       return { url: "https://api.openai.com/v1/chat/completions", model: modelName };
@@ -32,10 +32,15 @@ function getEndpoint(provider: string, modelName: string): { url: string; model:
       return { url: "https://api.deepseek.com/chat/completions", model: modelName };
     case "claude":
       return { url: "https://api.anthropic.com/v1/messages", model: modelName };
-    case "custom": {
-      // model_name stores "endpoint||model" for custom
+    case "ollama": {
       const parts = modelName.split("||");
-      return { url: parts[0] || "", model: parts[1] || "default" };
+      const baseUrl = parts[0] || "http://localhost:11434";
+      const model = parts[1] || "llama3.1";
+      return { url: `${baseUrl}/v1/chat/completions`, model, skipAuth: true };
+    }
+    case "custom": {
+      const cparts = modelName.split("||");
+      return { url: cparts[0] || "", model: cparts[1] || "default" };
     }
     default:
       return { url: "https://api.openai.com/v1/chat/completions", model: modelName };
@@ -70,13 +75,17 @@ async function callClaude(apiKey: string, model: string, messages: any[]): Promi
   return data.content?.[0]?.text || "";
 }
 
-async function callOpenAICompatible(url: string, apiKey: string, model: string, messages: any[]): Promise<string> {
+async function callOpenAICompatible(url: string, apiKey: string, model: string, messages: any[], skipAuth = false): Promise<string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (!skipAuth && apiKey) {
+    headers["Authorization"] = `Bearer ${apiKey}`;
+  }
+
   const response = await fetch(url, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify({
       model,
       messages,
@@ -105,12 +114,12 @@ serve(async (req) => {
     // === TEST MODE: verify connection ===
     if (test_mode === "verify") {
       const { provider, api_key, model_name } = body;
-      if (!api_key) {
+      if (!api_key && provider !== "ollama") {
         return new Response(JSON.stringify({ success: false, error: "API কী দেওয়া হয়নি" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const { url, model } = getEndpoint(provider, model_name);
+      const { url, model, skipAuth } = getEndpoint(provider, model_name);
       const testMessages = [
         { role: "user", content: "Say hi" },
       ];
@@ -118,7 +127,7 @@ serve(async (req) => {
         if (provider === "claude") {
           await callClaude(api_key, model, testMessages);
         } else {
-          await callOpenAICompatible(url, api_key, model, testMessages);
+          await callOpenAICompatible(url, api_key, model, testMessages, skipAuth);
         }
         return new Response(JSON.stringify({ success: true, message: `${provider} API কানেকশন সফল! মডেল: ${model}` }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -133,12 +142,12 @@ serve(async (req) => {
     // === TEST MODE: chat ===
     if (test_mode === "chat") {
       const { provider, api_key, model_name, system_prompt, test_message } = body;
-      if (!api_key || !test_message) {
+      if ((!api_key && provider !== "ollama") || !test_message) {
         return new Response(JSON.stringify({ error: "API কী ও মেসেজ দরকার" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const { url, model } = getEndpoint(provider, model_name);
+      const { url, model, skipAuth } = getEndpoint(provider, model_name);
       const msgs = [
         { role: "system", content: system_prompt || DEFAULT_SYSTEM_PROMPT },
         { role: "user", content: test_message },
@@ -148,7 +157,7 @@ serve(async (req) => {
         if (provider === "claude") {
           reply = await callClaude(api_key, model, msgs);
         } else {
-          reply = await callOpenAICompatible(url, api_key, model, msgs);
+          reply = await callOpenAICompatible(url, api_key, model, msgs, skipAuth);
         }
         return new Response(JSON.stringify({ reply: reply || "রিপ্লাই পাওয়া যায়নি" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -180,7 +189,7 @@ serve(async (req) => {
       .limit(1)
       .single();
 
-    if (!aiSettings || !aiSettings.enabled || !aiSettings.api_key) {
+    if (!aiSettings || !aiSettings.enabled || (!aiSettings.api_key && aiSettings.provider !== "ollama")) {
       return new Response(JSON.stringify({ skipped: true, reason: "AI not configured or disabled" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -247,14 +256,14 @@ serve(async (req) => {
     ];
 
     // Call the configured AI provider
-    const { url, model } = getEndpoint(aiSettings.provider, aiSettings.model_name);
+    const { url, model, skipAuth } = getEndpoint(aiSettings.provider, aiSettings.model_name);
     let replyText: string;
 
     try {
       if (aiSettings.provider === "claude") {
         replyText = await callClaude(aiSettings.api_key, model, aiMessages);
       } else {
-        replyText = await callOpenAICompatible(url, aiSettings.api_key, model, aiMessages);
+        replyText = await callOpenAICompatible(url, aiSettings.api_key, model, aiMessages, skipAuth);
       }
     } catch (apiErr) {
       console.error("AI provider error:", apiErr);
