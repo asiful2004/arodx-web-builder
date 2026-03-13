@@ -179,6 +179,7 @@ export default function LiveChat() {
 
   const endChat = () => {
     localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem("live_chat_guest_name");
     setSessionId(null);
     setStarted(false);
     setMessages([]);
