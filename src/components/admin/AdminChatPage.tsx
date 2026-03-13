@@ -29,9 +29,13 @@ interface ChatMessage {
   sender_type: string;
   sender_id: string | null;
   message: string;
+  message_type: string;
+  attachment_url: string | null;
   is_read: boolean;
   created_at: string;
 }
+
+const NOTIF_SOUND_URL = "https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3";
 
 export default function AdminChatPage() {
   const { user } = useAuth();
