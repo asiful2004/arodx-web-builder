@@ -20,11 +20,11 @@ import {
 import {
   Users, Loader2, Search, Shield, ShieldCheck, UserCog,
   RefreshCw, Calendar, UserPlus, Trash2, Crown, User as UserIcon,
-  KeyRound, Eye, EyeOff,
+  KeyRound, Eye, EyeOff, Palette, Code, Briefcase, Megaphone,
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
-type AppRole = "admin" | "moderator" | "user" | "client" | "staff" | "hr";
+type AppRole = "admin" | "moderator" | "user" | "client" | "staff" | "hr" | "graphics_designer" | "web_developer" | "project_manager" | "digital_marketer";
 
 interface UserProfile {
   id: string;
@@ -71,6 +71,26 @@ const roleConfig: Record<AppRole, { label: string; icon: typeof Shield; classNam
     label: "এইচআর",
     icon: Users,
     className: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+  },
+  graphics_designer: {
+    label: "গ্রাফিক্স ডিজাইনার",
+    icon: Palette,
+    className: "bg-pink-500/10 text-pink-600 border-pink-500/20",
+  },
+  web_developer: {
+    label: "ওয়েব ডেভেলপার",
+    icon: Code,
+    className: "bg-cyan-500/10 text-cyan-600 border-cyan-500/20",
+  },
+  project_manager: {
+    label: "প্রজেক্ট ম্যানেজার",
+    icon: Briefcase,
+    className: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+  },
+  digital_marketer: {
+    label: "ডিজিটাল মার্কেটার",
+    icon: Megaphone,
+    className: "bg-green-500/10 text-green-600 border-green-500/20",
   },
 };
 
@@ -323,6 +343,10 @@ export default function AdminUsersPage() {
             <SelectItem value="moderator">মডারেটর</SelectItem>
             <SelectItem value="staff">স্টাফ</SelectItem>
             <SelectItem value="hr">এইচআর</SelectItem>
+            <SelectItem value="graphics_designer">গ্রাফিক্স ডিজাইনার</SelectItem>
+            <SelectItem value="web_developer">ওয়েব ডেভেলপার</SelectItem>
+            <SelectItem value="project_manager">প্রজেক্ট ম্যানেজার</SelectItem>
+            <SelectItem value="digital_marketer">ডিজিটাল মার্কেটার</SelectItem>
             <SelectItem value="user">ইউজার</SelectItem>
           </SelectContent>
         </Select>
@@ -527,6 +551,10 @@ export default function AdminUsersPage() {
                       <SelectItem value="moderator">মডারেটর</SelectItem>
                       <SelectItem value="staff">স্টাফ</SelectItem>
                       <SelectItem value="hr">এইচআর</SelectItem>
+                      <SelectItem value="graphics_designer">গ্রাফিক্স ডিজাইনার</SelectItem>
+                      <SelectItem value="web_developer">ওয়েব ডেভেলপার</SelectItem>
+                      <SelectItem value="project_manager">প্রজেক্ট ম্যানেজার</SelectItem>
+                      <SelectItem value="digital_marketer">ডিজিটাল মার্কেটার</SelectItem>
                       <SelectItem value="user">ইউজার</SelectItem>
                     </SelectContent>
                   </Select>
