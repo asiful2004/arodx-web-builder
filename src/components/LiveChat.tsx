@@ -216,11 +216,14 @@ export default function LiveChat() {
             exit={{ scale: 0, x: -40, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.5 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-5 left-5 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl flex items-center justify-center hover:opacity-90 transition-opacity"
+            className="fixed bottom-5 left-5 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl flex items-center justify-center hover:opacity-90 transition-opacity group"
           >
-            <MessageCircle className="h-6 w-6" />
+            {/* Pulse rings */}
+            <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping" style={{ animationDuration: "2s" }} />
+            <span className="absolute -inset-1 rounded-full bg-primary/20 animate-pulse" style={{ animationDuration: "3s" }} />
+            <MessageCircle className="h-6 w-6 relative z-10" />
             {unread > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center z-20">
                 {unread}
               </span>
             )}
