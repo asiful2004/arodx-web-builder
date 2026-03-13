@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
-  LayoutDashboard, ShoppingBag, Building2, Users, Settings, LogOut, Shield, Ticket, MessageCircle,
+  LayoutDashboard, ShoppingBag, Building2, Users, Settings, LogOut, Shield, Ticket, MessageCircle, UserCog,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -22,15 +22,20 @@ const mainItems = [
   { title: "লাইভ চ্যাট", url: "/admin/chat", icon: MessageCircle },
 ];
 
+const staffItems = [
+  { title: "স্টাফ প্যানেল", url: "/admin/staff", icon: UserCog },
+];
+
 const settingsItems = [
   { title: "সেটিংস", url: "/admin/settings", icon: Settings },
 ];
 
 interface AdminSidebarProps {
   profile: { full_name: string | null; avatar_url: string | null };
+  isAdmin?: boolean;
 }
 
-export function AdminSidebar({ profile }: AdminSidebarProps) {
+export function AdminSidebar({ profile, isAdmin = true }: AdminSidebarProps) {
   const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
@@ -80,16 +85,41 @@ export function AdminSidebar({ profile }: AdminSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>ম্যানেজমেন্ট</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {mainItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink
+                        to={item.url}
+                        end={item.url === "/admin"}
+                        className="hover:bg-sidebar-accent/50"
+                        activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                        onClick={closeMobileMenu}
+                      >
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         <SidebarGroup>
-          <SidebarGroupLabel>ম্যানেজমেন্ট</SidebarGroupLabel>
+          <SidebarGroupLabel>টিম</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainItems.map((item) => (
+              {staffItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <NavLink
                       to={item.url}
-                      end={item.url === "/admin"}
                       className="hover:bg-sidebar-accent/50"
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
                       onClick={closeMobileMenu}
@@ -104,28 +134,30 @@ export function AdminSidebar({ profile }: AdminSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>সিস্টেম</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {settingsItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink
-                      to={item.url}
-                      className="hover:bg-sidebar-accent/50"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
-                      onClick={closeMobileMenu}
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>সিস্টেম</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {settingsItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink
+                        to={item.url}
+                        className="hover:bg-sidebar-accent/50"
+                        activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                        onClick={closeMobileMenu}
+                      >
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-3 border-t border-sidebar-border">

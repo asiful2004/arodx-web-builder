@@ -33,6 +33,7 @@ const Dashboard = () => {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -47,6 +48,9 @@ const Dashboard = () => {
       fetchProfile();
       supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
         setIsAdmin(!!data);
+      });
+      supabase.rpc("has_role", { _user_id: user.id, _role: "staff" as any }).then(({ data }) => {
+        setIsStaff(!!data);
       });
     }
   }, [user]);
@@ -141,6 +145,17 @@ const Dashboard = () => {
               >
                 <Shield className="w-3.5 h-3.5" />
                 অ্যাডমিন
+              </Button>
+            )}
+            {isStaff && !isAdmin && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/admin/staff")}
+                className="text-xs text-blue-600 gap-1.5"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                স্টাফ
               </Button>
             )}
             <Button

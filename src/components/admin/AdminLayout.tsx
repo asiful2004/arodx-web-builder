@@ -52,25 +52,29 @@ export default function AdminLayout() {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (user) {
-      supabase
-        .from("profiles")
-        .select("full_name, avatar_url")
-        .eq("user_id", user.id)
-        .single()
-        .then(({ data }) => {
-          if (data) setProfile(data);
-        });
-
-      supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
-        if (!data) {
-          navigate("/dashboard");
-          toast({ title: "অ্যাক্সেস নেই", description: "আপনি অ্যাডমিন নন।", variant: "destructive" });
-          return;
-        }
-        setIsAdmin(true);
+    if (!user) return;
+    
+    supabase
+      .from("profiles")
+      .select("full_name, avatar_url")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setProfile(data);
       });
-    }
+
+    // Check admin or staff role
+    Promise.all([
+      supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
+      supabase.rpc("has_role", { _user_id: user.id, _role: "staff" as any }),
+    ]).then(([adminRes, staffRes]) => {
+      if (!adminRes.data && !staffRes.data) {
+        navigate("/dashboard");
+        toast({ title: "অ্যাক্সেস নেই", description: "আপনার এই প্যানেলে অ্যাক্সেস নেই।", variant: "destructive" });
+        return;
+      }
+      setIsAdmin(!!adminRes.data);
+    });
   }, [user]);
 
   const playNotifSound = useCallback(() => {
@@ -258,7 +262,7 @@ export default function AdminLayout() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <AdminSidebar profile={profile} />
+        <AdminSidebar profile={profile} isAdmin={isAdmin} />
 
         <div className="flex-1 flex flex-col min-w-0">
           <header className="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-xl px-4">
