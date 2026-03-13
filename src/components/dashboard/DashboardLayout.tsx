@@ -71,20 +71,13 @@ export default function DashboardLayout() {
   }, [user]);
 
   const playNotifSound = useCallback(() => {
-    if (!soundEnabled) return;
     if (!audioRef.current) {
       audioRef.current = new Audio("https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3");
       audioRef.current.volume = 0.5;
     }
     audioRef.current.currentTime = 0;
     audioRef.current.play().catch(() => {});
-  }, [soundEnabled]);
-
-  const toggleSound = () => {
-    const next = !soundEnabled;
-    setSoundEnabled(next);
-    localStorage.setItem("notif_sound", String(next));
-  };
+  }, []);
 
   // Fetch notifications from DB
   const fetchNotifications = useCallback(async () => {
