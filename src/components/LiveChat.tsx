@@ -150,6 +150,7 @@ export default function LiveChat() {
     if (data && !error) {
       setSessionId(data.id);
       localStorage.setItem(SESSION_KEY, data.id);
+      if (!user) localStorage.setItem("live_chat_guest_name", name);
       setStarted(true);
 
       await supabase.from("chat_messages").insert({
