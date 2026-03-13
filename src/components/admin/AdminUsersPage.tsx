@@ -33,6 +33,7 @@ interface UserProfile {
   avatar_url: string | null;
   created_at: string;
   roles: AppRole[];
+  email: string | null;
 }
 
 interface UserRole {
@@ -112,9 +113,10 @@ export default function AdminUsersPage() {
 
   const fetchUsersWithRoles = async () => {
     setLoading(true);
-    const [profilesRes, rolesRes] = await Promise.all([
+    const [profilesRes, rolesRes, emailsRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("*"),
+      supabase.rpc("get_user_emails"),
     ]);
 
     const rolesMap = new Map<string, AppRole[]>();
@@ -124,9 +126,15 @@ export default function AdminUsersPage() {
       rolesMap.set(r.user_id, existing);
     });
 
+    const emailsMap = new Map<string, string>();
+    (emailsRes.data || []).forEach((e: any) => {
+      emailsMap.set(e.user_id, e.email);
+    });
+
     const users: UserProfile[] = (profilesRes.data || []).map((p: any) => ({
       ...p,
       roles: rolesMap.get(p.user_id) || [],
+      email: emailsMap.get(p.user_id) || null,
     }));
 
     setProfiles(users);
@@ -142,6 +150,7 @@ export default function AdminUsersPage() {
       const q = searchQuery.toLowerCase();
       result = result.filter((u) =>
         (u.full_name || "").toLowerCase().includes(q) ||
+        (u.email || "").toLowerCase().includes(q) ||
         u.user_id.toLowerCase().includes(q)
       );
     }
@@ -392,8 +401,8 @@ export default function AdminUsersPage() {
                                 <span className="text-[10px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">আপনি</span>
                               )}
                             </p>
-                            <p className="text-[11px] text-muted-foreground font-mono truncate">
-                              {u.user_id.slice(0, 8)}...
+                            <p className="text-[11px] text-muted-foreground truncate">
+                              {u.email || "ইমেইল নেই"}
                             </p>
                           </div>
                         </div>
