@@ -34,10 +34,7 @@ export default function AdminLayout() {
   const location = useLocation();
   const { toast } = useToast();
   const [notifOpen, setNotifOpen] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(() => {
-    const stored = localStorage.getItem("admin_notif_sound");
-    return stored !== "false";
-  });
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
