@@ -51,13 +51,15 @@ export default function LiveChat() {
       });
   }, [user]);
 
-  // Restore session
+  // Restore session and guest name
   useEffect(() => {
     const stored = localStorage.getItem(SESSION_KEY);
     if (stored) {
       setSessionId(stored);
       setStarted(true);
     }
+    const storedName = localStorage.getItem("live_chat_guest_name");
+    if (storedName) setGuestName(storedName);
   }, []);
 
   // Fetch sender profiles for messages
@@ -148,6 +150,7 @@ export default function LiveChat() {
     if (data && !error) {
       setSessionId(data.id);
       localStorage.setItem(SESSION_KEY, data.id);
+      if (!user) localStorage.setItem("live_chat_guest_name", name);
       setStarted(true);
 
       await supabase.from("chat_messages").insert({
@@ -176,13 +179,14 @@ export default function LiveChat() {
 
   const endChat = () => {
     localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem("live_chat_guest_name");
     setSessionId(null);
     setStarted(false);
     setMessages([]);
     setOpen(false);
   };
 
-  const getSenderInfo = (m: ChatMessage) => {
+  const getSenderInfo = (m: ChatMessage): { name: string; avatar: string | null; isGuest?: boolean } => {
     if (m.sender_type === "client") {
       if (user && m.sender_id === user.id) {
         return {
@@ -190,7 +194,7 @@ export default function LiveChat() {
           avatar: clientProfile.avatar_url || user.user_metadata?.avatar_url || null,
         };
       }
-      return { name: guestName || "গেস্ট", avatar: null };
+      return { name: guestName || "গেস্ট", avatar: null, isGuest: true };
     }
     if (m.sender_type === "admin") {
       const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
@@ -307,7 +311,7 @@ export default function LiveChat() {
                           <AvatarFallback className={`text-[10px] font-bold ${
                             isClient ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground"
                           }`}>
-                            {sender.avatar ? null : getInitials(sender.name)}
+                            {sender.isGuest ? <User className="h-3.5 w-3.5" /> : getInitials(sender.name)}
                           </AvatarFallback>
                         </Avatar>
                         <div className={`max-w-[75%] ${isClient ? "items-end" : "items-start"} flex flex-col`}>
