@@ -51,6 +51,12 @@ const PROVIDERS = [
     endpoint: "https://api.anthropic.com/v1/messages",
   },
   {
+    value: "ollama",
+    label: "Ollama (লোকাল AI)",
+    models: ["llama3.1", "llama3", "mistral", "gemma2", "phi3", "codellama", "qwen2"],
+    endpoint: "http://localhost:11434/v1/chat/completions",
+  },
+  {
     value: "custom",
     label: "Custom (OpenAI Compatible)",
     models: [],
