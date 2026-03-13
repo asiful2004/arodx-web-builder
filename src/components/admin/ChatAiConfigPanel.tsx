@@ -190,13 +190,15 @@ export default function ChatAiConfigPanel() {
 
         {/* API Key */}
         <div className="space-y-1.5">
-          <Label className="text-xs">API কী</Label>
+          <Label className="text-xs">
+            API কী {settings.provider === "ollama" && <span className="text-muted-foreground">(ঐচ্ছিক)</span>}
+          </Label>
           <div className="relative">
             <Input
               type={showKey ? "text" : "password"}
               value={settings.api_key}
               onChange={(e) => updateField("api_key", e.target.value)}
-              placeholder="sk-... বা আপনার API কী"
+              placeholder={settings.provider === "ollama" ? "খালি রাখতে পারেন (লোকাল)" : "sk-... বা আপনার API কী"}
               className="text-sm h-9 pr-10 font-mono"
             />
             <button
@@ -213,6 +215,7 @@ export default function ChatAiConfigPanel() {
             {settings.provider === "grok" && "console.x.ai থেকে API কী নিন"}
             {settings.provider === "deepseek" && "platform.deepseek.com থেকে API কী নিন"}
             {settings.provider === "claude" && "console.anthropic.com থেকে API কী নিন"}
+            {settings.provider === "ollama" && "Ollama লোকালে চললে API কী লাগবে না"}
             {settings.provider === "custom" && "আপনার OpenAI-compatible API কী দিন"}
           </p>
         </div>
