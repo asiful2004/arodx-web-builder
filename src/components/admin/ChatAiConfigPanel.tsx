@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Bot, Save, Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import AiTestPanel from "./AiTestPanel";
 
 interface AiSettings {
   id: string;
@@ -289,6 +290,9 @@ export default function ChatAiConfigPanel() {
           {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
           সেটিংস সেভ করুন
         </Button>
+
+        {/* Test Section */}
+        <AiTestPanel settings={settings} customEndpoint={customEndpoint} customModel={customModel} />
       </div>
     </div>
   );
