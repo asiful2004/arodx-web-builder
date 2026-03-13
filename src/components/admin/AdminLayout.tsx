@@ -273,7 +273,21 @@ export default function AdminLayout() {
               </Link>
             </div>
 
-            <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
+            <div className="flex items-center gap-2">
+              {/* Persistent chat alert */}
+              {unansweredSessions.size > 0 && !location.pathname.includes("/admin/chat") && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="gap-1.5 text-xs animate-pulse"
+                  onClick={() => navigate("/admin/chat")}
+                >
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  {unansweredSessions.size} চ্যাট অপেক্ষমাণ
+                </Button>
+              )}
+
+              <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
