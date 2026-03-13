@@ -247,7 +247,7 @@ export default function AdminChatPage() {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) return;
     const recognition = new SpeechRecognition();
-    recognition.lang = "";
+    recognition.lang = "bn-BD";
     recognition.interimResults = true;
     recognition.continuous = true;
     let finalTranscript = input;
