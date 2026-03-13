@@ -2,36 +2,15 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { FlaskConical, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-interface AiSettings {
-  id: string;
-  provider: string;
-  api_key: string;
-  model_name: string;
-  enabled: boolean;
-  auto_reply_delay: number;
-  system_prompt: string;
-}
-
-interface AiTestPanelProps {
-  settings: AiSettings;
-  customEndpoint: string;
-  customModel: string;
-}
-
-export default function AiTestPanel({ settings, customEndpoint, customModel }: AiTestPanelProps) {
+export default function AiTestPanel() {
   const [testMsg, setTestMsg] = useState("হ্যালো, আপনাদের সার্ভিস সম্পর্কে জানতে চাই");
   const [testReply, setTestReply] = useState("");
   const [testing, setTesting] = useState(false);
 
   const sendTestMessage = async () => {
-    if (!settings.api_key && settings.provider !== "ollama") {
-      toast.error("API কী দিন");
-      return;
-    }
     if (!testMsg.trim()) {
       toast.error("মেসেজ লিখুন");
       return;
@@ -43,12 +22,6 @@ export default function AiTestPanel({ settings, customEndpoint, customModel }: A
       const { data, error } = await supabase.functions.invoke("chat-ai-reply", {
         body: {
           test_mode: "chat",
-          provider: settings.provider,
-          api_key: settings.api_key,
-          model_name: settings.provider === "custom"
-            ? `${customEndpoint}||${customModel}`
-            : settings.model_name,
-          system_prompt: settings.system_prompt,
           test_message: testMsg,
         },
       });
