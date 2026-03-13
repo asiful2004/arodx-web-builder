@@ -154,8 +154,9 @@ serve(async (req) => {
         return new Response(JSON.stringify({ success: true, message: `${provider} API কানেকশন সফল! মডেল: ${model}` }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-      } catch (err) {
-        return new Response(JSON.stringify({ success: false, error: String(err) }), {
+      } catch (err: any) {
+        const msg = err?.message || String(err);
+        return new Response(JSON.stringify({ success: false, error: msg }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
