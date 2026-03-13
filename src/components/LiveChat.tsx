@@ -177,9 +177,21 @@ export default function LiveChat() {
     return data.publicUrl;
   };
 
-  // Trigger AI auto-reply after 10 seconds if no admin responds
-  const triggerAiReply = useCallback((sid: string) => {
+  // Trigger AI auto-reply after configured delay if no admin responds
+  const triggerAiReply = useCallback(async (sid: string) => {
     if (aiReplyTimerRef.current) clearTimeout(aiReplyTimerRef.current);
+    
+    // Fetch AI settings to check if enabled and get delay
+    const { data: aiSettings } = await supabase
+      .from("chat_ai_settings" as any)
+      .select("enabled, auto_reply_delay")
+      .limit(1)
+      .single();
+
+    if (!aiSettings || !(aiSettings as any).enabled) return;
+
+    const delay = ((aiSettings as any).auto_reply_delay || 10) * 1000;
+
     aiReplyTimerRef.current = setTimeout(async () => {
       try {
         await supabase.functions.invoke("chat-ai-reply", {
@@ -188,7 +200,7 @@ export default function LiveChat() {
       } catch (err) {
         console.error("AI auto-reply error:", err);
       }
-    }, 10000);
+    }, delay);
   }, []);
 
   // Cancel AI timer when admin replies

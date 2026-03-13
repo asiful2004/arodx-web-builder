@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { MessageCircle, Send, User, Clock, X, ArrowLeft, Image, Mic, Square, Pause, Play } from "lucide-react";
+import { MessageCircle, Send, User, Clock, X, ArrowLeft, Image, Mic, Square, Pause, Play, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ChatAiConfigPanel from "./ChatAiConfigPanel";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 interface ChatSession {
   id: string;
@@ -354,7 +356,25 @@ export default function AdminChatPage() {
 
   return (
     <div className="h-[calc(100vh-8rem)]">
-      <h1 className="text-xl font-bold text-foreground mb-4">লাইভ চ্যাট</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-bold text-foreground">লাইভ চ্যাট</h1>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+              <Settings className="h-3.5 w-3.5" />
+              AI সেটআপ
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="w-[380px] sm:w-[420px] overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>AI অটো-রিপ্লাই কনফিগারেশন</SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <ChatAiConfigPanel />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
 
       <div className="flex h-[calc(100%-3rem)] border border-border rounded-xl overflow-hidden bg-card">
         {/* Sessions List */}
