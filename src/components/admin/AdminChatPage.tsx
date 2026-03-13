@@ -207,6 +207,22 @@ export default function AdminChatPage() {
     return s.profile_name || s.guest_name || s.guest_email || "অজানা ব্যবহারকারী";
   };
 
+  const getInitials = (name: string) =>
+    name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "?";
+
+  const getSenderInfo = (m: ChatMessage) => {
+    if (m.sender_type === "admin") {
+      const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
+      return { name: profile?.full_name || "অ্যাডমিন", avatar: profile?.avatar_url || null };
+    }
+    if (m.sender_type === "client") {
+      const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
+      if (profile) return { name: profile.full_name || "ক্লায়েন্ট", avatar: profile.avatar_url };
+      return { name: activeSessionData?.guest_name || activeSessionData?.profile_name || "গেস্ট", avatar: activeSessionData?.profile_avatar || null };
+    }
+    return { name: "সিস্টেম", avatar: null };
+  };
+
   const activeSessionData = sessions.find(s => s.id === activeSession);
 
   return (
