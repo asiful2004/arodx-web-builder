@@ -23,7 +23,7 @@ const mainItems = [
 ];
 
 const staffItems = [
-  { title: "স্টাফ প্যানেল", url: "/admin/staff", icon: UserCog },
+  { title: "স্টাফ প্যানেল", url: "/staff", icon: UserCog },
 ];
 
 const settingsItems = [
