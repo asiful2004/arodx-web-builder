@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "@/components/NavLink";
 import {
   LayoutDashboard, LogOut, UserCog, MessageCircle, Ticket, Users,
+  Palette, Code, Briefcase, Megaphone,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -15,14 +16,21 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
 
-const staffItems = [
+const commonItems = [
   { title: "ওভারভিউ", url: "/staff", icon: LayoutDashboard },
   { title: "টিকেট সাপোর্ট", url: "/staff/tickets", icon: Ticket },
   { title: "লাইভ চ্যাট", url: "/staff/chat", icon: MessageCircle },
 ];
 
-const hrItems = [
+const hrManagementItems = [
   { title: "স্টাফ ম্যানেজমেন্ট", url: "/staff/hr", icon: Users },
+];
+
+const subRolePanels = [
+  { title: "গ্রাফিক্স ডিজাইনার", url: "/staff/graphics-designer", icon: Palette, role: "graphics_designer" },
+  { title: "ওয়েব ডেভেলপার", url: "/staff/web-developer", icon: Code, role: "web_developer" },
+  { title: "প্রজেক্ট ম্যানেজার", url: "/staff/project-manager", icon: Briefcase, role: "project_manager" },
+  { title: "ডিজিটাল মার্কেটার", url: "/staff/digital-marketer", icon: Megaphone, role: "digital_marketer" },
 ];
 
 interface StaffSidebarProps {
@@ -38,15 +46,18 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
   const isMobile = useIsMobile();
   const [isHR, setIsHR] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userRoles, setUserRoles] = useState<string[]>([]);
 
   useEffect(() => {
     if (!user) return;
     Promise.all([
       supabase.rpc("has_role", { _user_id: user.id, _role: "hr" as any }),
       supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
-    ]).then(([hrRes, adminRes]) => {
+      supabase.from("user_roles").select("role").eq("user_id", user.id),
+    ]).then(([hrRes, adminRes, rolesRes]) => {
       setIsHR(!!hrRes.data);
       setIsAdmin(!!adminRes.data);
+      setUserRoles((rolesRes.data || []).map((r: any) => r.role));
     });
   }, [user]);
 
@@ -71,6 +82,13 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
     navigate("/");
   };
 
+  const canManage = isHR || isAdmin;
+
+  // HR/Admin sees all sub-role panels; others see only their assigned ones
+  const visiblePanels = canManage
+    ? subRolePanels
+    : subRolePanels.filter((p) => userRoles.includes(p.role));
+
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="p-4 border-b border-sidebar-border">
@@ -84,7 +102,7 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
                 স্টাফ প্যানেল
               </p>
               <p className="text-[11px] text-muted-foreground">
-                সাপোর্ট সিস্টেম
+                {canManage ? "এইচআর ম্যানেজমেন্ট" : "সাপোর্ট সিস্টেম"}
               </p>
             </div>
           )}
@@ -92,11 +110,12 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
+        {/* Common menu */}
         <SidebarGroup>
           <SidebarGroupLabel>মেনু</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {staffItems.map((item) => (
+              {commonItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <NavLink
@@ -116,12 +135,39 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {(isHR || isAdmin) && (
+        {/* HR Management - only for HR/Admin */}
+        {canManage && (
           <SidebarGroup>
             <SidebarGroupLabel>এইচআর</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {hrItems.map((item) => (
+                {hrManagementItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink
+                        to={item.url}
+                        className="hover:bg-sidebar-accent/50"
+                        activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                        onClick={closeMobileMenu}
+                      >
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {/* Sub-role panels */}
+        {visiblePanels.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>প্যানেল</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {visiblePanels.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive(item.url)}>
                       <NavLink

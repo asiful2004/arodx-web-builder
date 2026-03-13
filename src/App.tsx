@@ -37,6 +37,10 @@ import StaffPanelPage from "./components/admin/StaffPanelPage";
 import StaffLayout from "./components/staff/StaffLayout";
 import StaffOverviewPage from "./components/staff/StaffOverviewPage";
 import StaffHRPage from "./components/staff/StaffHRPage";
+import GraphicsDesignerPanel from "./components/staff/panels/GraphicsDesignerPanel";
+import WebDeveloperPanel from "./components/staff/panels/WebDeveloperPanel";
+import ProjectManagerPanel from "./components/staff/panels/ProjectManagerPanel";
+import DigitalMarketerPanel from "./components/staff/panels/DigitalMarketerPanel";
 import LiveChat from "./components/LiveChat";
 import Checkout from "./pages/Checkout";
 import RenewalPage from "./pages/Renewal";
@@ -98,6 +102,10 @@ const App = () => {
                 <Route path="tickets/:ticketId" element={<AdminTicketDetailPage />} />
                 <Route path="chat" element={<AdminChatPage />} />
                 <Route path="hr" element={<StaffHRPage />} />
+                <Route path="graphics-designer" element={<GraphicsDesignerPanel />} />
+                <Route path="web-developer" element={<WebDeveloperPanel />} />
+                <Route path="project-manager" element={<ProjectManagerPanel />} />
+                <Route path="digital-marketer" element={<DigitalMarketerPanel />} />
               </Route>
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/renewal" element={<RenewalPage />} />
