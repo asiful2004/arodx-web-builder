@@ -79,6 +79,42 @@ export type Database = {
           },
         ]
       }
+      chat_ai_settings: {
+        Row: {
+          api_key: string
+          auto_reply_delay: number
+          created_at: string
+          enabled: boolean
+          id: string
+          model_name: string
+          provider: string
+          system_prompt: string | null
+          updated_at: string
+        }
+        Insert: {
+          api_key?: string
+          auto_reply_delay?: number
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          model_name?: string
+          provider?: string
+          system_prompt?: string | null
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string
+          auto_reply_delay?: number
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          model_name?: string
+          provider?: string
+          system_prompt?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           attachment_url: string | null
