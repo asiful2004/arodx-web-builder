@@ -189,6 +189,39 @@ export type Database = {
         }
         Relationships: []
       }
+      device_login_requests: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          device_info: Json
+          expires_at: string
+          id: string
+          status: string
+          token: string
+          user_email: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          device_info?: Json
+          expires_at?: string
+          id?: string
+          status?: string
+          token?: string
+          user_email: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          device_info?: Json
+          expires_at?: string
+          id?: string
+          status?: string
+          token?: string
+          user_email?: string
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           amount: string
@@ -597,6 +630,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_devices: {
+        Row: {
+          browser: string | null
+          created_at: string
+          device_fingerprint: string
+          device_name: string
+          id: string
+          is_active: boolean
+          last_active: string
+          os: string | null
+          user_id: string
+        }
+        Insert: {
+          browser?: string | null
+          created_at?: string
+          device_fingerprint: string
+          device_name?: string
+          id?: string
+          is_active?: boolean
+          last_active?: string
+          os?: string | null
+          user_id: string
+        }
+        Update: {
+          browser?: string | null
+          created_at?: string
+          device_fingerprint?: string
+          device_name?: string
+          id?: string
+          is_active?: boolean
+          last_active?: string
+          os?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
