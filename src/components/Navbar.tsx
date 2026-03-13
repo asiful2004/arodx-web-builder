@@ -190,6 +190,15 @@ const Navbar = ({ logo }: NavbarProps) => {
                       >
                         Dashboard
                       </Link>
+                      {isStaff && (
+                        <Link
+                          to="/staff"
+                          onClick={() => setMobileOpen(false)}
+                          className="text-base text-foreground hover:text-primary transition-colors"
+                        >
+                          Staff Panel
+                        </Link>
+                      )}
                       <button
                         onClick={() => {
                           handleSignOut();
