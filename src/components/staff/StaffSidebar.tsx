@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const commonItems = [
   { title: "ওভারভিউ", url: "/staff", icon: LayoutDashboard },
+  { title: "অ্যাটেন্ডেন্স", url: "/staff/attendance", icon: Clock },
   { title: "টিকেট সাপোর্ট", url: "/staff/tickets", icon: Ticket },
   { title: "লাইভ চ্যাট", url: "/staff/chat", icon: MessageCircle },
 ];
