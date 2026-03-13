@@ -20,10 +20,24 @@ interface NavbarProps {
   logo?: string;
 }
 
+const STAFF_ROLES = ["hr", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
+
 const Navbar = ({ logo }: NavbarProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) { setIsStaff(false); return; }
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .then(({ data }) => {
+        if (data) setIsStaff(data.some((r: any) => STAFF_ROLES.includes(r.role)));
+      });
+  }, [user]);
 
   const navLinks = [
     { label: "Home", href: "#" },
