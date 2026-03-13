@@ -1,0 +1,335 @@
+import { useState, useEffect, useRef, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { MessageCircle, Send, User, Clock, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface ChatSession {
+  id: string;
+  user_id: string | null;
+  guest_name: string | null;
+  guest_email: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  last_message?: string;
+  unread_count?: number;
+  profile_name?: string;
+}
+
+interface ChatMessage {
+  id: string;
+  session_id: string;
+  sender_type: string;
+  sender_id: string | null;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export default function AdminChatPage() {
+  const { user } = useAuth();
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [activeSession, setActiveSession] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Fetch sessions
+  const fetchSessions = useCallback(async () => {
+    const { data: sessionsData } = await supabase
+      .from("chat_sessions")
+      .select("*")
+      .order("updated_at", { ascending: false });
+
+    if (!sessionsData) return;
+
+    // Get profile names for user sessions
+    const userIds = sessionsData.filter(s => s.user_id).map(s => s.user_id!);
+    let profileMap = new Map<string, string>();
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name")
+        .in("user_id", userIds);
+      if (profiles) {
+        profiles.forEach(p => profileMap.set(p.user_id, p.full_name || ""));
+      }
+    }
+
+    // Get last message & unread count per session
+    const enriched: ChatSession[] = await Promise.all(
+      sessionsData.map(async (s: any) => {
+        const { data: lastMsg } = await supabase
+          .from("chat_messages")
+          .select("message, created_at")
+          .eq("session_id", s.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single();
+
+        const { count } = await supabase
+          .from("chat_messages")
+          .select("*", { count: "exact", head: true })
+          .eq("session_id", s.id)
+          .eq("sender_type", "client")
+          .eq("is_read", false);
+
+        return {
+          ...s,
+          last_message: lastMsg?.message || "",
+          unread_count: count || 0,
+          profile_name: s.user_id ? profileMap.get(s.user_id) : null,
+        };
+      })
+    );
+
+    setSessions(enriched);
+  }, []);
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  // Fetch messages for active session
+  const fetchMessages = useCallback(async () => {
+    if (!activeSession) return;
+    const { data } = await supabase
+      .from("chat_messages")
+      .select("*")
+      .eq("session_id", activeSession)
+      .order("created_at", { ascending: true });
+    if (data) setMessages(data as ChatMessage[]);
+
+    // Mark client messages as read
+    await supabase
+      .from("chat_messages")
+      .update({ is_read: true })
+      .eq("session_id", activeSession)
+      .eq("sender_type", "client")
+      .eq("is_read", false);
+  }, [activeSession]);
+
+  useEffect(() => {
+    fetchMessages();
+  }, [fetchMessages]);
+
+  // Realtime for new messages
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-chat-all")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "chat_messages" },
+        (payload) => {
+          const msg = payload.new as ChatMessage;
+          if (msg.session_id === activeSession) {
+            setMessages((prev) => [...prev, msg]);
+            // Mark as read if admin is viewing
+            if (msg.sender_type === "client") {
+              supabase.from("chat_messages").update({ is_read: true }).eq("id", msg.id).then(() => {});
+            }
+          }
+          // Refresh session list
+          fetchSessions();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "chat_sessions" },
+        () => fetchSessions()
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [activeSession, fetchSessions]);
+
+  // Scroll to bottom
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const sendReply = async () => {
+    if (!input.trim() || !activeSession || !user || sending) return;
+    setSending(true);
+    const msg = input.trim();
+    setInput("");
+
+    await supabase.from("chat_messages").insert({
+      session_id: activeSession,
+      sender_type: "admin",
+      sender_id: user.id,
+      message: msg,
+    });
+
+    setSending(false);
+  };
+
+  const closeSession = async (sessionId: string) => {
+    await supabase.from("chat_sessions").update({ status: "closed" }).eq("id", sessionId);
+    fetchSessions();
+    if (activeSession === sessionId) {
+      setActiveSession(null);
+      setMessages([]);
+    }
+  };
+
+  const getSessionName = (s: ChatSession) => {
+    return s.profile_name || s.guest_name || s.guest_email || "অজানা ব্যবহারকারী";
+  };
+
+  const activeSessionData = sessions.find(s => s.id === activeSession);
+
+  return (
+    <div className="h-[calc(100vh-8rem)]">
+      <h1 className="text-xl font-bold text-foreground mb-4">লাইভ চ্যাট</h1>
+
+      <div className="flex h-[calc(100%-3rem)] border border-border rounded-xl overflow-hidden bg-card">
+        {/* Sessions List */}
+        <div className="w-80 border-r border-border flex flex-col shrink-0">
+          <div className="p-3 border-b border-border">
+            <p className="text-sm font-medium text-foreground">কথোপকথন ({sessions.length})</p>
+          </div>
+          <ScrollArea className="flex-1">
+            {sessions.length === 0 ? (
+              <div className="p-6 text-center">
+                <MessageCircle className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">কোনো চ্যাট নেই</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {sessions.map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setActiveSession(s.id)}
+                    className={`w-full text-left px-3 py-3 hover:bg-accent/50 transition-colors ${
+                      activeSession === s.id ? "bg-accent" : ""
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {getSessionName(s)}
+                          </p>
+                          {s.status === "closed" && (
+                            <Badge variant="secondary" className="text-[10px] h-4">বন্ধ</Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">
+                          {s.last_message || "কোনো মেসেজ নেই"}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+                          {new Date(s.created_at).toLocaleString("bn-BD")}
+                        </p>
+                      </div>
+                      {(s.unread_count ?? 0) > 0 && (
+                        <span className="shrink-0 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                          {s.unread_count}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </div>
+
+        {/* Chat Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {!activeSession ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
+              <MessageCircle className="h-12 w-12 text-muted-foreground/20 mb-3" />
+              <p className="text-sm text-muted-foreground">একটি কথোপকথন সিলেক্ট করুন</p>
+            </div>
+          ) : (
+            <>
+              {/* Chat Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      {activeSessionData ? getSessionName(activeSessionData) : ""}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {activeSessionData ? new Date(activeSessionData.created_at).toLocaleString("bn-BD") : ""}
+                    </p>
+                  </div>
+                </div>
+                {activeSessionData?.status !== "closed" && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs text-destructive"
+                    onClick={() => closeSession(activeSession)}
+                  >
+                    <X className="h-3.5 w-3.5 mr-1" /> চ্যাট বন্ধ
+                  </Button>
+                )}
+              </div>
+
+              {/* Messages */}
+              <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-2">
+                {messages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={`flex ${m.sender_type === "admin" ? "justify-end" : "justify-start"}`}
+                  >
+                    <div
+                      className={`max-w-[70%] px-3 py-2 rounded-xl text-sm ${
+                        m.sender_type === "admin"
+                          ? "bg-primary text-primary-foreground rounded-br-sm"
+                          : m.sender_type === "system"
+                          ? "bg-muted text-muted-foreground text-xs text-center w-full rounded-lg"
+                          : "bg-accent text-accent-foreground rounded-bl-sm"
+                      }`}
+                    >
+                      {m.message}
+                      <p className={`text-[9px] mt-1 ${
+                        m.sender_type === "admin" ? "text-primary-foreground/60" : "text-muted-foreground/60"
+                      }`}>
+                        {new Date(m.created_at).toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Input */}
+              {activeSessionData?.status !== "closed" && (
+                <div className="border-t border-border p-3">
+                  <form
+                    onSubmit={(e) => { e.preventDefault(); sendReply(); }}
+                    className="flex items-center gap-2"
+                  >
+                    <Input
+                      placeholder="রিপ্লাই লিখুন..."
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      className="flex-1 text-sm h-9"
+                      autoFocus
+                    />
+                    <Button type="submit" size="icon" className="h-9 w-9 shrink-0" disabled={!input.trim() || sending}>
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </form>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
