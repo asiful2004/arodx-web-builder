@@ -362,6 +362,54 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_tasks: {
+        Row: {
+          assigned_by: string
+          assigned_to: string
+          attachments: Json | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: Database["public"]["Enums"]["staff_task_priority"]
+          status: Database["public"]["Enums"]["staff_task_status"]
+          target_role: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_by: string
+          assigned_to: string
+          attachments?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["staff_task_priority"]
+          status?: Database["public"]["Enums"]["staff_task_status"]
+          target_role: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_by?: string
+          assigned_to?: string
+          attachments?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["staff_task_priority"]
+          status?: Database["public"]["Enums"]["staff_task_status"]
+          target_role?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ticket_replies: {
         Row: {
           created_at: string
@@ -512,6 +560,13 @@ export type Database = {
         | "web_developer"
         | "project_manager"
         | "digital_marketer"
+      staff_task_priority: "low" | "medium" | "high" | "urgent"
+      staff_task_status:
+        | "pending"
+        | "in_progress"
+        | "review"
+        | "completed"
+        | "cancelled"
       ticket_category:
         | "billing"
         | "technical"
@@ -659,6 +714,14 @@ export const Constants = {
         "web_developer",
         "project_manager",
         "digital_marketer",
+      ],
+      staff_task_priority: ["low", "medium", "high", "urgent"],
+      staff_task_status: [
+        "pending",
+        "in_progress",
+        "review",
+        "completed",
+        "cancelled",
       ],
       ticket_category: [
         "billing",
