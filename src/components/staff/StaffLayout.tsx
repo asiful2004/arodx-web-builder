@@ -7,16 +7,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import NotificationBell from "@/components/shared/NotificationBell";
+import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
 
 interface Profile {
   full_name: string | null;
   avatar_url: string | null;
 }
 
+const SEND_NOTIF_ROLES = ["admin", "hr", "project_manager"];
+
 export default function StaffLayout() {
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile>({ full_name: null, avatar_url: null });
   const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const [canSendNotif, setCanSendNotif] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -38,7 +43,6 @@ export default function StaffLayout() {
         if (data) setProfile(data);
       });
 
-    // Check admin, hr, or any sub-role
     const subRoles = ['graphics_designer', 'web_developer', 'project_manager', 'digital_marketer'];
     Promise.all([
       supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
@@ -53,6 +57,7 @@ export default function StaffLayout() {
         return;
       }
       setAuthorized(true);
+      setCanSendNotif(userRoles.some((r: string) => SEND_NOTIF_ROLES.includes(r)));
     });
   }, [user]);
 
@@ -80,6 +85,10 @@ export default function StaffLayout() {
                 <ArrowLeft className="w-3.5 h-3.5" />
                 ড্যাশবোর্ড
               </Link>
+            </div>
+            <div className="flex items-center gap-2">
+              {canSendNotif && <SendNotificationDialog />}
+              <NotificationBell userId={user.id} storageKey="staff_notif_sound" />
             </div>
           </header>
 
