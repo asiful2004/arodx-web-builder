@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ChatSession {
   id: string;
@@ -18,6 +19,7 @@ interface ChatSession {
   last_message?: string;
   unread_count?: number;
   profile_name?: string;
+  profile_avatar?: string | null;
 }
 
 interface ChatMessage {
@@ -38,6 +40,7 @@ export default function AdminChatPage() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [senderProfiles, setSenderProfiles] = useState<Map<string, { full_name: string | null; avatar_url: string | null }>>(new Map());
 
   // Fetch sessions
   const fetchSessions = useCallback(async () => {
@@ -50,14 +53,14 @@ export default function AdminChatPage() {
 
     // Get profile names for user sessions
     const userIds = sessionsData.filter(s => s.user_id).map(s => s.user_id!);
-    let profileMap = new Map<string, string>();
+    let profileMap = new Map<string, { full_name: string; avatar_url: string | null }>();
     if (userIds.length > 0) {
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("user_id, full_name")
+        .select("user_id, full_name, avatar_url")
         .in("user_id", userIds);
       if (profiles) {
-        profiles.forEach(p => profileMap.set(p.user_id, p.full_name || ""));
+        profiles.forEach(p => profileMap.set(p.user_id, { full_name: p.full_name || "", avatar_url: p.avatar_url }));
       }
     }
 
@@ -79,11 +82,13 @@ export default function AdminChatPage() {
           .eq("sender_type", "client")
           .eq("is_read", false);
 
+        const prof = s.user_id ? profileMap.get(s.user_id) : null;
         return {
           ...s,
           last_message: lastMsg?.message || "",
           unread_count: count || 0,
-          profile_name: s.user_id ? profileMap.get(s.user_id) : null,
+          profile_name: prof?.full_name || null,
+          profile_avatar: prof?.avatar_url || null,
         };
       })
     );
@@ -95,6 +100,21 @@ export default function AdminChatPage() {
     fetchSessions();
   }, [fetchSessions]);
 
+  // Fetch sender profiles for messages
+  const fetchMsgProfiles = useCallback(async (msgs: ChatMessage[]) => {
+    const senderIds = [...new Set(msgs.filter(m => m.sender_id).map(m => m.sender_id!))];
+    const newIds = senderIds.filter(id => !senderProfiles.has(id));
+    if (newIds.length === 0) return;
+    const { data } = await supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", newIds);
+    if (data) {
+      setSenderProfiles(prev => {
+        const next = new Map(prev);
+        data.forEach(p => next.set(p.user_id, { full_name: p.full_name, avatar_url: p.avatar_url }));
+        return next;
+      });
+    }
+  }, [senderProfiles]);
+
   // Fetch messages for active session
   const fetchMessages = useCallback(async () => {
     if (!activeSession) return;
@@ -103,7 +123,10 @@ export default function AdminChatPage() {
       .select("*")
       .eq("session_id", activeSession)
       .order("created_at", { ascending: true });
-    if (data) setMessages(data as ChatMessage[]);
+    if (data) {
+      setMessages(data as ChatMessage[]);
+      fetchMsgProfiles(data as ChatMessage[]);
+    }
 
     // Mark client messages as read
     await supabase
@@ -184,6 +207,22 @@ export default function AdminChatPage() {
     return s.profile_name || s.guest_name || s.guest_email || "অজানা ব্যবহারকারী";
   };
 
+  const getInitials = (name: string) =>
+    name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "?";
+
+  const getSenderInfo = (m: ChatMessage) => {
+    if (m.sender_type === "admin") {
+      const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
+      return { name: profile?.full_name || "অ্যাডমিন", avatar: profile?.avatar_url || null };
+    }
+    if (m.sender_type === "client") {
+      const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
+      if (profile) return { name: profile.full_name || "ক্লায়েন্ট", avatar: profile.avatar_url };
+      return { name: activeSessionData?.guest_name || activeSessionData?.profile_name || "গেস্ট", avatar: activeSessionData?.profile_avatar || null };
+    }
+    return { name: "সিস্টেম", avatar: null };
+  };
+
   const activeSessionData = sessions.find(s => s.id === activeSession);
 
   return (
@@ -254,9 +293,12 @@ export default function AdminChatPage() {
               {/* Chat Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User className="h-4 w-4 text-primary" />
-                  </div>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={activeSessionData?.profile_avatar || undefined} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                      {getInitials(activeSessionData ? getSessionName(activeSessionData) : "")}
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
                     <p className="text-sm font-medium text-foreground">
                       {activeSessionData ? getSessionName(activeSessionData) : ""}
@@ -280,30 +322,53 @@ export default function AdminChatPage() {
               </div>
 
               {/* Messages */}
-              <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-2">
-                {messages.map((m) => (
-                  <div
-                    key={m.id}
-                    className={`flex ${m.sender_type === "admin" ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`max-w-[70%] px-3 py-2 rounded-xl text-sm ${
-                        m.sender_type === "admin"
-                          ? "bg-primary text-primary-foreground rounded-br-sm"
-                          : m.sender_type === "system"
-                          ? "bg-muted text-muted-foreground text-xs text-center w-full rounded-lg"
-                          : "bg-accent text-accent-foreground rounded-bl-sm"
-                      }`}
-                    >
-                      {m.message}
-                      <p className={`text-[9px] mt-1 ${
-                        m.sender_type === "admin" ? "text-primary-foreground/60" : "text-muted-foreground/60"
-                      }`}>
-                        {new Date(m.created_at).toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" })}
-                      </p>
+              <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+                {messages.map((m) => {
+                  if (m.sender_type === "system") {
+                    return (
+                      <div key={m.id} className="flex justify-center">
+                        <div className="bg-muted text-muted-foreground text-xs text-center px-3 py-2 rounded-lg max-w-[90%]">
+                          {m.message}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  const isAdmin = m.sender_type === "admin";
+                  const sender = getSenderInfo(m);
+
+                  return (
+                    <div key={m.id} className={`flex gap-2 ${isAdmin ? "flex-row-reverse" : "flex-row"}`}>
+                      <Avatar className="h-7 w-7 shrink-0 mt-0.5">
+                        <AvatarImage src={sender.avatar || undefined} />
+                        <AvatarFallback className={`text-[10px] font-bold ${
+                          isAdmin ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground"
+                        }`}>
+                          {getInitials(sender.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className={`max-w-[70%] flex flex-col ${isAdmin ? "items-end" : "items-start"}`}>
+                        <p className={`text-[10px] mb-0.5 text-muted-foreground ${isAdmin ? "text-right" : "text-left"}`}>
+                          {sender.name}
+                        </p>
+                        <div
+                          className={`px-3 py-2 rounded-xl text-sm ${
+                            isAdmin
+                              ? "bg-primary text-primary-foreground rounded-tr-sm"
+                              : "bg-accent text-accent-foreground rounded-tl-sm"
+                          }`}
+                        >
+                          {m.message}
+                          <p className={`text-[9px] mt-1 ${
+                            isAdmin ? "text-primary-foreground/60" : "text-muted-foreground/60"
+                          }`}>
+                            {new Date(m.created_at).toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Input */}
