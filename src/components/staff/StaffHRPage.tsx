@@ -127,6 +127,7 @@ export default function StaffHRPage() {
   const handleOpenAddDialog = () => {
     fetchAvailableUsers();
     setSelectedUserId("");
+    setSelectedRole("");
     setAddDialogOpen(true);
   };
 
