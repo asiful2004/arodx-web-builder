@@ -99,7 +99,69 @@ serve(async (req) => {
   }
 
   try {
-    const { session_id } = await req.json();
+    const body = await req.json();
+    const { test_mode } = body;
+
+    // === TEST MODE: verify connection ===
+    if (test_mode === "verify") {
+      const { provider, api_key, model_name } = body;
+      if (!api_key) {
+        return new Response(JSON.stringify({ success: false, error: "API কী দেওয়া হয়নি" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { url, model } = getEndpoint(provider, model_name);
+      const testMessages = [
+        { role: "user", content: "Say hi" },
+      ];
+      try {
+        if (provider === "claude") {
+          await callClaude(api_key, model, testMessages);
+        } else {
+          await callOpenAICompatible(url, api_key, model, testMessages);
+        }
+        return new Response(JSON.stringify({ success: true, message: `${provider} API কানেকশন সফল! মডেল: ${model}` }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, error: String(err) }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // === TEST MODE: chat ===
+    if (test_mode === "chat") {
+      const { provider, api_key, model_name, system_prompt, test_message } = body;
+      if (!api_key || !test_message) {
+        return new Response(JSON.stringify({ error: "API কী ও মেসেজ দরকার" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const { url, model } = getEndpoint(provider, model_name);
+      const msgs = [
+        { role: "system", content: system_prompt || DEFAULT_SYSTEM_PROMPT },
+        { role: "user", content: test_message },
+      ];
+      try {
+        let reply: string;
+        if (provider === "claude") {
+          reply = await callClaude(api_key, model, msgs);
+        } else {
+          reply = await callOpenAICompatible(url, api_key, model, msgs);
+        }
+        return new Response(JSON.stringify({ reply: reply || "রিপ্লাই পাওয়া যায়নি" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ error: String(err) }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // === NORMAL MODE: auto-reply ===
+    const { session_id } = body;
     if (!session_id) {
       return new Response(JSON.stringify({ error: "session_id required" }), {
         status: 400,
