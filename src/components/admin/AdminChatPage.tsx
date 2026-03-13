@@ -59,9 +59,11 @@ export default function AdminChatPage() {
     audioNotifRef.current.play().catch(() => {});
   }, []);
 
-  // Speech-to-text
+  // Voice-to-text (record + AI transcribe)
   const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // Audio playback
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
