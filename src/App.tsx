@@ -32,6 +32,8 @@ import AdminUsersPage from "./components/admin/AdminUsersPage";
 import AdminTicketsPage from "./components/admin/AdminTicketsPage";
 import AdminTicketDetailPage from "./components/admin/AdminTicketDetailPage";
 import AdminSettingsPage from "./components/admin/AdminSettingsPage";
+import AdminChatPage from "./components/admin/AdminChatPage";
+import LiveChat from "./components/LiveChat";
 import Checkout from "./pages/Checkout";
 import RenewalPage from "./pages/Renewal";
 import NotFound from "./pages/NotFound";
