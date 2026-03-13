@@ -41,10 +41,11 @@ export default function StaffPanelPage() {
   const fetchStaff = useCallback(async () => {
     setLoading(true);
     // Get all users with 'staff' role
+    const subRoles = ['graphics_designer', 'web_developer', 'project_manager', 'digital_marketer', 'hr'];
     const { data: roles } = await supabase
       .from("user_roles")
       .select("id, user_id, role")
-      .eq("role", "staff" as any);
+      .in("role", subRoles as any);
 
     if (!roles || roles.length === 0) {
       setStaffMembers([]);
