@@ -34,12 +34,14 @@ const SUB_ROLES: { value: SubRole; label: string; icon: typeof Palette; color: s
   { value: "digital_marketer", label: "ডিজিটাল মার্কেটার", icon: Megaphone, color: "bg-green-500/10 text-green-600 border-green-500/20" },
 ];
 
+const ALL_SUB_ROLE_VALUES = SUB_ROLES.map((r) => r.value as string);
+
 interface StaffMember {
   user_id: string;
   full_name: string | null;
   avatar_url: string | null;
   roles: string[];
-  role_ids: Record<string, string>; // role -> role_id mapping
+  role_ids: Record<string, string>;
 }
 
 export default function StaffHRPage() {
@@ -50,6 +52,7 @@ export default function StaffHRPage() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [allUsers, setAllUsers] = useState<{ user_id: string; full_name: string | null }[]>([]);
   const [selectedUserId, setSelectedUserId] = useState("");
+  const [selectedRole, setSelectedRole] = useState<SubRole | "">("");
   const [adding, setAdding] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
