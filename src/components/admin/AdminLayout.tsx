@@ -180,8 +180,7 @@ export default function AdminLayout() {
 
   // Repeating sound every 15s while there are unanswered sessions
   useEffect(() => {
-    if (unansweredSessions.size > 0 && soundEnabled) {
-      // Don't repeat if admin is already on chat page
+    if (unansweredSessions.size > 0) {
       const isOnChatPage = location.pathname.includes("/admin/chat");
       
       if (persistentTimerRef.current) clearInterval(persistentTimerRef.current);
@@ -189,7 +188,7 @@ export default function AdminLayout() {
       if (!isOnChatPage) {
         persistentTimerRef.current = setInterval(() => {
           playChatNotifSound();
-        }, 15000); // Every 15 seconds
+        }, 15000);
       }
     } else {
       if (persistentTimerRef.current) {
@@ -204,7 +203,7 @@ export default function AdminLayout() {
         persistentTimerRef.current = null;
       }
     };
-  }, [unansweredSessions, soundEnabled, location.pathname, playChatNotifSound]);
+  }, [unansweredSessions, location.pathname, playChatNotifSound]);
 
   // When admin navigates to chat page, stop persistent sound (they'll handle it there)
   useEffect(() => {
