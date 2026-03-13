@@ -70,18 +70,18 @@ export default function StaffHRPage() {
       return;
     }
 
-    // Find staff user_ids
-    const staffUserIds = new Set(
-      allRoles.filter((r) => r.role === "staff").map((r) => r.user_id)
+    // Find users who have any sub-role
+    const subRoleUsers = new Set(
+      allRoles.filter((r) => ALL_SUB_ROLE_VALUES.includes(r.role)).map((r) => r.user_id)
     );
 
-    if (staffUserIds.size === 0) {
+    if (subRoleUsers.size === 0) {
       setStaffMembers([]);
       setLoading(false);
       return;
     }
 
-    const userIdsArr = Array.from(staffUserIds);
+    const userIdsArr = Array.from(subRoleUsers);
     const { data: profiles } = await supabase
       .from("profiles")
       .select("user_id, full_name, avatar_url")
