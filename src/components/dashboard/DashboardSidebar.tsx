@@ -162,6 +162,24 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
+              {isStaff && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname.startsWith("/staff")}
+                  >
+                    <NavLink
+                      to="/staff"
+                      className="hover:bg-sidebar-accent/50"
+                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      onClick={closeMobileMenu}
+                    >
+                      <Briefcase className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>স্টাফ প্যানেল</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
