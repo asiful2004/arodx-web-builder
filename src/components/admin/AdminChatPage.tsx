@@ -293,9 +293,12 @@ export default function AdminChatPage() {
               {/* Chat Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-border">
                 <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User className="h-4 w-4 text-primary" />
-                  </div>
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={activeSessionData?.profile_avatar || undefined} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                      {getInitials(activeSessionData ? getSessionName(activeSessionData) : "")}
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
                     <p className="text-sm font-medium text-foreground">
                       {activeSessionData ? getSessionName(activeSessionData) : ""}
