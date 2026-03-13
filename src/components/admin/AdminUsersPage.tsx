@@ -400,8 +400,8 @@ export default function AdminUsersPage() {
                                 <span className="text-[10px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">আপনি</span>
                               )}
                             </p>
-                            <p className="text-[11px] text-muted-foreground font-mono truncate">
-                              {u.user_id.slice(0, 8)}...
+                            <p className="text-[11px] text-muted-foreground truncate">
+                              {u.email || "ইমেইল নেই"}
                             </p>
                           </div>
                         </div>
