@@ -75,7 +75,6 @@ export default function AdminLayout() {
       }
       setIsAdmin(!!adminRes.data);
     });
-    }
   }, [user]);
 
   const playNotifSound = useCallback(() => {
