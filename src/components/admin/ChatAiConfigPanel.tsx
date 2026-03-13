@@ -4,73 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { Bot, Save, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Bot, Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import AiTestPanel from "./AiTestPanel";
 
 interface AiSettings {
   id: string;
-  provider: string;
-  api_key: string;
-  model_name: string;
   enabled: boolean;
   auto_reply_delay: number;
   system_prompt: string;
 }
 
-const PROVIDERS = [
-  {
-    value: "openai",
-    label: "OpenAI (ChatGPT)",
-    models: ["gpt-4o-mini", "gpt-4o", "gpt-4-turbo", "gpt-3.5-turbo"],
-    endpoint: "https://api.openai.com/v1/chat/completions",
-  },
-  {
-    value: "gemini",
-    label: "Google Gemini",
-    models: ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.5-pro"],
-    endpoint: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-  },
-  {
-    value: "grok",
-    label: "xAI Grok",
-    models: ["grok-3", "grok-3-mini", "grok-2"],
-    endpoint: "https://api.x.ai/v1/chat/completions",
-  },
-  {
-    value: "deepseek",
-    label: "DeepSeek",
-    models: ["deepseek-chat", "deepseek-reasoner"],
-    endpoint: "https://api.deepseek.com/chat/completions",
-  },
-  {
-    value: "claude",
-    label: "Anthropic Claude",
-    models: ["claude-sonnet-4-20250514", "claude-3-5-haiku-20241022"],
-    endpoint: "https://api.anthropic.com/v1/messages",
-  },
-  {
-    value: "ollama",
-    label: "Ollama (লোকাল AI)",
-    models: ["llama3.1", "llama3", "mistral", "gemma2", "phi3", "codellama", "qwen2"],
-    endpoint: "http://localhost:11434/v1/chat/completions",
-  },
-  {
-    value: "custom",
-    label: "Custom (OpenAI Compatible)",
-    models: [],
-    endpoint: "",
-  },
-];
-
 export default function ChatAiConfigPanel() {
   const [settings, setSettings] = useState<AiSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showKey, setShowKey] = useState(false);
-  const [customEndpoint, setCustomEndpoint] = useState("");
-  const [customModel, setCustomModel] = useState("");
 
   useEffect(() => {
     fetchSettings();
@@ -79,7 +27,7 @@ export default function ChatAiConfigPanel() {
   const fetchSettings = async () => {
     const { data, error } = await supabase
       .from("chat_ai_settings" as any)
-      .select("*")
+      .select("id, enabled, auto_reply_delay, system_prompt")
       .limit(1)
       .single();
 
@@ -100,26 +48,14 @@ export default function ChatAiConfigPanel() {
     if (!settings) return;
     setSaving(true);
 
-    const updateData: any = {
-      provider: settings.provider,
-      api_key: settings.api_key,
-      model_name: settings.model_name,
-      enabled: settings.enabled,
-      auto_reply_delay: settings.auto_reply_delay,
-      system_prompt: settings.system_prompt,
-      updated_at: new Date().toISOString(),
-    };
-
-    if (settings.provider === "custom") {
-      updateData.model_name = `${customEndpoint}||${customModel}`;
-    } else if (settings.provider === "ollama") {
-      const ollamaUrl = customEndpoint || "http://localhost:11434";
-      updateData.model_name = `${ollamaUrl}||${settings.model_name}`;
-    }
-
     const { error } = await supabase
       .from("chat_ai_settings" as any)
-      .update(updateData)
+      .update({
+        enabled: settings.enabled,
+        auto_reply_delay: settings.auto_reply_delay,
+        system_prompt: settings.system_prompt,
+        updated_at: new Date().toISOString(),
+      } as any)
       .eq("id", settings.id);
 
     if (error) {
@@ -129,8 +65,6 @@ export default function ChatAiConfigPanel() {
     }
     setSaving(false);
   };
-
-  const selectedProvider = PROVIDERS.find((p) => p.value === settings?.provider);
 
   if (loading) {
     return (
@@ -147,7 +81,7 @@ export default function ChatAiConfigPanel() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-primary" />
-          <h3 className="text-sm font-semibold text-foreground">AI অটো-রিপ্লাই সেটিংস</h3>
+          <h3 className="text-sm font-semibold text-foreground">AI অটো-রিপ্লাই</h3>
         </div>
         <div className="flex items-center gap-2">
           <Label htmlFor="ai-enabled" className="text-xs text-muted-foreground">
@@ -163,121 +97,11 @@ export default function ChatAiConfigPanel() {
 
       {!settings.enabled && (
         <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground text-center">
-          AI অটো-রিপ্লাই বন্ধ আছে। চালু করতে টগল সুইচ অন করুন এবং API কী সেটআপ করুন।
+          AI অটো-রিপ্লাই বন্ধ আছে। চালু করতে টগল সুইচ অন করুন।
         </div>
       )}
 
       <div className="space-y-4">
-        {/* Provider */}
-        <div className="space-y-1.5">
-          <Label className="text-xs">AI প্রোভাইডার</Label>
-          <select
-            value={settings.provider}
-            onChange={(e) => {
-              const v = e.target.value;
-              updateField("provider", v);
-              const prov = PROVIDERS.find((p) => p.value === v);
-              if (prov && prov.models.length > 0) {
-                updateField("model_name", prov.models[0]);
-              }
-            }}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            {PROVIDERS.map((p) => (
-              <option key={p.value} value={p.value}>
-                {p.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* API Key */}
-        <div className="space-y-1.5">
-          <Label className="text-xs">
-            API কী {settings.provider === "ollama" && <span className="text-muted-foreground">(ঐচ্ছিক)</span>}
-          </Label>
-          <div className="relative">
-            <Input
-              type={showKey ? "text" : "password"}
-              value={settings.api_key}
-              onChange={(e) => updateField("api_key", e.target.value)}
-              placeholder={settings.provider === "ollama" ? "খালি রাখতে পারেন (লোকাল)" : "sk-... বা আপনার API কী"}
-              className="text-sm h-9 pr-10 font-mono"
-            />
-            <button
-              type="button"
-              onClick={() => setShowKey(!showKey)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-          <p className="text-[10px] text-muted-foreground">
-            {settings.provider === "openai" && "platform.openai.com থেকে API কী নিন"}
-            {settings.provider === "gemini" && "aistudio.google.com থেকে API কী নিন"}
-            {settings.provider === "grok" && "console.x.ai থেকে API কী নিন"}
-            {settings.provider === "deepseek" && "platform.deepseek.com থেকে API কী নিন"}
-            {settings.provider === "claude" && "console.anthropic.com থেকে API কী নিন"}
-            {settings.provider === "ollama" && "Ollama লোকালে চললে API কী লাগবে না"}
-            {settings.provider === "custom" && "আপনার OpenAI-compatible API কী দিন"}
-          </p>
-        </div>
-
-        {/* Ollama Endpoint */}
-        {settings.provider === "ollama" && (
-          <div className="space-y-1.5">
-            <Label className="text-xs">Ollama Endpoint URL</Label>
-            <Input
-              value={customEndpoint || "http://localhost:11434"}
-              onChange={(e) => setCustomEndpoint(e.target.value)}
-              placeholder="http://localhost:11434"
-              className="text-sm h-9 font-mono"
-            />
-            <p className="text-[10px] text-muted-foreground">
-              ডিফল্ট: http://localhost:11434
-            </p>
-          </div>
-        )}
-
-        {/* Model */}
-        {settings.provider !== "custom" ? (
-          <div className="space-y-1.5">
-            <Label className="text-xs">মডেল</Label>
-            <select
-              value={settings.model_name}
-              onChange={(e) => updateField("model_name", e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              {selectedProvider?.models.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : (
-          <>
-            <div className="space-y-1.5">
-              <Label className="text-xs">API Endpoint URL</Label>
-              <Input
-                value={customEndpoint}
-                onChange={(e) => setCustomEndpoint(e.target.value)}
-                placeholder="https://your-api.com/v1/chat/completions"
-                className="text-sm h-9 font-mono"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">মডেল নাম</Label>
-              <Input
-                value={customModel}
-                onChange={(e) => setCustomModel(e.target.value)}
-                placeholder="model-name"
-                className="text-sm h-9"
-              />
-            </div>
-          </>
-        )}
-
         {/* Auto-reply delay */}
         <div className="space-y-1.5">
           <Label className="text-xs">অটো-রিপ্লাই ডিলে (সেকেন্ড)</Label>
@@ -294,27 +118,13 @@ export default function ChatAiConfigPanel() {
           </p>
         </div>
 
-        {/* System Prompt */}
-        <div className="space-y-1.5">
-          <Label className="text-xs">সিস্টেম প্রম্পট (ঐচ্ছিক)</Label>
-          <Textarea
-            value={settings.system_prompt}
-            onChange={(e) => updateField("system_prompt", e.target.value)}
-            placeholder="আপনার AI এজেন্টকে কিভাবে respond করবে সেটা বলুন..."
-            className="text-sm min-h-[80px] resize-none"
-          />
-          <p className="text-[10px] text-muted-foreground">
-            খালি রাখলে ডিফল্ট প্রম্পট ব্যবহার হবে
-          </p>
-        </div>
-
         <Button onClick={saveSettings} disabled={saving} className="w-full h-9 text-sm">
           {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
           সেটিংস সেভ করুন
         </Button>
 
         {/* Test Section */}
-        <AiTestPanel settings={settings} customEndpoint={customEndpoint} customModel={customModel} />
+        {settings.enabled && <AiTestPanel />}
       </div>
     </div>
   );
