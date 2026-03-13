@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
 
 interface Profile {
   full_name: string | null;
@@ -275,6 +276,7 @@ export default function AdminLayout() {
             </div>
 
             <div className="flex items-center gap-2">
+              <SendNotificationDialog />
               {/* Persistent chat alert */}
               {unansweredSessions.size > 0 && !location.pathname.includes("/admin/chat") && (
                 <Button
