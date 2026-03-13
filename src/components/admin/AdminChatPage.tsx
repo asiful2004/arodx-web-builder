@@ -48,6 +48,31 @@ export default function AdminChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [senderProfiles, setSenderProfiles] = useState<Map<string, { full_name: string | null; avatar_url: string | null }>>(new Map());
 
+  // Notification sound
+  const audioNotifRef = useRef<HTMLAudioElement | null>(null);
+  const playNotifSound = useCallback(() => {
+    if (!audioNotifRef.current) {
+      audioNotifRef.current = new Audio(NOTIF_SOUND_URL);
+      audioNotifRef.current.volume = 0.5;
+    }
+    audioNotifRef.current.currentTime = 0;
+    audioNotifRef.current.play().catch(() => {});
+  }, []);
+
+  // Audio recording
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Audio playback
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const audioPlaybackRef = useRef<HTMLAudioElement | null>(null);
+
+  // File input ref
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   // Fetch sessions
   const fetchSessions = useCallback(async () => {
     const { data: sessionsData } = await supabase
