@@ -104,7 +104,7 @@ export default function StaffPanelPage() {
     setAdding(true);
     const { error } = await supabase.from("user_roles").insert({
       user_id: selectedUserId,
-      role: "staff" as any,
+      role: "hr" as any,
     });
     setAdding(false);
     if (error) {
