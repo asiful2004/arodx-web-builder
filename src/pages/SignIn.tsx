@@ -3,10 +3,13 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useToast } from "@/hooks/use-toast";
+import { useDeviceAuth } from "@/hooks/useDeviceAuth";
+import { QRCodeSVG } from "qrcode.react";
+import { Loader2, Smartphone, RefreshCw } from "lucide-react";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -17,20 +20,138 @@ const SignIn = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirect");
+  const { checkDeviceCount, isDeviceRegistered, registerDevice, createLoginRequest } = useDeviceAuth();
+
+  // QR flow state
+  const [qrToken, setQrToken] = useState<string | null>(null);
+  const [pendingCredentials, setPendingCredentials] = useState<{ email: string; password: string } | null>(null);
+  const [waitingApproval, setWaitingApproval] = useState(false);
+  const [qrExpired, setQrExpired] = useState(false);
+
+  // Listen for approval via realtime
+  useEffect(() => {
+    if (!qrToken || !waitingApproval) return;
+
+    const channel = supabase
+      .channel(`device-approval-${qrToken}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "device_login_requests", filter: `token=eq.${qrToken}` },
+        async (payload) => {
+          const req = payload.new as any;
+          if (req.status === "approved" && pendingCredentials) {
+            // Re-login
+            const { error } = await supabase.auth.signInWithPassword({
+              email: pendingCredentials.email,
+              password: pendingCredentials.password,
+            });
+            if (!error) {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                await registerDevice(user.id);
+              }
+              toast({ title: "ডিভাইস অনুমোদিত হয়েছে! ✓" });
+              navigate(redirectTo || "/");
+            } else {
+              toast({ title: "লগইন ব্যর্থ", description: error.message, variant: "destructive" });
+            }
+            setWaitingApproval(false);
+            setQrToken(null);
+            setPendingCredentials(null);
+          }
+        }
+      )
+      .subscribe();
+
+    // QR expires in 5 minutes
+    const timer = setTimeout(() => {
+      setQrExpired(true);
+      setWaitingApproval(false);
+    }, 5 * 60 * 1000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearTimeout(timer);
+    };
+  }, [qrToken, waitingApproval, pendingCredentials, navigate, redirectTo, registerDevice, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      // First sign in to verify credentials
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      toast({ title: "সফলভাবে লগইন হয়েছে!" });
-      navigate(redirectTo || "/");
+
+      const user = data.user;
+      if (!user) throw new Error("User not found");
+
+      // Check if this device is already registered
+      const alreadyRegistered = await isDeviceRegistered(user.id);
+      if (alreadyRegistered) {
+        // Update last active and proceed
+        toast({ title: "সফলভাবে লগইন হয়েছে!" });
+        navigate(redirectTo || "/");
+        return;
+      }
+
+      // Check device count
+      const deviceCount = await checkDeviceCount(user.id);
+
+      if (deviceCount === 0) {
+        // First device, register directly
+        await registerDevice(user.id);
+        toast({ title: "সফলভাবে লগইন হয়েছে!" });
+        navigate(redirectTo || "/");
+        return;
+      }
+
+      if (deviceCount >= 3) {
+        // Max devices reached
+        await supabase.auth.signOut();
+        toast({
+          title: "সর্বোচ্চ ডিভাইস সীমা পূর্ণ",
+          description: "আপনি সর্বোচ্চ ৩টি ডিভাইসে লগইন করতে পারেন। সেটিংস থেকে একটি ডিভাইস সরান।",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Need QR approval - sign out and show QR
+      await supabase.auth.signOut();
+      const token = await createLoginRequest(email);
+      setQrToken(token);
+      setPendingCredentials({ email, password });
+      setWaitingApproval(true);
+      setQrExpired(false);
+      toast({ title: "ডিভাইস অনুমোদন প্রয়োজন", description: "আপনার অন্য ডিভাইস থেকে QR কোড স্ক্যান করুন।" });
     } catch (error: any) {
       toast({ title: "লগইন ব্যর্থ", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetryQR = async () => {
+    if (!pendingCredentials) return;
+    setLoading(true);
+    try {
+      const token = await createLoginRequest(pendingCredentials.email);
+      setQrToken(token);
+      setWaitingApproval(true);
+      setQrExpired(false);
+    } catch (err: any) {
+      toast({ title: "QR তৈরি ব্যর্থ", description: err.message, variant: "destructive" });
+    }
+    setLoading(false);
+  };
+
+  const handleCancelQR = () => {
+    setQrToken(null);
+    setPendingCredentials(null);
+    setWaitingApproval(false);
+    setQrExpired(false);
   };
 
   const handleGoogleSignIn = async () => {
@@ -48,6 +169,55 @@ const SignIn = () => {
       setLoading(false);
     }
   };
+
+  // QR Approval Screen
+  if (qrToken && (waitingApproval || qrExpired)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-md"
+        >
+          <div className="bg-card/60 backdrop-blur-xl border border-border rounded-2xl p-8 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <Smartphone className="w-7 h-7 text-primary" />
+            </div>
+            <h1 className="text-xl font-bold text-foreground mb-2">ডিভাইস অনুমোদন</h1>
+            <p className="text-sm text-muted-foreground mb-6">
+              আপনার লগইন করা ডিভাইসের সেটিংস → নিরাপত্তা থেকে এই QR কোড স্ক্যান করুন
+            </p>
+
+            {qrExpired ? (
+              <div className="space-y-4">
+                <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4">
+                  <p className="text-sm text-destructive font-medium">QR কোডের মেয়াদ শেষ হয়ে গেছে</p>
+                </div>
+                <Button onClick={handleRetryQR} disabled={loading} className="gap-2">
+                  <RefreshCw className="w-4 h-4" /> নতুন QR তৈরি করুন
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-white rounded-xl p-4 inline-block mx-auto">
+                  <QRCodeSVG value={qrToken} size={200} level="H" />
+                </div>
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  অনুমোদনের অপেক্ষায়...
+                </div>
+                <p className="text-xs text-muted-foreground">৫ মিনিটের মধ্যে স্ক্যান করুন</p>
+              </div>
+            )}
+
+            <Button variant="ghost" className="mt-4" onClick={handleCancelQR}>
+              বাতিল করুন
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">

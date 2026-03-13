@@ -6,8 +6,9 @@ import { useTheme } from "next-themes";
 import {
   Lock, Mail, Bell, Trash2, Shield, Eye, EyeOff,
   Save, Loader2, LogOut, Monitor, Globe, KeyRound,
-  BellRing, Volume2, VolumeX, ChevronRight, Sun, Moon, Laptop,
+  BellRing, Volume2, VolumeX, ChevronRight, Sun, Moon, Laptop, Smartphone,
 } from "lucide-react";
+import DeviceManagementSection from "./DeviceManagementSection";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -339,8 +340,22 @@ export default function SettingsPage() {
         </div>
       </SectionCard>
       <SectionCard delay={0.15}>
-        <SectionHeader icon={Shield} title="নিরাপত্তা" desc="সেশন ও অ্যাক্সেস ম্যানেজ করুন" />
+        <SectionHeader icon={Shield} title="নিরাপত্তা" desc="ডিভাইস ও সেশন ম্যানেজ করুন" />
         <div className="p-5 space-y-4">
+          {/* Device Management */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Smartphone className="w-4 h-4 text-primary" />
+              <p className="text-sm font-medium text-foreground">লগইন ডিভাইস</p>
+            </div>
+            <p className="text-[11px] text-muted-foreground mb-3">
+              সর্বোচ্চ ৩টি ডিভাইসে একসাথে লগইন থাকতে পারবেন। নতুন ডিভাইস যোগ করতে QR কোড স্ক্যান করুন।
+            </p>
+            <DeviceManagementSection user={user} />
+          </div>
+
+          <Separator />
+
           {/* Current session */}
           <div className="rounded-xl bg-muted/30 border border-border/50 p-4">
             <div className="flex items-center gap-3">
