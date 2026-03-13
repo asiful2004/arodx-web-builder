@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Bot, Save, Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import AiTestPanel from "./AiTestPanel";
@@ -161,27 +160,24 @@ export default function ChatAiConfigPanel() {
         {/* Provider */}
         <div className="space-y-1.5">
           <Label className="text-xs">AI প্রোভাইডার</Label>
-          <Select
+          <select
             value={settings.provider}
-            onValueChange={(v) => {
+            onChange={(e) => {
+              const v = e.target.value;
               updateField("provider", v);
               const prov = PROVIDERS.find((p) => p.value === v);
               if (prov && prov.models.length > 0) {
                 updateField("model_name", prov.models[0]);
               }
             }}
+            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
-            <SelectTrigger className="h-9 text-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PROVIDERS.map((p) => (
-                <SelectItem key={p.value} value={p.value}>
-                  {p.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            {PROVIDERS.map((p) => (
+              <option key={p.value} value={p.value}>
+                {p.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* API Key */}
@@ -217,21 +213,17 @@ export default function ChatAiConfigPanel() {
         {settings.provider !== "custom" ? (
           <div className="space-y-1.5">
             <Label className="text-xs">মডেল</Label>
-            <Select
+            <select
               value={settings.model_name}
-              onValueChange={(v) => updateField("model_name", v)}
+              onChange={(e) => updateField("model_name", e.target.value)}
+              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {selectedProvider?.models.map((m) => (
-                  <SelectItem key={m} value={m}>
-                    {m}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {selectedProvider?.models.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
           </div>
         ) : (
           <>
