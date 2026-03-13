@@ -32,6 +32,8 @@ import AdminUsersPage from "./components/admin/AdminUsersPage";
 import AdminTicketsPage from "./components/admin/AdminTicketsPage";
 import AdminTicketDetailPage from "./components/admin/AdminTicketDetailPage";
 import AdminSettingsPage from "./components/admin/AdminSettingsPage";
+import AdminChatPage from "./components/admin/AdminChatPage";
+import LiveChat from "./components/LiveChat";
 import Checkout from "./pages/Checkout";
 import RenewalPage from "./pages/Renewal";
 import NotFound from "./pages/NotFound";
@@ -57,7 +59,7 @@ const App = () => {
         <BrowserRouter>
           <AuthProvider>
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<><Index /><LiveChat /></>} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -83,6 +85,7 @@ const App = () => {
                 <Route path="tickets" element={<AdminTicketsPage />} />
                 <Route path="tickets/:ticketId" element={<AdminTicketDetailPage />} />
                 <Route path="settings" element={<AdminSettingsPage />} />
+                <Route path="chat" element={<AdminChatPage />} />
               </Route>
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/renewal" element={<RenewalPage />} />
