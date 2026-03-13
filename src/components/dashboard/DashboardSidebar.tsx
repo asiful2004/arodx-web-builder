@@ -30,6 +30,7 @@ interface DashboardSidebarProps {
   profile: { full_name: string | null; avatar_url: string | null };
   isAdmin: boolean;
   userRole?: string;
+  userRoles?: string[];
 }
 
 export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSidebarProps) {
