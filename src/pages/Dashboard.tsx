@@ -33,6 +33,7 @@ const Dashboard = () => {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
