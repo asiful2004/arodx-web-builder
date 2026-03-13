@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
-  LayoutDashboard, ShoppingBag, Building2, Users, Settings, LogOut, Shield, Ticket, MessageCircle,
+  LayoutDashboard, ShoppingBag, Building2, Users, Settings, LogOut, Shield, Ticket, MessageCircle, UserCog,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -20,6 +20,10 @@ const mainItems = [
   { title: "ইউজার ম্যানেজমেন্ট", url: "/admin/users", icon: Users },
   { title: "টিকেট ম্যানেজমেন্ট", url: "/admin/tickets", icon: Ticket },
   { title: "লাইভ চ্যাট", url: "/admin/chat", icon: MessageCircle },
+];
+
+const staffItems = [
+  { title: "স্টাফ প্যানেল", url: "/admin/staff", icon: UserCog },
 ];
 
 const settingsItems = [
