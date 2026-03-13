@@ -88,7 +88,7 @@ export default function StaffLayout() {
             </div>
             <div className="flex items-center gap-2">
               {canSendNotif && <SendNotificationDialog />}
-              <NotificationBell userId={user.id} storageKey="staff_notif_sound" />
+              <NotificationBell userId={user.id} />
             </div>
           </header>
 
