@@ -33,7 +33,10 @@ interface DashboardSidebarProps {
   userRoles?: string[];
 }
 
-export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSidebarProps) {
+const STAFF_ROLES = ["hr", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
+
+export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }: DashboardSidebarProps) {
+  const isStaff = userRoles.some((r) => STAFF_ROLES.includes(r));
   const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
