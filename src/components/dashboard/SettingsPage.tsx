@@ -6,8 +6,9 @@ import { useTheme } from "next-themes";
 import {
   Lock, Mail, Bell, Trash2, Shield, Eye, EyeOff,
   Save, Loader2, LogOut, Monitor, Globe, KeyRound,
-  BellRing, Volume2, VolumeX, ChevronRight, Sun, Moon, Laptop,
+  BellRing, Volume2, VolumeX, ChevronRight, Sun, Moon, Laptop, Smartphone,
 } from "lucide-react";
+import DeviceManagementSection from "./DeviceManagementSection";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
