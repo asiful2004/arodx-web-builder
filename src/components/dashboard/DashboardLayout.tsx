@@ -29,6 +29,7 @@ export default function DashboardLayout() {
   const [profile, setProfile] = useState<Profile>({ full_name: null, avatar_url: null });
   const [isAdmin, setIsAdmin] = useState(false);
   const [userRole, setUserRole] = useState<string>("");
+  const [userRoles, setUserRoles] = useState<string[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const stored = localStorage.getItem("notif_sound");
