@@ -313,9 +313,9 @@ export default function LiveChat() {
       const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
       // If no sender_id, it's AI auto-reply — use robot avatar
       if (!m.sender_id) {
-        return { name: "Aerotic Support Team", avatar: aiRobotAvatar };
+        return { name: "ArodX Support Team", avatar: aiRobotAvatar };
       }
-      return { name: profile?.full_name || "Aerotic Support Team", avatar: profile?.avatar_url || aiRobotAvatar };
+      return { name: profile?.full_name || "ArodX Support Team", avatar: profile?.avatar_url || aiRobotAvatar };
     }
     return { name: "সিস্টেম", avatar: null };
   };
