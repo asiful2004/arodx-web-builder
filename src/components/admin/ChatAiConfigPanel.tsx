@@ -220,6 +220,22 @@ export default function ChatAiConfigPanel() {
           </p>
         </div>
 
+        {/* Ollama Endpoint */}
+        {settings.provider === "ollama" && (
+          <div className="space-y-1.5">
+            <Label className="text-xs">Ollama Endpoint URL</Label>
+            <Input
+              value={customEndpoint || "http://localhost:11434"}
+              onChange={(e) => setCustomEndpoint(e.target.value)}
+              placeholder="http://localhost:11434"
+              className="text-sm h-9 font-mono"
+            />
+            <p className="text-[10px] text-muted-foreground">
+              ডিফল্ট: http://localhost:11434
+            </p>
+          </div>
+        )}
+
         {/* Model */}
         {settings.provider !== "custom" ? (
           <div className="space-y-1.5">
