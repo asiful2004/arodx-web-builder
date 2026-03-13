@@ -51,15 +51,22 @@ export default function LiveChat() {
       });
   }, [user]);
 
-  // Restore session and guest name
+  // Restore session and guest name from DB
   useEffect(() => {
     const stored = localStorage.getItem(SESSION_KEY);
     if (stored) {
       setSessionId(stored);
       setStarted(true);
+      // Fetch guest name from DB
+      supabase
+        .from("chat_sessions")
+        .select("guest_name")
+        .eq("id", stored)
+        .single()
+        .then(({ data }) => {
+          if (data?.guest_name) setGuestName(data.guest_name);
+        });
     }
-    const storedName = localStorage.getItem("live_chat_guest_name");
-    if (storedName) setGuestName(storedName);
   }, []);
 
   // Fetch sender profiles for messages
