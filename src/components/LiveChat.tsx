@@ -51,13 +51,15 @@ export default function LiveChat() {
       });
   }, [user]);
 
-  // Restore session
+  // Restore session and guest name
   useEffect(() => {
     const stored = localStorage.getItem(SESSION_KEY);
     if (stored) {
       setSessionId(stored);
       setStarted(true);
     }
+    const storedName = localStorage.getItem("live_chat_guest_name");
+    if (storedName) setGuestName(storedName);
   }, []);
 
   // Fetch sender profiles for messages
