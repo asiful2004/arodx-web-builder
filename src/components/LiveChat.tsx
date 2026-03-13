@@ -194,8 +194,7 @@ export default function LiveChat() {
           avatar: clientProfile.avatar_url || user.user_metadata?.avatar_url || null,
         };
       }
-      return { name: guestName || "গেস্ট", avatar: null };
-    }
+      return { name: guestName || "গেস্ট", avatar: null, isGuest: true };
     if (m.sender_type === "admin") {
       const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
       return {
