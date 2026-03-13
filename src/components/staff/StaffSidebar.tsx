@@ -1,7 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { NavLink } from "@/components/NavLink";
 import {
-  LayoutDashboard, LogOut, UserCog, MessageCircle, Ticket, Settings,
+  LayoutDashboard, LogOut, UserCog, MessageCircle, Ticket, Users,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -12,11 +13,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
 
 const staffItems = [
   { title: "ওভারভিউ", url: "/staff", icon: LayoutDashboard },
   { title: "টিকেট সাপোর্ট", url: "/staff/tickets", icon: Ticket },
   { title: "লাইভ চ্যাট", url: "/staff/chat", icon: MessageCircle },
+];
+
+const hrItems = [
+  { title: "স্টাফ ম্যানেজমেন্ট", url: "/staff/hr", icon: Users },
 ];
 
 interface StaffSidebarProps {
@@ -30,6 +36,14 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const isMobile = useIsMobile();
+  const [isHR, setIsHR] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .rpc("has_role", { _user_id: user.id, _role: "hr" as any })
+      .then(({ data }) => setIsHR(!!data));
+  }, [user]);
 
   const closeMobileMenu = () => {
     if (isMobile) setOpenMobile(false);
@@ -96,6 +110,31 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {isHR && (
+          <SidebarGroup>
+            <SidebarGroupLabel>এইচআর</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {hrItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink
+                        to={item.url}
+                        className="hover:bg-sidebar-accent/50"
+                        activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                        onClick={closeMobileMenu}
+                      >
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-3 border-t border-sidebar-border">
