@@ -38,12 +38,13 @@ export default function StaffLayout() {
         if (data) setProfile(data);
       });
 
-    // Check staff or admin role
+    // Check staff, admin, or hr role
     Promise.all([
       supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
       supabase.rpc("has_role", { _user_id: user.id, _role: "staff" as any }),
-    ]).then(([adminRes, staffRes]) => {
-      if (!adminRes.data && !staffRes.data) {
+      supabase.rpc("has_role", { _user_id: user.id, _role: "hr" as any }),
+    ]).then(([adminRes, staffRes, hrRes]) => {
+      if (!adminRes.data && !staffRes.data && !hrRes.data) {
         navigate("/dashboard");
         toast({ title: "অ্যাক্সেস নেই", description: "আপনার স্টাফ প্যানেলে অ্যাক্সেস নেই।", variant: "destructive" });
         return;
