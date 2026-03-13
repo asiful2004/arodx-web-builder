@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useNavigate, Outlet } from "react-router-dom";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bell, BellOff, Volume2 } from "lucide-react";
+import { ArrowLeft, Bell, BellOff, Volume2, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -30,6 +30,7 @@ export default function AdminLayout() {
   const [profile, setProfile] = useState<Profile>({ full_name: null, avatar_url: null });
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [notifOpen, setNotifOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(() => {
@@ -38,6 +39,11 @@ export default function AdminLayout() {
   });
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Persistent chat notification state
+  const [unansweredSessions, setUnansweredSessions] = useState<Set<string>>(new Set());
+  const persistentTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const chatNotifAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -75,6 +81,16 @@ export default function AdminLayout() {
     }
     audioRef.current.currentTime = 0;
     audioRef.current.play().catch(() => {});
+  }, [soundEnabled]);
+
+  const playChatNotifSound = useCallback(() => {
+    if (!soundEnabled) return;
+    if (!chatNotifAudioRef.current) {
+      chatNotifAudioRef.current = new Audio("https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3");
+      chatNotifAudioRef.current.volume = 0.7;
+    }
+    chatNotifAudioRef.current.currentTime = 0;
+    chatNotifAudioRef.current.play().catch(() => {});
   }, [soundEnabled]);
 
   const toggleSound = () => {
@@ -115,6 +131,97 @@ export default function AdminLayout() {
 
     return () => { supabase.removeChannel(channel); };
   }, [user, isAdmin, playNotifSound]);
+
+  // === Persistent Chat Notification System ===
+  // Listen for ALL new chat messages from clients
+  useEffect(() => {
+    if (!user || !isAdmin) return;
+
+    const channel = supabase
+      .channel("admin-chat-persistent-notif")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "chat_messages" },
+        (payload) => {
+          const msg = payload.new as { id: string; session_id: string; sender_type: string; sender_id: string | null };
+          
+          if (msg.sender_type === "client") {
+            // Client sent a message - add to unanswered set
+            setUnansweredSessions(prev => {
+              const next = new Set(prev);
+              next.add(msg.session_id);
+              return next;
+            });
+            // Play immediately
+            playChatNotifSound();
+            // Show toast
+            toast({
+              title: "💬 নতুন চ্যাট মেসেজ!",
+              description: "একজন ক্লায়েন্ট সাপোর্ট চ্যাটে মেসেজ পাঠিয়েছে",
+              action: (
+                <Button 
+                  size="sm" 
+                  variant="default"
+                  className="gap-1 text-xs"
+                  onClick={() => navigate("/admin/chat")}
+                >
+                  <MessageCircle className="h-3 w-3" />
+                  চ্যাটে যান
+                </Button>
+              ),
+            });
+          }
+          
+          if (msg.sender_type === "admin" && msg.sender_id) {
+            // Admin replied - remove from unanswered
+            setUnansweredSessions(prev => {
+              const next = new Set(prev);
+              next.delete(msg.session_id);
+              return next;
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user, isAdmin, playChatNotifSound, navigate, toast]);
+
+  // Repeating sound every 15s while there are unanswered sessions
+  useEffect(() => {
+    if (unansweredSessions.size > 0 && soundEnabled) {
+      // Don't repeat if admin is already on chat page
+      const isOnChatPage = location.pathname.includes("/admin/chat");
+      
+      if (persistentTimerRef.current) clearInterval(persistentTimerRef.current);
+      
+      if (!isOnChatPage) {
+        persistentTimerRef.current = setInterval(() => {
+          playChatNotifSound();
+        }, 15000); // Every 15 seconds
+      }
+    } else {
+      if (persistentTimerRef.current) {
+        clearInterval(persistentTimerRef.current);
+        persistentTimerRef.current = null;
+      }
+    }
+
+    return () => {
+      if (persistentTimerRef.current) {
+        clearInterval(persistentTimerRef.current);
+        persistentTimerRef.current = null;
+      }
+    };
+  }, [unansweredSessions, soundEnabled, location.pathname, playChatNotifSound]);
+
+  // When admin navigates to chat page, stop persistent sound (they'll handle it there)
+  useEffect(() => {
+    if (location.pathname.includes("/admin/chat") && persistentTimerRef.current) {
+      clearInterval(persistentTimerRef.current);
+      persistentTimerRef.current = null;
+    }
+  }, [location.pathname]);
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
