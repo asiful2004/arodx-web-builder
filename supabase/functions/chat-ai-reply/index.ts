@@ -189,7 +189,7 @@ serve(async (req) => {
       .limit(1)
       .single();
 
-    if (!aiSettings || !aiSettings.enabled || !aiSettings.api_key) {
+    if (!aiSettings || !aiSettings.enabled || (!aiSettings.api_key && aiSettings.provider !== "ollama")) {
       return new Response(JSON.stringify({ skipped: true, reason: "AI not configured or disabled" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
