@@ -544,7 +544,7 @@ export default function AdminUsersPage() {
                       <SelectItem value="admin">অ্যাডমিন</SelectItem>
                       <SelectItem value="client">ক্লায়েন্ট</SelectItem>
                       <SelectItem value="moderator">মডারেটর</SelectItem>
-                      <SelectItem value="staff">স্টাফ</SelectItem>
+                      <SelectItem value="hr">এইচআর</SelectItem>
                       <SelectItem value="hr">এইচআর</SelectItem>
                       <SelectItem value="graphics_designer">গ্রাফিক্স ডিজাইনার</SelectItem>
                       <SelectItem value="web_developer">ওয়েব ডেভেলপার</SelectItem>
