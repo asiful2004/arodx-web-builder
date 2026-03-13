@@ -84,8 +84,10 @@ export default function ChatAiConfigPanel() {
   };
 
   const updateField = (field: keyof AiSettings, value: any) => {
-    if (!settings) return;
-    setSettings({ ...settings, [field]: value });
+    setSettings((prev) => {
+      if (!prev) return prev;
+      return { ...prev, [field]: value };
+    });
   };
 
   const saveSettings = async () => {
