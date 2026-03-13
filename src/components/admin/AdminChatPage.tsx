@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { MessageCircle, Send, User, Clock, X } from "lucide-react";
+import { MessageCircle, Send, User, Clock, X, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ChatSession {
   id: string;
@@ -34,6 +35,7 @@ interface ChatMessage {
 
 export default function AdminChatPage() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSession, setActiveSession] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -225,175 +227,192 @@ export default function AdminChatPage() {
 
   const activeSessionData = sessions.find(s => s.id === activeSession);
 
+  const showChatArea = isMobile ? !!activeSession : true;
+  const showSessionList = isMobile ? !activeSession : true;
+
+  const handleBackToList = () => {
+    setActiveSession(null);
+    setMessages([]);
+  };
+
   return (
     <div className="h-[calc(100vh-8rem)]">
       <h1 className="text-xl font-bold text-foreground mb-4">লাইভ চ্যাট</h1>
 
       <div className="flex h-[calc(100%-3rem)] border border-border rounded-xl overflow-hidden bg-card">
         {/* Sessions List */}
-        <div className="w-80 border-r border-border flex flex-col shrink-0">
-          <div className="p-3 border-b border-border">
-            <p className="text-sm font-medium text-foreground">কথোপকথন ({sessions.length})</p>
-          </div>
-          <ScrollArea className="flex-1">
-            {sessions.length === 0 ? (
-              <div className="p-6 text-center">
-                <MessageCircle className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">কোনো চ্যাট নেই</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border">
-                {sessions.map((s) => (
-                  <button
-                    key={s.id}
-                    onClick={() => setActiveSession(s.id)}
-                    className={`w-full text-left px-3 py-3 hover:bg-accent/50 transition-colors ${
-                      activeSession === s.id ? "bg-accent" : ""
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-foreground truncate">
-                            {getSessionName(s)}
+        {showSessionList && (
+          <div className={`${isMobile ? "w-full" : "w-80"} border-r border-border flex flex-col shrink-0`}>
+            <div className="p-3 border-b border-border">
+              <p className="text-sm font-medium text-foreground">কথোপকথন ({sessions.length})</p>
+            </div>
+            <ScrollArea className="flex-1">
+              {sessions.length === 0 ? (
+                <div className="p-6 text-center">
+                  <MessageCircle className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">কোনো চ্যাট নেই</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-border">
+                  {sessions.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => setActiveSession(s.id)}
+                      className={`w-full text-left px-3 py-3 hover:bg-accent/50 transition-colors ${
+                        activeSession === s.id ? "bg-accent" : ""
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {getSessionName(s)}
+                            </p>
+                            {s.status === "closed" && (
+                              <Badge variant="secondary" className="text-[10px] h-4">বন্ধ</Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">
+                            {s.last_message || "কোনো মেসেজ নেই"}
                           </p>
-                          {s.status === "closed" && (
-                            <Badge variant="secondary" className="text-[10px] h-4">বন্ধ</Badge>
-                          )}
+                          <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+                            {new Date(s.created_at).toLocaleString("bn-BD")}
+                          </p>
                         </div>
-                        <p className="text-xs text-muted-foreground truncate mt-0.5">
-                          {s.last_message || "কোনো মেসেজ নেই"}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground/60 mt-0.5">
-                          {new Date(s.created_at).toLocaleString("bn-BD")}
-                        </p>
+                        {(s.unread_count ?? 0) > 0 && (
+                          <span className="shrink-0 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                            {s.unread_count}
+                          </span>
+                        )}
                       </div>
-                      {(s.unread_count ?? 0) > 0 && (
-                        <span className="shrink-0 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                          {s.unread_count}
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
-        </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+        )}
 
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col min-w-0">
-          {!activeSession ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
-              <MessageCircle className="h-12 w-12 text-muted-foreground/20 mb-3" />
-              <p className="text-sm text-muted-foreground">একটি কথোপকথন সিলেক্ট করুন</p>
-            </div>
-          ) : (
-            <>
-              {/* Chat Header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={activeSessionData?.profile_avatar || undefined} />
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                      {getInitials(activeSessionData ? getSessionName(activeSessionData) : "")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      {activeSessionData ? getSessionName(activeSessionData) : ""}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {activeSessionData ? new Date(activeSessionData.created_at).toLocaleString("bn-BD") : ""}
-                    </p>
-                  </div>
-                </div>
-                {activeSessionData?.status !== "closed" && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-destructive"
-                    onClick={() => closeSession(activeSession)}
-                  >
-                    <X className="h-3.5 w-3.5 mr-1" /> চ্যাট বন্ধ
-                  </Button>
-                )}
+        {showChatArea && (
+          <div className="flex-1 flex flex-col min-w-0">
+            {!activeSession ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
+                <MessageCircle className="h-12 w-12 text-muted-foreground/20 mb-3" />
+                <p className="text-sm text-muted-foreground">একটি কথোপকথন সিলেক্ট করুন</p>
               </div>
+            ) : (
+              <>
+                {/* Chat Header */}
+                <div className="flex items-center justify-between px-3 py-3 border-b border-border gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {isMobile && (
+                      <button onClick={handleBackToList} className="p-1 rounded-md hover:bg-accent transition-colors shrink-0">
+                        <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    )}
+                    <Avatar className="h-8 w-8 shrink-0">
+                      <AvatarImage src={activeSessionData?.profile_avatar || undefined} />
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                        {getInitials(activeSessionData ? getSessionName(activeSessionData) : "")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {activeSessionData ? getSessionName(activeSessionData) : ""}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {activeSessionData ? new Date(activeSessionData.created_at).toLocaleString("bn-BD") : ""}
+                      </p>
+                    </div>
+                  </div>
+                  {activeSessionData?.status !== "closed" && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-destructive shrink-0"
+                      onClick={() => closeSession(activeSession)}
+                    >
+                      <X className="h-3.5 w-3.5 mr-1" /> <span className="hidden sm:inline">চ্যাট</span> বন্ধ
+                    </Button>
+                  )}
+                </div>
 
-              {/* Messages */}
-              <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
-                {messages.map((m) => {
-                  if (m.sender_type === "system") {
+                {/* Messages */}
+                <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3">
+                  {messages.map((m) => {
+                    if (m.sender_type === "system") {
+                      return (
+                        <div key={m.id} className="flex justify-center">
+                          <div className="bg-muted text-muted-foreground text-xs text-center px-3 py-2 rounded-lg max-w-[90%]">
+                            {m.message}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    const isAdmin = m.sender_type === "admin";
+                    const sender = getSenderInfo(m);
+
                     return (
-                      <div key={m.id} className="flex justify-center">
-                        <div className="bg-muted text-muted-foreground text-xs text-center px-3 py-2 rounded-lg max-w-[90%]">
-                          {m.message}
+                      <div key={m.id} className={`flex gap-2 ${isAdmin ? "flex-row-reverse" : "flex-row"}`}>
+                        <Avatar className="h-7 w-7 shrink-0 mt-0.5">
+                          <AvatarImage src={sender.avatar || undefined} />
+                          <AvatarFallback className={`text-[10px] font-bold ${
+                            isAdmin ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground"
+                          }`}>
+                            {getInitials(sender.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className={`max-w-[75%] md:max-w-[70%] flex flex-col ${isAdmin ? "items-end" : "items-start"}`}>
+                          <p className={`text-[10px] mb-0.5 text-muted-foreground ${isAdmin ? "text-right" : "text-left"}`}>
+                            {sender.name}
+                          </p>
+                          <div
+                            className={`px-3 py-2 rounded-xl text-sm ${
+                              isAdmin
+                                ? "bg-primary text-primary-foreground rounded-tr-sm"
+                                : "bg-accent text-accent-foreground rounded-tl-sm"
+                            }`}
+                          >
+                            {m.message}
+                            <p className={`text-[9px] mt-1 ${
+                              isAdmin ? "text-primary-foreground/60" : "text-muted-foreground/60"
+                            }`}>
+                              {new Date(m.created_at).toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     );
-                  }
-
-                  const isAdmin = m.sender_type === "admin";
-                  const sender = getSenderInfo(m);
-
-                  return (
-                    <div key={m.id} className={`flex gap-2 ${isAdmin ? "flex-row-reverse" : "flex-row"}`}>
-                      <Avatar className="h-7 w-7 shrink-0 mt-0.5">
-                        <AvatarImage src={sender.avatar || undefined} />
-                        <AvatarFallback className={`text-[10px] font-bold ${
-                          isAdmin ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground"
-                        }`}>
-                          {getInitials(sender.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className={`max-w-[70%] flex flex-col ${isAdmin ? "items-end" : "items-start"}`}>
-                        <p className={`text-[10px] mb-0.5 text-muted-foreground ${isAdmin ? "text-right" : "text-left"}`}>
-                          {sender.name}
-                        </p>
-                        <div
-                          className={`px-3 py-2 rounded-xl text-sm ${
-                            isAdmin
-                              ? "bg-primary text-primary-foreground rounded-tr-sm"
-                              : "bg-accent text-accent-foreground rounded-tl-sm"
-                          }`}
-                        >
-                          {m.message}
-                          <p className={`text-[9px] mt-1 ${
-                            isAdmin ? "text-primary-foreground/60" : "text-muted-foreground/60"
-                          }`}>
-                            {new Date(m.created_at).toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" })}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Input */}
-              {activeSessionData?.status !== "closed" && (
-                <div className="border-t border-border p-3">
-                  <form
-                    onSubmit={(e) => { e.preventDefault(); sendReply(); }}
-                    className="flex items-center gap-2"
-                  >
-                    <Input
-                      placeholder="রিপ্লাই লিখুন..."
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      className="flex-1 text-sm h-9"
-                      autoFocus
-                    />
-                    <Button type="submit" size="icon" className="h-9 w-9 shrink-0" disabled={!input.trim() || sending}>
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </form>
+                  })}
                 </div>
-              )}
-            </>
-          )}
-        </div>
+
+                {/* Input */}
+                {activeSessionData?.status !== "closed" && (
+                  <div className="border-t border-border p-2 md:p-3">
+                    <form
+                      onSubmit={(e) => { e.preventDefault(); sendReply(); }}
+                      className="flex items-center gap-2"
+                    >
+                      <Input
+                        placeholder="রিপ্লাই লিখুন..."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        className="flex-1 text-sm h-9"
+                        autoFocus
+                      />
+                      <Button type="submit" size="icon" className="h-9 w-9 shrink-0" disabled={!input.trim() || sending}>
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </form>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
