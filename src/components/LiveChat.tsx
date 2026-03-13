@@ -41,9 +41,11 @@ export default function LiveChat() {
   const [senderProfiles, setSenderProfiles] = useState<Map<string, SenderProfile>>(new Map());
   const [clientProfile, setClientProfile] = useState<SenderProfile>({ full_name: null, avatar_url: null });
 
-  // Speech-to-text
+  // Voice-to-text (record + AI transcribe)
   const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // Notification sound
   const audioNotifRef = useRef<HTMLAudioElement | null>(null);
