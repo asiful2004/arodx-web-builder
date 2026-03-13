@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,16 +13,31 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { LogOut, User, Briefcase } from "lucide-react";
 
 interface NavbarProps {
   logo?: string;
 }
 
+const STAFF_ROLES = ["hr", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
+
 const Navbar = ({ logo }: NavbarProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) { setIsStaff(false); return; }
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .then(({ data }) => {
+        if (data) setIsStaff(data.some((r: any) => STAFF_ROLES.includes(r.role)));
+      });
+  }, [user]);
 
   const navLinks = [
     { label: "Home", href: "#" },
@@ -100,6 +115,12 @@ const Navbar = ({ logo }: NavbarProps) => {
                   <User className="w-4 h-4" />
                   Dashboard
                 </DropdownMenuItem>
+                {isStaff && (
+                  <DropdownMenuItem onClick={() => navigate("/staff")} className="gap-2 cursor-pointer">
+                    <Briefcase className="w-4 h-4" />
+                    Staff Panel
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="gap-2 cursor-pointer text-destructive">
                   <LogOut className="w-4 h-4" />
@@ -169,6 +190,15 @@ const Navbar = ({ logo }: NavbarProps) => {
                       >
                         Dashboard
                       </Link>
+                      {isStaff && (
+                        <Link
+                          to="/staff"
+                          onClick={() => setMobileOpen(false)}
+                          className="text-base text-foreground hover:text-primary transition-colors"
+                        >
+                          Staff Panel
+                        </Link>
+                      )}
                       <button
                         onClick={() => {
                           handleSignOut();

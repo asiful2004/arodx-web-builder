@@ -29,6 +29,7 @@ export default function DashboardLayout() {
   const [profile, setProfile] = useState<Profile>({ full_name: null, avatar_url: null });
   const [isAdmin, setIsAdmin] = useState(false);
   const [userRole, setUserRole] = useState<string>("");
+  const [userRoles, setUserRoles] = useState<string[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(() => {
     const stored = localStorage.getItem("notif_sound");
@@ -63,10 +64,11 @@ export default function DashboardLayout() {
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
-        .limit(1)
-        .single()
         .then(({ data }) => {
-          if (data) setUserRole(data.role);
+          if (data && data.length > 0) {
+            setUserRole(data[0].role);
+            setUserRoles(data.map((r: any) => r.role));
+          }
         });
     }
   }, [user]);
@@ -157,7 +159,7 @@ export default function DashboardLayout() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <DashboardSidebar profile={profile} isAdmin={isAdmin} userRole={userRole} />
+        <DashboardSidebar profile={profile} isAdmin={isAdmin} userRole={userRole} userRoles={userRoles} />
 
         <div className="flex-1 flex flex-col min-w-0">
           <header className="sticky top-0 z-40 h-14 flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-xl px-4">

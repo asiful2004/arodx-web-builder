@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
   LayoutDashboard, User, ShoppingBag, Settings, LogOut, Shield,
-  HelpCircle, BadgeCheck, Ticket,
+  HelpCircle, BadgeCheck, Ticket, Briefcase,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -30,9 +30,13 @@ interface DashboardSidebarProps {
   profile: { full_name: string | null; avatar_url: string | null };
   isAdmin: boolean;
   userRole?: string;
+  userRoles?: string[];
 }
 
-export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSidebarProps) {
+const STAFF_ROLES = ["hr", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
+
+export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }: DashboardSidebarProps) {
+  const isStaff = userRoles.some((r) => STAFF_ROLES.includes(r));
   const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
@@ -154,6 +158,24 @@ export function DashboardSidebar({ profile, isAdmin, userRole }: DashboardSideba
                     >
                       <Shield className="mr-2 h-4 w-4" />
                       {!collapsed && <span>অ্যাডমিন প্যানেল</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+              {isStaff && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname.startsWith("/staff")}
+                  >
+                    <NavLink
+                      to="/staff"
+                      className="hover:bg-sidebar-accent/50"
+                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      onClick={closeMobileMenu}
+                    >
+                      <Briefcase className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>স্টাফ প্যানেল</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
