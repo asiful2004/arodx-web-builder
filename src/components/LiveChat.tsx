@@ -209,7 +209,7 @@ export default function LiveChat() {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) return;
     const recognition = new SpeechRecognition();
-    recognition.lang = "bn-BD";
+    recognition.lang = "";
     recognition.interimResults = true;
     recognition.continuous = true;
     let finalTranscript = input;
