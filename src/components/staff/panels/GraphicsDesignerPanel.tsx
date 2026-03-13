@@ -4,6 +4,7 @@ import { useStaffTasks, TASK_STATUS_CONFIG, type TaskStatus } from "@/hooks/useS
 import TaskCard from "@/components/staff/TaskCard";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import AttendanceWidget from "@/components/staff/AttendanceWidget";
 
 export default function GraphicsDesignerPanel() {
   const { tasks, loading, refetch } = useStaffTasks("graphics_designer");
