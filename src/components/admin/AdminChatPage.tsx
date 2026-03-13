@@ -59,12 +59,9 @@ export default function AdminChatPage() {
     audioNotifRef.current.play().catch(() => {});
   }, []);
 
-  // Audio recording
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Speech-to-text
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
   // Audio playback
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
