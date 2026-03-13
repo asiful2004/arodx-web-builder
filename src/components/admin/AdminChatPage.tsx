@@ -35,6 +35,7 @@ interface ChatMessage {
 
 export default function AdminChatPage() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSession, setActiveSession] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
