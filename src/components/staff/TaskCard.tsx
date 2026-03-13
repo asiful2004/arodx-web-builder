@@ -19,11 +19,12 @@ import { motion } from "framer-motion";
 interface TaskCardProps {
   task: StaffTask;
   canManage: boolean;
+  canChangeStatus?: boolean;
   onRefetch: () => void;
   showRole?: boolean;
 }
 
-export default function TaskCard({ task, canManage, onRefetch, showRole = false }: TaskCardProps) {
+export default function TaskCard({ task, canManage, canChangeStatus = true, onRefetch, showRole = false }: TaskCardProps) {
   const [updating, setUpdating] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
