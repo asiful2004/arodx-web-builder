@@ -379,8 +379,8 @@ export default function StaffHRPage() {
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>নতুন স্টাফ যোগ করুন</DialogTitle>
-            <DialogDescription>একজন ইউজারকে স্টাফ রোল দিন</DialogDescription>
+            <DialogTitle>নতুন মেম্বার যোগ করুন</DialogTitle>
+            <DialogDescription>একজন ইউজারকে টিমে যোগ করুন এবং রোল দিন</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -398,10 +398,25 @@ export default function StaffHRPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label>রোল সিলেক্ট করুন</Label>
+              <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as SubRole)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="রোল বাছাই করুন" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUB_ROLES.map((sr) => (
+                    <SelectItem key={sr.value} value={sr.value}>
+                      {sr.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddDialogOpen(false)}>বাতিল</Button>
-            <Button onClick={handleAddStaff} disabled={!selectedUserId || adding} className="gap-1.5">
+            <Button onClick={handleAddStaff} disabled={!selectedUserId || !selectedRole || adding} className="gap-1.5">
               {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
               যোগ করুন
             </Button>
