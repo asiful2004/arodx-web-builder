@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, XCircle, FlaskConical, Send, Loader2 } from "lucide-react";
+import { FlaskConical, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface AiSettings {
@@ -23,50 +23,9 @@ interface AiTestPanelProps {
 }
 
 export default function AiTestPanel({ settings, customEndpoint, customModel }: AiTestPanelProps) {
-  const [verifying, setVerifying] = useState(false);
-  const [verifyResult, setVerifyResult] = useState<"success" | "error" | null>(null);
-  const [verifyMessage, setVerifyMessage] = useState("");
-
   const [testMsg, setTestMsg] = useState("হ্যালো, আপনাদের সার্ভিস সম্পর্কে জানতে চাই");
   const [testReply, setTestReply] = useState("");
   const [testing, setTesting] = useState(false);
-
-  const verifyConnection = async () => {
-    if (!settings.api_key) {
-      toast.error("আগে API কী দিন");
-      return;
-    }
-    setVerifying(true);
-    setVerifyResult(null);
-    setVerifyMessage("");
-
-    try {
-      const { data, error } = await supabase.functions.invoke("chat-ai-reply", {
-        body: {
-          test_mode: "verify",
-          provider: settings.provider,
-          api_key: settings.api_key,
-          model_name: settings.provider === "custom"
-            ? `${customEndpoint}||${customModel}`
-            : settings.model_name,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.success) {
-        setVerifyResult("success");
-        setVerifyMessage(data.message || "API কানেকশন সফল!");
-      } else {
-        setVerifyResult("error");
-        setVerifyMessage(data?.error || "কানেকশন ব্যর্থ");
-      }
-    } catch (err: any) {
-      setVerifyResult("error");
-      setVerifyMessage(err?.message || "কানেকশন চেক ব্যর্থ হয়েছে");
-    }
-    setVerifying(false);
-  };
 
   const sendTestMessage = async () => {
     if (!settings.api_key || !testMsg.trim()) {
@@ -104,43 +63,13 @@ export default function AiTestPanel({ settings, customEndpoint, customModel }: A
   };
 
   return (
-    <div className="border border-border rounded-lg p-3 space-y-4 mt-2 bg-muted/30">
+    <div className="border border-border rounded-lg p-3 space-y-3 mt-2 bg-muted/30">
       <div className="flex items-center gap-2">
         <FlaskConical className="h-4 w-4 text-primary" />
-        <h4 className="text-xs font-semibold text-foreground">টেস্ট প্যানেল</h4>
+        <h4 className="text-xs font-semibold text-foreground">টেস্ট মেসেজ পাঠান</h4>
       </div>
 
-      {/* Verify Connection */}
       <div className="space-y-2">
-        <Label className="text-xs">API কানেকশন চেক</Label>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={verifyConnection}
-          disabled={verifying}
-          className="w-full h-8 text-xs"
-        >
-          {verifying ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-          ) : verifyResult === "success" ? (
-            <CheckCircle2 className="h-3.5 w-3.5 mr-1.5 text-green-500" />
-          ) : verifyResult === "error" ? (
-            <XCircle className="h-3.5 w-3.5 mr-1.5 text-red-500" />
-          ) : (
-            <FlaskConical className="h-3.5 w-3.5 mr-1.5" />
-          )}
-          {verifying ? "চেক করা হচ্ছে..." : "কানেকশন ভেরিফাই করুন"}
-        </Button>
-        {verifyMessage && (
-          <p className={`text-[10px] ${verifyResult === "success" ? "text-green-600" : "text-red-500"}`}>
-            {verifyResult === "success" ? "✅" : "❌"} {verifyMessage}
-          </p>
-        )}
-      </div>
-
-      {/* Test Message */}
-      <div className="space-y-2">
-        <Label className="text-xs">টেস্ট মেসেজ পাঠান</Label>
         <div className="flex gap-1.5">
           <Input
             value={testMsg}
