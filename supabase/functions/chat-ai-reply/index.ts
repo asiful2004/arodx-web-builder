@@ -142,12 +142,12 @@ serve(async (req) => {
     // === TEST MODE: chat ===
     if (test_mode === "chat") {
       const { provider, api_key, model_name, system_prompt, test_message } = body;
-      if (!api_key || !test_message) {
+      if ((!api_key && provider !== "ollama") || !test_message) {
         return new Response(JSON.stringify({ error: "API কী ও মেসেজ দরকার" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const { url, model } = getEndpoint(provider, model_name);
+      const { url, model, skipAuth } = getEndpoint(provider, model_name);
       const msgs = [
         { role: "system", content: system_prompt || DEFAULT_SYSTEM_PROMPT },
         { role: "user", content: test_message },
@@ -157,7 +157,7 @@ serve(async (req) => {
         if (provider === "claude") {
           reply = await callClaude(api_key, model, msgs);
         } else {
-          reply = await callOpenAICompatible(url, api_key, model, msgs);
+          reply = await callOpenAICompatible(url, api_key, model, msgs, skipAuth);
         }
         return new Response(JSON.stringify({ reply: reply || "রিপ্লাই পাওয়া যায়নি" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
