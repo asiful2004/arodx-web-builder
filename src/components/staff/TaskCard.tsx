@@ -121,7 +121,7 @@ export default function TaskCard({ task, canManage, canChangeStatus = true, onRe
         </div>
 
         <div className="flex flex-col items-end gap-1.5 shrink-0">
-          <Select value={task.status} onValueChange={(v) => handleStatusChange(v as TaskStatus)} disabled={updating}>
+          <Select value={task.status} onValueChange={(v) => handleStatusChange(v as TaskStatus)} disabled={updating || !canChangeStatus}>
             <SelectTrigger className={`h-7 text-[10px] w-24 px-2 ${statusCfg.color} border`}>
               {updating ? <Loader2 className="h-3 w-3 animate-spin" /> : <SelectValue />}
             </SelectTrigger>
