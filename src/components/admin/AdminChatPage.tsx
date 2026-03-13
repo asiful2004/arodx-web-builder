@@ -358,7 +358,7 @@ export default function AdminChatPage() {
     <div className="h-[calc(100vh-8rem)]">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-foreground">লাইভ চ্যাট</h1>
-        <Sheet>
+        <Sheet modal={false}>
           <SheetTrigger asChild>
             <Button variant="outline" size="sm" className="gap-1.5 text-xs">
               <Settings className="h-3.5 w-3.5" />
