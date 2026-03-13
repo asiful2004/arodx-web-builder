@@ -183,12 +183,13 @@ export default function AdminChatPage() {
           const msg = payload.new as ChatMessage;
           if (msg.session_id === activeSession) {
             setMessages((prev) => [...prev, msg]);
-            // Mark as read if admin is viewing
             if (msg.sender_type === "client") {
+              playNotifSound();
               supabase.from("chat_messages").update({ is_read: true }).eq("id", msg.id).then(() => {});
             }
+          } else if (msg.sender_type === "client") {
+            playNotifSound();
           }
-          // Refresh session list
           fetchSessions();
         }
       )
