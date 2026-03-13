@@ -41,12 +41,9 @@ export default function LiveChat() {
   const [senderProfiles, setSenderProfiles] = useState<Map<string, SenderProfile>>(new Map());
   const [clientProfile, setClientProfile] = useState<SenderProfile>({ full_name: null, avatar_url: null });
 
-  // Audio recording
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Speech-to-text
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
   // Notification sound
   const audioNotifRef = useRef<HTMLAudioElement | null>(null);
@@ -207,47 +204,36 @@ export default function LiveChat() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Audio recording
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      audioChunksRef.current = [];
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunksRef.current.push(e.data);
-      };
-      mediaRecorder.onstop = async () => {
-        stream.getTracks().forEach(t => t.stop());
-        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-        const url = await uploadFile(audioBlob, "webm");
-        if (url) await sendMessage("audio", url);
-        setRecordingTime(0);
-      };
-      mediaRecorder.start();
-      mediaRecorderRef.current = mediaRecorder;
-      setIsRecording(true);
-      setRecordingTime(0);
-      recordingTimerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
-    } catch { /* mic permission denied */ }
+  // Speech-to-text
+  const startListening = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+    const recognition = new SpeechRecognition();
+    recognition.lang = "bn-BD";
+    recognition.interimResults = true;
+    recognition.continuous = true;
+    let finalTranscript = input;
+    recognition.onresult = (e: any) => {
+      let interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) {
+          finalTranscript += e.results[i][0].transcript;
+        } else {
+          interim += e.results[i][0].transcript;
+        }
+      }
+      setInput(finalTranscript + interim);
+    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+    recognitionRef.current = recognition;
+    setIsListening(true);
   };
 
-  const stopRecording = () => {
-    mediaRecorderRef.current?.stop();
-    setIsRecording(false);
-    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-  };
-
-  const cancelRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.ondataavailable = null;
-      mediaRecorderRef.current.onstop = () => {
-        mediaRecorderRef.current?.stream.getTracks().forEach(t => t.stop());
-      };
-      mediaRecorderRef.current.stop();
-    }
-    setIsRecording(false);
-    setRecordingTime(0);
-    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+  const stopListening = () => {
+    recognitionRef.current?.stop();
+    setIsListening(false);
   };
 
   const toggleAudioPlayback = (msgId: string, url: string) => {
@@ -456,56 +442,39 @@ export default function LiveChat() {
 
                 {/* Input Area */}
                 <div className="border-t border-border p-2">
-                  {isRecording ? (
-                    <div className="flex items-center gap-2 px-2">
-                      <div className="flex-1 flex items-center gap-2">
-                        <span className="h-2.5 w-2.5 rounded-full bg-destructive animate-pulse" />
-                        <span className="text-sm font-medium text-destructive">{formatTime(recordingTime)}</span>
-                        <span className="text-xs text-muted-foreground">রেকর্ডিং...</span>
-                      </div>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={cancelRecording}>
-                        <X className="h-4 w-4" />
+                  <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex items-center gap-1.5">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={sending}
+                    >
+                      <Image className="h-4 w-4" />
+                    </Button>
+                    <Input
+                      placeholder="মেসেজ লিখুন..."
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      className="flex-1 text-sm h-8 border-0 bg-muted/50 focus-visible:ring-0"
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className={`h-8 w-8 shrink-0 ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground hover:text-foreground"}`}
+                      onClick={isListening ? stopListening : startListening}
+                      disabled={sending}
+                    >
+                      {isListening ? <Square className="h-3.5 w-3.5 fill-current" /> : <Mic className="h-4 w-4" />}
+                    </Button>
+                    {input.trim() && (
+                      <Button type="submit" size="icon" className="h-8 w-8 shrink-0" disabled={sending}>
+                        <Send className="h-4 w-4" />
                       </Button>
-                      <Button size="icon" className="h-8 w-8 bg-destructive hover:bg-destructive/90" onClick={stopRecording}>
-                        <Square className="h-3 w-3 fill-current" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex items-center gap-1.5">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={sending}
-                      >
-                        <Image className="h-4 w-4" />
-                      </Button>
-                      <Input
-                        placeholder="মেসেজ লিখুন..."
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        className="flex-1 text-sm h-8 border-0 bg-muted/50 focus-visible:ring-0"
-                      />
-                      {input.trim() ? (
-                        <Button type="submit" size="icon" className="h-8 w-8 shrink-0" disabled={sending}>
-                          <Send className="h-4 w-4" />
-                        </Button>
-                      ) : (
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
-                          onClick={startRecording}
-                          disabled={sending}
-                        >
-                          <Mic className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </form>
-                  )}
+                    )}
+                  </form>
                 </div>
               </>
             )}
