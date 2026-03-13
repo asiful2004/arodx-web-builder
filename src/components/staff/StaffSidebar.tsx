@@ -1,7 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { NavLink } from "@/components/NavLink";
 import {
-  LayoutDashboard, LogOut, UserCog, MessageCircle, Ticket, Settings,
+  LayoutDashboard, LogOut, UserCog, MessageCircle, Ticket, Users,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -12,11 +13,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
 
 const staffItems = [
   { title: "ওভারভিউ", url: "/staff", icon: LayoutDashboard },
   { title: "টিকেট সাপোর্ট", url: "/staff/tickets", icon: Ticket },
   { title: "লাইভ চ্যাট", url: "/staff/chat", icon: MessageCircle },
+];
+
+const hrItems = [
+  { title: "স্টাফ ম্যানেজমেন্ট", url: "/staff/hr", icon: Users },
 ];
 
 interface StaffSidebarProps {
