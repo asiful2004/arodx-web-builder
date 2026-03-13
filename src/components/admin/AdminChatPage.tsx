@@ -210,20 +210,116 @@ export default function AdminChatPage() {
     }
   }, [messages]);
 
-  const sendReply = async () => {
-    if (!input.trim() || !activeSession || !user || sending) return;
+  const uploadFile = async (file: Blob, ext: string): Promise<string | null> => {
+    const fileName = `admin/${activeSession}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("chat-attachments").upload(fileName, file);
+    if (error) return null;
+    const { data } = supabase.storage.from("chat-attachments").getPublicUrl(fileName);
+    return data.publicUrl;
+  };
+
+  const sendReply = async (msgType = "text", attachUrl: string | null = null, text = "") => {
+    const messageText = text || input.trim();
+    if (msgType === "text" && !messageText) return;
+    if (!activeSession || !user || sending) return;
     setSending(true);
-    const msg = input.trim();
-    setInput("");
+    if (msgType === "text") setInput("");
 
     await supabase.from("chat_messages").insert({
       session_id: activeSession,
       sender_type: "admin",
       sender_id: user.id,
-      message: msg,
+      message: messageText || (msgType === "image" ? "📷 ছবি" : "🎤 ভয়েস মেসেজ"),
+      message_type: msgType,
+      attachment_url: attachUrl,
     });
-
     setSending(false);
+  };
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activeSession) return;
+    const ext = file.name.split(".").pop() || "jpg";
+    const url = await uploadFile(file, ext);
+    if (url) await sendReply("image", url);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        const url = await uploadFile(audioBlob, "webm");
+        if (url) await sendReply("audio", url);
+        setRecordingTime(0);
+      };
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setIsRecording(true);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
+    } catch { /* mic denied */ }
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.ondataavailable = null;
+      mediaRecorderRef.current.onstop = () => { mediaRecorderRef.current?.stream.getTracks().forEach(t => t.stop()); };
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+    setRecordingTime(0);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+  };
+
+  const toggleAudioPlayback = (msgId: string, url: string) => {
+    if (playingAudioId === msgId) { audioPlaybackRef.current?.pause(); setPlayingAudioId(null); return; }
+    if (audioPlaybackRef.current) audioPlaybackRef.current.pause();
+    const audio = new Audio(url);
+    audio.onended = () => setPlayingAudioId(null);
+    audio.play();
+    audioPlaybackRef.current = audio;
+    setPlayingAudioId(msgId);
+  };
+
+  const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+
+  const renderMessageContent = (m: ChatMessage, isAdmin: boolean) => {
+    if (m.message_type === "image" && m.attachment_url) {
+      return (
+        <div className="space-y-1">
+          <img src={m.attachment_url} alt="ছবি" className="max-w-full rounded-lg cursor-pointer max-h-48 object-cover" onClick={() => window.open(m.attachment_url!, "_blank")} />
+          {m.message && m.message !== "📷 ছবি" && <p>{m.message}</p>}
+        </div>
+      );
+    }
+    if (m.message_type === "audio" && m.attachment_url) {
+      return (
+        <div className="flex items-center gap-2 min-w-[140px]">
+          <button onClick={() => toggleAudioPlayback(m.id, m.attachment_url!)} className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${isAdmin ? "bg-primary-foreground/20" : "bg-foreground/10"}`}>
+            {playingAudioId === m.id ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5" />}
+          </button>
+          <div className="flex-1">
+            <div className={`h-1 rounded-full ${isAdmin ? "bg-primary-foreground/30" : "bg-foreground/20"}`}>
+              <div className={`h-1 rounded-full w-0 ${playingAudioId === m.id ? "animate-pulse w-full" : ""} ${isAdmin ? "bg-primary-foreground/60" : "bg-foreground/40"}`} style={{ transition: "width 0.3s" }} />
+            </div>
+            <p className={`text-[9px] mt-0.5 ${isAdmin ? "text-primary-foreground/60" : "text-muted-foreground/60"}`}>🎤 ভয়েস মেসেজ</p>
+          </div>
+        </div>
+      );
+    }
+    return <>{m.message}</>;
   };
 
   const closeSession = async (sessionId: string) => {
