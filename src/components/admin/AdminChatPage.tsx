@@ -19,6 +19,7 @@ interface ChatSession {
   last_message?: string;
   unread_count?: number;
   profile_name?: string;
+  profile_avatar?: string | null;
 }
 
 interface ChatMessage {
