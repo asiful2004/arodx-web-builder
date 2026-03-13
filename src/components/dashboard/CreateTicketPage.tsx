@@ -28,6 +28,26 @@ export default function CreateTicketPage() {
   const [orderId, setOrderId] = useState<string>("");
   const [orders, setOrders] = useState<{ id: string; package_name: string; domain_name: string | null; business_name: string | null }[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [activeTicket, setActiveTicket] = useState<{ id: string; ticket_number: string; subject: string } | null>(null);
+  const [checkingActive, setCheckingActive] = useState(true);
+
+  // Check for existing active (non-resolved/non-closed) ticket
+  useEffect(() => {
+    const checkActiveTicket = async () => {
+      const { data } = await supabase
+        .from("tickets")
+        .select("id, ticket_number, subject")
+        .eq("user_id", user.id)
+        .in("status", ["open", "in_progress", "waiting"])
+        .limit(1);
+      
+      if (data && data.length > 0) {
+        setActiveTicket(data[0]);
+      }
+      setCheckingActive(false);
+    };
+    checkActiveTicket();
+  }, [user.id]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -39,7 +59,6 @@ export default function CreateTicketPage() {
 
       if (!orderData) { setOrders([]); return; }
 
-      // Fetch businesses linked to these orders
       const orderIds = orderData.map((o) => o.id);
       const { data: bizData } = await supabase
         .from("businesses")
