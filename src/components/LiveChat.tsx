@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { MessageCircle, X, Send, Minimize2, User } from "lucide-react";
+import { MessageCircle, X, Send, Minimize2, User, Image, Mic, Square, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,6 +13,8 @@ interface ChatMessage {
   sender_type: string;
   sender_id: string | null;
   message: string;
+  message_type: string;
+  attachment_url: string | null;
   is_read: boolean;
   created_at: string;
 }
@@ -23,6 +25,7 @@ interface SenderProfile {
 }
 
 const SESSION_KEY = "live_chat_session_id";
+const NOTIF_SOUND_URL = "https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3";
 
 export default function LiveChat() {
   const { user } = useAuth();
@@ -38,7 +41,31 @@ export default function LiveChat() {
   const [senderProfiles, setSenderProfiles] = useState<Map<string, SenderProfile>>(new Map());
   const [clientProfile, setClientProfile] = useState<SenderProfile>({ full_name: null, avatar_url: null });
 
-  // Fetch logged-in user's profile
+  // Audio recording
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Notification sound
+  const audioNotifRef = useRef<HTMLAudioElement | null>(null);
+  const playNotifSound = useCallback(() => {
+    if (!audioNotifRef.current) {
+      audioNotifRef.current = new Audio(NOTIF_SOUND_URL);
+      audioNotifRef.current.volume = 0.5;
+    }
+    audioNotifRef.current.currentTime = 0;
+    audioNotifRef.current.play().catch(() => {});
+  }, []);
+
+  // Audio playback
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const audioPlaybackRef = useRef<HTMLAudioElement | null>(null);
+
+  // File input ref
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (!user) return;
     supabase
@@ -51,13 +78,11 @@ export default function LiveChat() {
       });
   }, [user]);
 
-  // Restore session and guest name from DB
   useEffect(() => {
     const stored = localStorage.getItem(SESSION_KEY);
     if (stored) {
       setSessionId(stored);
       setStarted(true);
-      // Fetch guest name from DB
       supabase
         .from("chat_sessions")
         .select("guest_name")
@@ -69,17 +94,11 @@ export default function LiveChat() {
     }
   }, []);
 
-  // Fetch sender profiles for messages
   const fetchSenderProfiles = useCallback(async (msgs: ChatMessage[]) => {
     const senderIds = [...new Set(msgs.filter(m => m.sender_id).map(m => m.sender_id!))];
     const newIds = senderIds.filter(id => !senderProfiles.has(id));
     if (newIds.length === 0) return;
-
-    const { data } = await supabase
-      .from("profiles")
-      .select("user_id, full_name, avatar_url")
-      .in("user_id", newIds);
-
+    const { data } = await supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", newIds);
     if (data) {
       setSenderProfiles(prev => {
         const next = new Map(prev);
@@ -89,7 +108,6 @@ export default function LiveChat() {
     }
   }, [senderProfiles]);
 
-  // Fetch messages
   const fetchMessages = useCallback(async () => {
     if (!sessionId) return;
     const { data } = await supabase
@@ -104,11 +122,8 @@ export default function LiveChat() {
     }
   }, [sessionId]);
 
-  useEffect(() => {
-    fetchMessages();
-  }, [fetchMessages]);
+  useEffect(() => { fetchMessages(); }, [fetchMessages]);
 
-  // Realtime
   useEffect(() => {
     if (!sessionId) return;
     const channel = supabase
@@ -120,72 +135,136 @@ export default function LiveChat() {
           const msg = payload.new as ChatMessage;
           setMessages((prev) => [...prev, msg]);
           if (msg.sender_id) fetchSenderProfiles([msg]);
-          if (msg.sender_type === "admin" && !open) {
-            setUnread((c) => c + 1);
+          if (msg.sender_type === "admin") {
+            playNotifSound();
+            if (!open) setUnread((c) => c + 1);
           }
         }
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [sessionId, open]);
+  }, [sessionId, open, playNotifSound]);
 
-  // Scroll to bottom
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
-  useEffect(() => {
-    if (open) setUnread(0);
-  }, [open]);
+  useEffect(() => { if (open) setUnread(0); }, [open]);
 
   const startChat = async () => {
     const name = user?.user_metadata?.full_name || guestName.trim();
     if (!name && !user) return;
-
     const { data, error } = await supabase
       .from("chat_sessions")
-      .insert({
-        user_id: user?.id || null,
-        guest_name: user ? null : name,
-        guest_email: user?.email || null,
-      })
+      .insert({ user_id: user?.id || null, guest_name: user ? null : name, guest_email: user?.email || null })
       .select("id")
       .single();
-
     if (data && !error) {
       setSessionId(data.id);
       localStorage.setItem(SESSION_KEY, data.id);
       if (!user) setGuestName(name);
       setStarted(true);
-
       await supabase.from("chat_messages").insert({
-        session_id: data.id,
-        sender_type: "system",
+        session_id: data.id, sender_type: "system",
         message: "আমাদের লাইভ চ্যাটে স্বাগতম! একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন।",
       });
     }
   };
 
-  const sendMessage = async () => {
-    if (!input.trim() || !sessionId || sending) return;
+  const uploadFile = async (file: Blob, ext: string): Promise<string | null> => {
+    const fileName = `${sessionId}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("chat-attachments").upload(fileName, file);
+    if (error) return null;
+    const { data } = supabase.storage.from("chat-attachments").getPublicUrl(fileName);
+    return data.publicUrl;
+  };
+
+  const sendMessage = async (msgType = "text", attachUrl: string | null = null, text = "") => {
+    const messageText = text || input.trim();
+    if (msgType === "text" && !messageText) return;
+    if (sending) return;
     setSending(true);
-    const msg = input.trim();
-    setInput("");
+    if (msgType === "text") setInput("");
 
     await supabase.from("chat_messages").insert({
       session_id: sessionId,
       sender_type: "client",
       sender_id: user?.id || null,
-      message: msg,
+      message: messageText || (msgType === "image" ? "📷 ছবি" : "🎤 ভয়েস মেসেজ"),
+      message_type: msgType,
+      attachment_url: attachUrl,
     });
-
     setSending(false);
   };
 
+  // Image upload
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !sessionId) return;
+    const ext = file.name.split(".").pop() || "jpg";
+    const url = await uploadFile(file, ext);
+    if (url) await sendMessage("image", url);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // Audio recording
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        const url = await uploadFile(audioBlob, "webm");
+        if (url) await sendMessage("audio", url);
+        setRecordingTime(0);
+      };
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setIsRecording(true);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
+    } catch { /* mic permission denied */ }
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.ondataavailable = null;
+      mediaRecorderRef.current.onstop = () => {
+        mediaRecorderRef.current?.stream.getTracks().forEach(t => t.stop());
+      };
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+    setRecordingTime(0);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+  };
+
+  const toggleAudioPlayback = (msgId: string, url: string) => {
+    if (playingAudioId === msgId) {
+      audioPlaybackRef.current?.pause();
+      setPlayingAudioId(null);
+      return;
+    }
+    if (audioPlaybackRef.current) audioPlaybackRef.current.pause();
+    const audio = new Audio(url);
+    audio.onended = () => setPlayingAudioId(null);
+    audio.play();
+    audioPlaybackRef.current = audio;
+    setPlayingAudioId(msgId);
+  };
+
   const endChat = () => {
-    localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(SESSION_KEY);
     setSessionId(null);
     setStarted(false);
@@ -193,31 +272,74 @@ export default function LiveChat() {
     setOpen(false);
   };
 
+  const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+
   const getSenderInfo = (m: ChatMessage): { name: string; avatar: string | null; isGuest?: boolean } => {
     if (m.sender_type === "client") {
       if (user && m.sender_id === user.id) {
-        return {
-          name: clientProfile.full_name || user.user_metadata?.full_name || "আপনি",
-          avatar: clientProfile.avatar_url || user.user_metadata?.avatar_url || null,
-        };
+        return { name: clientProfile.full_name || user.user_metadata?.full_name || "আপনি", avatar: clientProfile.avatar_url || user.user_metadata?.avatar_url || null };
       }
       return { name: guestName || "গেস্ট", avatar: null, isGuest: true };
     }
     if (m.sender_type === "admin") {
       const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
-      return {
-        name: profile?.full_name || "সাপোর্ট টিম",
-        avatar: profile?.avatar_url || null,
-      };
+      return { name: profile?.full_name || "সাপোর্ট টিম", avatar: profile?.avatar_url || null };
     }
     return { name: "সিস্টেম", avatar: null };
   };
 
-  const getInitials = (name: string) =>
-    name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "?";
+  const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "?";
+
+  const renderMessageContent = (m: ChatMessage, isClient: boolean) => {
+    if (m.message_type === "image" && m.attachment_url) {
+      return (
+        <div className="space-y-1">
+          <img
+            src={m.attachment_url}
+            alt="ছবি"
+            className="max-w-full rounded-lg cursor-pointer max-h-48 object-cover"
+            onClick={() => window.open(m.attachment_url!, "_blank")}
+          />
+          {m.message && m.message !== "📷 ছবি" && <p>{m.message}</p>}
+        </div>
+      );
+    }
+    if (m.message_type === "audio" && m.attachment_url) {
+      return (
+        <div className="flex items-center gap-2 min-w-[140px]">
+          <button
+            onClick={() => toggleAudioPlayback(m.id, m.attachment_url!)}
+            className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
+              isClient ? "bg-primary-foreground/20" : "bg-foreground/10"
+            }`}
+          >
+            {playingAudioId === m.id ? (
+              <Pause className="h-3.5 w-3.5" />
+            ) : (
+              <Play className="h-3.5 w-3.5 ml-0.5" />
+            )}
+          </button>
+          <div className="flex-1">
+            <div className={`h-1 rounded-full ${isClient ? "bg-primary-foreground/30" : "bg-foreground/20"}`}>
+              <div className={`h-1 rounded-full w-0 ${playingAudioId === m.id ? "animate-pulse w-full" : ""} ${
+                isClient ? "bg-primary-foreground/60" : "bg-foreground/40"
+              }`} style={{ transition: "width 0.3s" }} />
+            </div>
+            <p className={`text-[9px] mt-0.5 ${isClient ? "text-primary-foreground/60" : "text-muted-foreground/60"}`}>
+              🎤 ভয়েস মেসেজ
+            </p>
+          </div>
+        </div>
+      );
+    }
+    return <>{m.message}</>;
+  };
 
   return (
     <>
+      {/* Hidden file input */}
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+
       {/* Floating Button */}
       <AnimatePresence>
         {!open && (
@@ -229,7 +351,6 @@ export default function LiveChat() {
             onClick={() => setOpen(true)}
             className="fixed bottom-5 left-5 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl flex items-center justify-center hover:opacity-90 transition-opacity group"
           >
-            {/* Pulse rings */}
             <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping" style={{ animationDuration: "2s" }} />
             <span className="absolute -inset-1 rounded-full bg-primary/20 animate-pulse" style={{ animationDuration: "3s" }} />
             <MessageCircle className="h-6 w-6 relative z-10" />
@@ -307,37 +428,23 @@ export default function LiveChat() {
                         </div>
                       );
                     }
-
                     const isClient = m.sender_type === "client";
                     const sender = getSenderInfo(m);
-
                     return (
                       <div key={m.id} className={`flex gap-2 ${isClient ? "flex-row-reverse" : "flex-row"}`}>
                         <Avatar className="h-7 w-7 shrink-0 mt-0.5">
                           <AvatarImage src={sender.avatar || undefined} />
-                          <AvatarFallback className={`text-[10px] font-bold ${
-                            isClient ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground"
-                          }`}>
+                          <AvatarFallback className={`text-[10px] font-bold ${isClient ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground"}`}>
                             {sender.isGuest ? <User className="h-3.5 w-3.5" /> : getInitials(sender.name)}
                           </AvatarFallback>
                         </Avatar>
                         <div className={`max-w-[75%] ${isClient ? "items-end" : "items-start"} flex flex-col`}>
-                          <p className={`text-[10px] mb-0.5 ${
-                            isClient ? "text-right" : "text-left"
-                          } text-muted-foreground`}>
-                            {sender.name}
-                          </p>
-                          <div
-                            className={`px-3 py-2 rounded-xl text-sm ${
-                              isClient
-                                ? "bg-primary text-primary-foreground rounded-tr-sm"
-                                : "bg-accent text-accent-foreground rounded-tl-sm"
-                            }`}
-                          >
-                            {m.message}
-                            <p className={`text-[9px] mt-1 ${
-                              isClient ? "text-primary-foreground/60" : "text-muted-foreground/60"
-                            }`}>
+                          <p className={`text-[10px] mb-0.5 ${isClient ? "text-right" : "text-left"} text-muted-foreground`}>{sender.name}</p>
+                          <div className={`px-3 py-2 rounded-xl text-sm ${
+                            isClient ? "bg-primary text-primary-foreground rounded-tr-sm" : "bg-accent text-accent-foreground rounded-tl-sm"
+                          }`}>
+                            {renderMessageContent(m, isClient)}
+                            <p className={`text-[9px] mt-1 ${isClient ? "text-primary-foreground/60" : "text-muted-foreground/60"}`}>
                               {new Date(m.created_at).toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" })}
                             </p>
                           </div>
@@ -347,23 +454,58 @@ export default function LiveChat() {
                   })}
                 </div>
 
-                {/* Input */}
-                <div className="border-t border-border p-3">
-                  <form
-                    onSubmit={(e) => { e.preventDefault(); sendMessage(); }}
-                    className="flex items-center gap-2"
-                  >
-                    <Input
-                      placeholder="মেসেজ লিখুন..."
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      className="flex-1 text-sm h-9"
-                      autoFocus
-                    />
-                    <Button type="submit" size="icon" className="h-9 w-9 shrink-0" disabled={!input.trim() || sending}>
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </form>
+                {/* Input Area */}
+                <div className="border-t border-border p-2">
+                  {isRecording ? (
+                    <div className="flex items-center gap-2 px-2">
+                      <div className="flex-1 flex items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full bg-destructive animate-pulse" />
+                        <span className="text-sm font-medium text-destructive">{formatTime(recordingTime)}</span>
+                        <span className="text-xs text-muted-foreground">রেকর্ডিং...</span>
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={cancelRecording}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                      <Button size="icon" className="h-8 w-8 bg-destructive hover:bg-destructive/90" onClick={stopRecording}>
+                        <Square className="h-3 w-3 fill-current" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex items-center gap-1.5">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={sending}
+                      >
+                        <Image className="h-4 w-4" />
+                      </Button>
+                      <Input
+                        placeholder="মেসেজ লিখুন..."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        className="flex-1 text-sm h-8 border-0 bg-muted/50 focus-visible:ring-0"
+                      />
+                      {input.trim() ? (
+                        <Button type="submit" size="icon" className="h-8 w-8 shrink-0" disabled={sending}>
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+                          onClick={startRecording}
+                          disabled={sending}
+                        >
+                          <Mic className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </form>
+                  )}
                 </div>
               </>
             )}

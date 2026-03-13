@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { MessageCircle, Send, User, Clock, X, ArrowLeft } from "lucide-react";
+import { MessageCircle, Send, User, Clock, X, ArrowLeft, Image, Mic, Square, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -29,9 +29,13 @@ interface ChatMessage {
   sender_type: string;
   sender_id: string | null;
   message: string;
+  message_type: string;
+  attachment_url: string | null;
   is_read: boolean;
   created_at: string;
 }
+
+const NOTIF_SOUND_URL = "https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3";
 
 export default function AdminChatPage() {
   const { user } = useAuth();
@@ -43,6 +47,31 @@ export default function AdminChatPage() {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [senderProfiles, setSenderProfiles] = useState<Map<string, { full_name: string | null; avatar_url: string | null }>>(new Map());
+
+  // Notification sound
+  const audioNotifRef = useRef<HTMLAudioElement | null>(null);
+  const playNotifSound = useCallback(() => {
+    if (!audioNotifRef.current) {
+      audioNotifRef.current = new Audio(NOTIF_SOUND_URL);
+      audioNotifRef.current.volume = 0.5;
+    }
+    audioNotifRef.current.currentTime = 0;
+    audioNotifRef.current.play().catch(() => {});
+  }, []);
+
+  // Audio recording
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Audio playback
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
+  const audioPlaybackRef = useRef<HTMLAudioElement | null>(null);
+
+  // File input ref
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch sessions
   const fetchSessions = useCallback(async () => {
@@ -154,12 +183,13 @@ export default function AdminChatPage() {
           const msg = payload.new as ChatMessage;
           if (msg.session_id === activeSession) {
             setMessages((prev) => [...prev, msg]);
-            // Mark as read if admin is viewing
             if (msg.sender_type === "client") {
+              playNotifSound();
               supabase.from("chat_messages").update({ is_read: true }).eq("id", msg.id).then(() => {});
             }
+          } else if (msg.sender_type === "client") {
+            playNotifSound();
           }
-          // Refresh session list
           fetchSessions();
         }
       )
@@ -180,20 +210,116 @@ export default function AdminChatPage() {
     }
   }, [messages]);
 
-  const sendReply = async () => {
-    if (!input.trim() || !activeSession || !user || sending) return;
+  const uploadFile = async (file: Blob, ext: string): Promise<string | null> => {
+    const fileName = `admin/${activeSession}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("chat-attachments").upload(fileName, file);
+    if (error) return null;
+    const { data } = supabase.storage.from("chat-attachments").getPublicUrl(fileName);
+    return data.publicUrl;
+  };
+
+  const sendReply = async (msgType = "text", attachUrl: string | null = null, text = "") => {
+    const messageText = text || input.trim();
+    if (msgType === "text" && !messageText) return;
+    if (!activeSession || !user || sending) return;
     setSending(true);
-    const msg = input.trim();
-    setInput("");
+    if (msgType === "text") setInput("");
 
     await supabase.from("chat_messages").insert({
       session_id: activeSession,
       sender_type: "admin",
       sender_id: user.id,
-      message: msg,
+      message: messageText || (msgType === "image" ? "📷 ছবি" : "🎤 ভয়েস মেসেজ"),
+      message_type: msgType,
+      attachment_url: attachUrl,
     });
-
     setSending(false);
+  };
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activeSession) return;
+    const ext = file.name.split(".").pop() || "jpg";
+    const url = await uploadFile(file, ext);
+    if (url) await sendReply("image", url);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        const url = await uploadFile(audioBlob, "webm");
+        if (url) await sendReply("audio", url);
+        setRecordingTime(0);
+      };
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setIsRecording(true);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
+    } catch { /* mic denied */ }
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.ondataavailable = null;
+      mediaRecorderRef.current.onstop = () => { mediaRecorderRef.current?.stream.getTracks().forEach(t => t.stop()); };
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+    setRecordingTime(0);
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+  };
+
+  const toggleAudioPlayback = (msgId: string, url: string) => {
+    if (playingAudioId === msgId) { audioPlaybackRef.current?.pause(); setPlayingAudioId(null); return; }
+    if (audioPlaybackRef.current) audioPlaybackRef.current.pause();
+    const audio = new Audio(url);
+    audio.onended = () => setPlayingAudioId(null);
+    audio.play();
+    audioPlaybackRef.current = audio;
+    setPlayingAudioId(msgId);
+  };
+
+  const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+
+  const renderMessageContent = (m: ChatMessage, isAdmin: boolean) => {
+    if (m.message_type === "image" && m.attachment_url) {
+      return (
+        <div className="space-y-1">
+          <img src={m.attachment_url} alt="ছবি" className="max-w-full rounded-lg cursor-pointer max-h-48 object-cover" onClick={() => window.open(m.attachment_url!, "_blank")} />
+          {m.message && m.message !== "📷 ছবি" && <p>{m.message}</p>}
+        </div>
+      );
+    }
+    if (m.message_type === "audio" && m.attachment_url) {
+      return (
+        <div className="flex items-center gap-2 min-w-[140px]">
+          <button onClick={() => toggleAudioPlayback(m.id, m.attachment_url!)} className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${isAdmin ? "bg-primary-foreground/20" : "bg-foreground/10"}`}>
+            {playingAudioId === m.id ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5" />}
+          </button>
+          <div className="flex-1">
+            <div className={`h-1 rounded-full ${isAdmin ? "bg-primary-foreground/30" : "bg-foreground/20"}`}>
+              <div className={`h-1 rounded-full w-0 ${playingAudioId === m.id ? "animate-pulse w-full" : ""} ${isAdmin ? "bg-primary-foreground/60" : "bg-foreground/40"}`} style={{ transition: "width 0.3s" }} />
+            </div>
+            <p className={`text-[9px] mt-0.5 ${isAdmin ? "text-primary-foreground/60" : "text-muted-foreground/60"}`}>🎤 ভয়েস মেসেজ</p>
+          </div>
+        </div>
+      );
+    }
+    return <>{m.message}</>;
   };
 
   const closeSession = async (sessionId: string) => {
@@ -376,7 +502,7 @@ export default function AdminChatPage() {
                                 : "bg-accent text-accent-foreground rounded-tl-sm"
                             }`}
                           >
-                            {m.message}
+                            {renderMessageContent(m, isAdmin)}
                             <p className={`text-[9px] mt-1 ${
                               isAdmin ? "text-primary-foreground/60" : "text-muted-foreground/60"
                             }`}>
@@ -389,24 +515,63 @@ export default function AdminChatPage() {
                   })}
                 </div>
 
+                {/* Hidden file input */}
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+
                 {/* Input */}
                 {activeSessionData?.status !== "closed" && (
-                  <div className="border-t border-border p-2 md:p-3">
-                    <form
-                      onSubmit={(e) => { e.preventDefault(); sendReply(); }}
-                      className="flex items-center gap-2"
-                    >
-                      <Input
-                        placeholder="রিপ্লাই লিখুন..."
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        className="flex-1 text-sm h-9"
-                        autoFocus
-                      />
-                      <Button type="submit" size="icon" className="h-9 w-9 shrink-0" disabled={!input.trim() || sending}>
-                        <Send className="h-4 w-4" />
-                      </Button>
-                    </form>
+                  <div className="border-t border-border p-2">
+                    {isRecording ? (
+                      <div className="flex items-center gap-2 px-2">
+                        <div className="flex-1 flex items-center gap-2">
+                          <span className="h-2.5 w-2.5 rounded-full bg-destructive animate-pulse" />
+                          <span className="text-sm font-medium text-destructive">{formatTime(recordingTime)}</span>
+                          <span className="text-xs text-muted-foreground">রেকর্ডিং...</span>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={cancelRecording}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                        <Button size="icon" className="h-8 w-8 bg-destructive hover:bg-destructive/90" onClick={stopRecording}>
+                          <Square className="h-3 w-3 fill-current" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <form onSubmit={(e) => { e.preventDefault(); sendReply(); }} className="flex items-center gap-1.5">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={sending}
+                        >
+                          <Image className="h-4 w-4" />
+                        </Button>
+                        <Input
+                          placeholder="রিপ্লাই লিখুন..."
+                          value={input}
+                          onChange={(e) => setInput(e.target.value)}
+                          className="flex-1 text-sm h-8 border-0 bg-muted/50 focus-visible:ring-0"
+                          autoFocus
+                        />
+                        {input.trim() ? (
+                          <Button type="submit" size="icon" className="h-8 w-8 shrink-0" disabled={sending}>
+                            <Send className="h-4 w-4" />
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+                            onClick={startRecording}
+                            disabled={sending}
+                          >
+                            <Mic className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </form>
+                    )}
                   </div>
                 )}
               </>
