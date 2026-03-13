@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
-type AppRole = "admin" | "moderator" | "user" | "client" | "staff";
+type AppRole = "admin" | "moderator" | "user" | "client" | "staff" | "hr";
 
 interface UserProfile {
   id: string;
