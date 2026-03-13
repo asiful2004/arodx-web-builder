@@ -49,6 +49,9 @@ const Dashboard = () => {
       supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
         setIsAdmin(!!data);
       });
+      supabase.rpc("has_role", { _user_id: user.id, _role: "staff" as any }).then(({ data }) => {
+        setIsStaff(!!data);
+      });
     }
   }, [user]);
 
