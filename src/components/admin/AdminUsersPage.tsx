@@ -150,6 +150,7 @@ export default function AdminUsersPage() {
       const q = searchQuery.toLowerCase();
       result = result.filter((u) =>
         (u.full_name || "").toLowerCase().includes(q) ||
+        (u.email || "").toLowerCase().includes(q) ||
         u.user_id.toLowerCase().includes(q)
       );
     }
