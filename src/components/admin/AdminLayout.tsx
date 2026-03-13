@@ -35,7 +35,6 @@ export default function AdminLayout() {
   const { toast } = useToast();
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Persistent chat notification state
