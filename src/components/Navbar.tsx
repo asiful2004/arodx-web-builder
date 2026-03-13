@@ -115,6 +115,12 @@ const Navbar = ({ logo }: NavbarProps) => {
                   <User className="w-4 h-4" />
                   Dashboard
                 </DropdownMenuItem>
+                {isStaff && (
+                  <DropdownMenuItem onClick={() => navigate("/staff")} className="gap-2 cursor-pointer">
+                    <Briefcase className="w-4 h-4" />
+                    Staff Panel
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="gap-2 cursor-pointer text-destructive">
                   <LogOut className="w-4 h-4" />
