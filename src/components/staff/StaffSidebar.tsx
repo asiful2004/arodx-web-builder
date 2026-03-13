@@ -116,7 +116,7 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {isHR && (
+        {(isHR || isAdmin) && (
           <SidebarGroup>
             <SidebarGroupLabel>এইচআর</SidebarGroupLabel>
             <SidebarGroupContent>
