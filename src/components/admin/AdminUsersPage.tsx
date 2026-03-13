@@ -62,6 +62,11 @@ const roleConfig: Record<AppRole, { label: string; icon: typeof Shield; classNam
     icon: UserIcon,
     className: "bg-secondary text-secondary-foreground border-border",
   },
+  staff: {
+    label: "স্টাফ",
+    icon: UserCog,
+    className: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  },
 };
 
 export default function AdminUsersPage() {

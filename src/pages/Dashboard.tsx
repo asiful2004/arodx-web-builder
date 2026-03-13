@@ -147,6 +147,17 @@ const Dashboard = () => {
                 অ্যাডমিন
               </Button>
             )}
+            {isStaff && !isAdmin && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/admin/staff")}
+                className="text-xs text-blue-600 gap-1.5"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                স্টাফ
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
