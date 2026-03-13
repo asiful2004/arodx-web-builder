@@ -68,14 +68,36 @@ async function callClaude(apiKey: string, model: string, messages: any[]): Promi
 
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(`Claude API error [${response.status}]: ${err}`);
+    throw new Error(humanReadableError(response.status, err, "Claude"));
   }
 
   const data = await response.json();
   return data.content?.[0]?.text || "";
 }
 
-async function callOpenAICompatible(url: string, apiKey: string, model: string, messages: any[], skipAuth = false): Promise<string> {
+function humanReadableError(status: number, body: string, provider: string): string {
+  if (status === 429) {
+    if (body.includes("RESOURCE_EXHAUSTED") || body.includes("quota")) {
+      return `${provider} API কোটা শেষ হয়ে গেছে। আপনার প্ল্যান আপগ্রেড করুন অথবা কিছুক্ষণ পর আবার চেষ্টা করুন।`;
+    }
+    return `${provider} API রেট লিমিট। কিছুক্ষণ পর আবার চেষ্টা করুন।`;
+  }
+  if (status === 401 || status === 403) {
+    return `${provider} API কী ভুল বা মেয়াদ উত্তীর্ণ। সঠিক API কী দিন।`;
+  }
+  if (status === 404) {
+    return `${provider} মডেল খুঁজে পাওয়া যায়নি। মডেলের নাম চেক করুন।`;
+  }
+  if (status === 400) {
+    return `${provider} রিকোয়েস্ট ফরম্যাট ভুল। সেটিংস চেক করুন।`;
+  }
+  if (status >= 500) {
+    return `${provider} সার্ভারে সমস্যা হচ্ছে। কিছুক্ষণ পর আবার চেষ্টা করুন।`;
+  }
+  return `${provider} API এরর (${status})। সেটিংস চেক করুন।`;
+}
+
+async function callOpenAICompatible(url: string, apiKey: string, model: string, messages: any[], skipAuth = false, provider = "AI"): Promise<string> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
@@ -95,7 +117,7 @@ async function callOpenAICompatible(url: string, apiKey: string, model: string, 
 
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(`AI API error [${response.status}]: ${err}`);
+    throw new Error(humanReadableError(response.status, err, provider));
   }
 
   const data = await response.json();
@@ -127,13 +149,14 @@ serve(async (req) => {
         if (provider === "claude") {
           await callClaude(api_key, model, testMessages);
         } else {
-          await callOpenAICompatible(url, api_key, model, testMessages, skipAuth);
+          await callOpenAICompatible(url, api_key, model, testMessages, skipAuth, provider);
         }
         return new Response(JSON.stringify({ success: true, message: `${provider} API কানেকশন সফল! মডেল: ${model}` }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-      } catch (err) {
-        return new Response(JSON.stringify({ success: false, error: String(err) }), {
+      } catch (err: any) {
+        const msg = err?.message || String(err);
+        return new Response(JSON.stringify({ success: false, error: msg }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -157,13 +180,14 @@ serve(async (req) => {
         if (provider === "claude") {
           reply = await callClaude(api_key, model, msgs);
         } else {
-          reply = await callOpenAICompatible(url, api_key, model, msgs, skipAuth);
+          reply = await callOpenAICompatible(url, api_key, model, msgs, skipAuth, provider);
         }
         return new Response(JSON.stringify({ reply: reply || "রিপ্লাই পাওয়া যায়নি" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-      } catch (err) {
-        return new Response(JSON.stringify({ error: String(err) }), {
+      } catch (err: any) {
+        const msg = err?.message || String(err);
+        return new Response(JSON.stringify({ error: msg }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
@@ -263,7 +287,7 @@ serve(async (req) => {
       if (aiSettings.provider === "claude") {
         replyText = await callClaude(aiSettings.api_key, model, aiMessages);
       } else {
-        replyText = await callOpenAICompatible(url, aiSettings.api_key, model, aiMessages, skipAuth);
+        replyText = await callOpenAICompatible(url, aiSettings.api_key, model, aiMessages, skipAuth, aiSettings.provider);
       }
     } catch (apiErr) {
       console.error("AI provider error:", apiErr);
