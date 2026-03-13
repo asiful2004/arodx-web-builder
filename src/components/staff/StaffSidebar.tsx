@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "@/components/NavLink";
 import {
   LayoutDashboard, LogOut, UserCog, MessageCircle, Ticket, Users,
-  Palette, Code, Briefcase, Megaphone,
+  Palette, Code, Briefcase, Megaphone, Clock, TrendingUp,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
