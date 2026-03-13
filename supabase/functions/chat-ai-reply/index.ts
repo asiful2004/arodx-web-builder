@@ -256,14 +256,14 @@ serve(async (req) => {
     ];
 
     // Call the configured AI provider
-    const { url, model } = getEndpoint(aiSettings.provider, aiSettings.model_name);
+    const { url, model, skipAuth } = getEndpoint(aiSettings.provider, aiSettings.model_name);
     let replyText: string;
 
     try {
       if (aiSettings.provider === "claude") {
         replyText = await callClaude(aiSettings.api_key, model, aiMessages);
       } else {
-        replyText = await callOpenAICompatible(url, aiSettings.api_key, model, aiMessages);
+        replyText = await callOpenAICompatible(url, aiSettings.api_key, model, aiMessages, skipAuth);
       }
     } catch (apiErr) {
       console.error("AI provider error:", apiErr);
