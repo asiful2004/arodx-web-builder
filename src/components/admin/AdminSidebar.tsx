@@ -32,9 +32,10 @@ const settingsItems = [
 
 interface AdminSidebarProps {
   profile: { full_name: string | null; avatar_url: string | null };
+  isAdmin?: boolean;
 }
 
-export function AdminSidebar({ profile }: AdminSidebarProps) {
+export function AdminSidebar({ profile, isAdmin = true }: AdminSidebarProps) {
   const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
