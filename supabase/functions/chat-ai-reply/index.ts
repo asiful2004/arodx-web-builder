@@ -114,12 +114,12 @@ serve(async (req) => {
     // === TEST MODE: verify connection ===
     if (test_mode === "verify") {
       const { provider, api_key, model_name } = body;
-      if (!api_key) {
+      if (!api_key && provider !== "ollama") {
         return new Response(JSON.stringify({ success: false, error: "API কী দেওয়া হয়নি" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      const { url, model } = getEndpoint(provider, model_name);
+      const { url, model, skipAuth } = getEndpoint(provider, model_name);
       const testMessages = [
         { role: "user", content: "Say hi" },
       ];
@@ -127,7 +127,7 @@ serve(async (req) => {
         if (provider === "claude") {
           await callClaude(api_key, model, testMessages);
         } else {
-          await callOpenAICompatible(url, api_key, model, testMessages);
+          await callOpenAICompatible(url, api_key, model, testMessages, skipAuth);
         }
         return new Response(JSON.stringify({ success: true, message: `${provider} API কানেকশন সফল! মডেল: ${model}` }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
