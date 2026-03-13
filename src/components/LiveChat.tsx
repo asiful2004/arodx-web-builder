@@ -34,6 +34,7 @@ export default function LiveChat() {
   const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const aiReplyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [guestName, setGuestName] = useState("");
   const [started, setStarted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -176,6 +177,31 @@ export default function LiveChat() {
     return data.publicUrl;
   };
 
+  // Trigger AI auto-reply after 10 seconds if no admin responds
+  const triggerAiReply = useCallback((sid: string) => {
+    if (aiReplyTimerRef.current) clearTimeout(aiReplyTimerRef.current);
+    aiReplyTimerRef.current = setTimeout(async () => {
+      try {
+        await supabase.functions.invoke("chat-ai-reply", {
+          body: { session_id: sid },
+        });
+      } catch (err) {
+        console.error("AI auto-reply error:", err);
+      }
+    }, 10000);
+  }, []);
+
+  // Cancel AI timer when admin replies
+  useEffect(() => {
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg?.sender_type === "admin") {
+      if (aiReplyTimerRef.current) {
+        clearTimeout(aiReplyTimerRef.current);
+        aiReplyTimerRef.current = null;
+      }
+    }
+  }, [messages]);
+
   const sendMessage = async (msgType = "text", attachUrl: string | null = null, text = "") => {
     const messageText = text || input.trim();
     if (msgType === "text" && !messageText) return;
@@ -192,6 +218,9 @@ export default function LiveChat() {
       attachment_url: attachUrl,
     });
     setSending(false);
+
+    // Start AI auto-reply timer
+    if (sessionId) triggerAiReply(sessionId);
   };
 
   // Image upload
