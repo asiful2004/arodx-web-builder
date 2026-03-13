@@ -36,6 +36,14 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const isMobile = useIsMobile();
+  const [isHR, setIsHR] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .rpc("has_role", { _user_id: user.id, _role: "hr" as any })
+      .then(({ data }) => setIsHR(!!data));
+  }, [user]);
 
   const closeMobileMenu = () => {
     if (isMobile) setOpenMobile(false);
