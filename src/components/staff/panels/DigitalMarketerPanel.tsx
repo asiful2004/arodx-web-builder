@@ -30,6 +30,8 @@ export default function DigitalMarketerPanel() {
         </div>
       </motion.div>
 
+      <AttendanceWidget />
+
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-border bg-card p-3.5 text-center">
           <Clock className="h-4 w-4 text-blue-600 mx-auto mb-1" />

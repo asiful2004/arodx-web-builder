@@ -30,6 +30,9 @@ export default function GraphicsDesignerPanel() {
         </div>
       </motion.div>
 
+      {/* Attendance */}
+      <AttendanceWidget />
+
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-border bg-card p-3.5 text-center">
