@@ -186,7 +186,7 @@ export default function LiveChat() {
     setOpen(false);
   };
 
-  const getSenderInfo = (m: ChatMessage) => {
+  const getSenderInfo = (m: ChatMessage): { name: string; avatar: string | null; isGuest?: boolean } => {
     if (m.sender_type === "client") {
       if (user && m.sender_id === user.id) {
         return {
@@ -195,6 +195,7 @@ export default function LiveChat() {
         };
       }
       return { name: guestName || "গেস্ট", avatar: null, isGuest: true };
+    }
     if (m.sender_type === "admin") {
       const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
       return {
