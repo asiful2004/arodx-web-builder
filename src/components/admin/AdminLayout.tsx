@@ -52,28 +52,29 @@ export default function AdminLayout() {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (user) {
-      supabase
-        .from("profiles")
-        .select("full_name, avatar_url")
-        .eq("user_id", user.id)
-        .single()
-        .then(({ data }) => {
-          if (data) setProfile(data);
-        });
+    if (!user) return;
+    
+    supabase
+      .from("profiles")
+      .select("full_name, avatar_url")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setProfile(data);
+      });
 
-      // Check admin or staff role
-      const [adminRes, staffRes] = await Promise.all([
-        supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
-        supabase.rpc("has_role", { _user_id: user.id, _role: "staff" as any }),
-      ]);
-      
+    // Check admin or staff role
+    Promise.all([
+      supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
+      supabase.rpc("has_role", { _user_id: user.id, _role: "staff" as any }),
+    ]).then(([adminRes, staffRes]) => {
       if (!adminRes.data && !staffRes.data) {
         navigate("/dashboard");
         toast({ title: "অ্যাক্সেস নেই", description: "আপনার এই প্যানেলে অ্যাক্সেস নেই।", variant: "destructive" });
         return;
       }
       setIsAdmin(!!adminRes.data);
+    });
     }
   }, [user]);
 
