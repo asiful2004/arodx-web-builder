@@ -502,7 +502,7 @@ export default function AdminChatPage() {
                                 : "bg-accent text-accent-foreground rounded-tl-sm"
                             }`}
                           >
-                            {m.message}
+                            {renderMessageContent(m, isAdmin)}
                             <p className={`text-[9px] mt-1 ${
                               isAdmin ? "text-primary-foreground/60" : "text-muted-foreground/60"
                             }`}>
