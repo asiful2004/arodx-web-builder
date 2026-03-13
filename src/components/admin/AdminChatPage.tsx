@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { MessageCircle, Send, User, Clock, X, ArrowLeft, Image, Mic, Square, Pause, Play } from "lucide-react";
+import { MessageCircle, Send, User, Clock, X, ArrowLeft, Image, Mic, Square, Pause, Play, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -59,9 +59,11 @@ export default function AdminChatPage() {
     audioNotifRef.current.play().catch(() => {});
   }, []);
 
-  // Speech-to-text
+  // Voice-to-text (record + AI transcribe)
   const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   // Audio playback
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
@@ -243,34 +245,45 @@ export default function AdminChatPage() {
   };
 
   // Speech-to-text
-  const startListening = () => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
-    const recognition = new SpeechRecognition();
-    recognition.lang = "bn-BD";
-    recognition.interimResults = true;
-    recognition.continuous = true;
-    let finalTranscript = input;
-    recognition.onresult = (e: any) => {
-      let interim = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) {
-          finalTranscript += e.results[i][0].transcript;
-        } else {
-          interim += e.results[i][0].transcript;
+  // Voice-to-text: record then transcribe via AI
+  const startListening = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(t => t.stop());
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        if (audioBlob.size < 1000) return;
+        setIsTranscribing(true);
+        try {
+          const formData = new FormData();
+          formData.append("audio", audioBlob, "recording.webm");
+          const resp = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/transcribe-audio`,
+            { method: "POST", body: formData }
+          );
+          const data = await resp.json();
+          if (data.transcript) {
+            setInput(prev => prev ? prev + " " + data.transcript : data.transcript);
+          }
+        } catch (err) {
+          console.error("Transcription failed:", err);
+        } finally {
+          setIsTranscribing(false);
         }
-      }
-      setInput(finalTranscript + interim);
-    };
-    recognition.onerror = () => setIsListening(false);
-    recognition.onend = () => setIsListening(false);
-    recognition.start();
-    recognitionRef.current = recognition;
-    setIsListening(true);
+      };
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setIsListening(true);
+    } catch { /* mic denied */ }
   };
 
   const stopListening = () => {
-    recognitionRef.current?.stop();
+    mediaRecorderRef.current?.stop();
     setIsListening(false);
   };
 
@@ -534,11 +547,11 @@ export default function AdminChatPage() {
                         type="button"
                         size="icon"
                         variant="ghost"
-                        className={`h-8 w-8 shrink-0 ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground hover:text-foreground"}`}
+                        className={`h-8 w-8 shrink-0 ${isListening ? "text-destructive animate-pulse" : isTranscribing ? "text-primary animate-spin" : "text-muted-foreground hover:text-foreground"}`}
                         onClick={isListening ? stopListening : startListening}
-                        disabled={sending}
+                        disabled={sending || isTranscribing}
                       >
-                        {isListening ? <Square className="h-3.5 w-3.5 fill-current" /> : <Mic className="h-4 w-4" />}
+                        {isTranscribing ? <Loader2 className="h-4 w-4" /> : isListening ? <Square className="h-3.5 w-3.5 fill-current" /> : <Mic className="h-4 w-4" />}
                       </Button>
                       {input.trim() && (
                         <Button type="submit" size="icon" className="h-8 w-8 shrink-0" disabled={sending}>
