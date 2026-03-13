@@ -64,10 +64,11 @@ export default function DashboardLayout() {
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
-        .limit(1)
-        .single()
         .then(({ data }) => {
-          if (data) setUserRole(data.role);
+          if (data && data.length > 0) {
+            setUserRole(data[0].role);
+            setUserRoles(data.map((r: any) => r.role));
+          }
         });
     }
   }, [user]);
