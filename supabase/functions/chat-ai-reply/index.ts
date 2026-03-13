@@ -68,7 +68,7 @@ async function callClaude(apiKey: string, model: string, messages: any[]): Promi
 
   if (!response.ok) {
     const err = await response.text();
-    throw new Error(`Claude API error [${response.status}]: ${err}`);
+    throw new Error(humanReadableError(response.status, err, "Claude"));
   }
 
   const data = await response.json();
