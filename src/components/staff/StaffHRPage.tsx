@@ -131,17 +131,21 @@ export default function StaffHRPage() {
   };
 
   const handleAddStaff = async () => {
-    if (!selectedUserId) return;
+    if (!selectedUserId || !selectedRole) return;
     setAdding(true);
     const { error } = await supabase.from("user_roles").insert({
       user_id: selectedUserId,
-      role: "staff" as any,
+      role: selectedRole as any,
     });
     setAdding(false);
     if (error) {
-      toast({ title: "সমস্যা হয়েছে", description: error.message, variant: "destructive" });
+      if (error.code === "23505") {
+        toast({ title: "এই রোল আগে থেকেই আছে", variant: "destructive" });
+      } else {
+        toast({ title: "সমস্যা হয়েছে", description: error.message, variant: "destructive" });
+      }
     } else {
-      toast({ title: "স্টাফ সফলভাবে যোগ হয়েছে" });
+      toast({ title: "সফলভাবে যোগ হয়েছে" });
       setAddDialogOpen(false);
       fetchStaff();
     }
