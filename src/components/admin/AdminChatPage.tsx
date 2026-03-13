@@ -40,6 +40,7 @@ export default function AdminChatPage() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [senderProfiles, setSenderProfiles] = useState<Map<string, { full_name: string | null; avatar_url: string | null }>>(new Map());
 
   // Fetch sessions
   const fetchSessions = useCallback(async () => {
