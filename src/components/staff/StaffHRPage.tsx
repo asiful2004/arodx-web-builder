@@ -184,8 +184,8 @@ export default function StaffHRPage() {
 
   const handleRemoveStaff = async (member: StaffMember) => {
     setActionLoading(`remove-${member.user_id}`);
-    // Remove staff role and all sub-roles
-    const allStaffRoles = ["staff", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
+    // Remove all sub-roles
+    const allStaffRoles = ALL_SUB_ROLE_VALUES;
     const idsToRemove = Object.entries(member.role_ids)
       .filter(([role]) => allStaffRoles.includes(role))
       .map(([, id]) => id);
