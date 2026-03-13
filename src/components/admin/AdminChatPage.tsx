@@ -53,14 +53,14 @@ export default function AdminChatPage() {
 
     // Get profile names for user sessions
     const userIds = sessionsData.filter(s => s.user_id).map(s => s.user_id!);
-    let profileMap = new Map<string, string>();
+    let profileMap = new Map<string, { full_name: string; avatar_url: string | null }>();
     if (userIds.length > 0) {
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("user_id, full_name")
+        .select("user_id, full_name, avatar_url")
         .in("user_id", userIds);
       if (profiles) {
-        profiles.forEach(p => profileMap.set(p.user_id, p.full_name || ""));
+        profiles.forEach(p => profileMap.set(p.user_id, { full_name: p.full_name || "", avatar_url: p.avatar_url }));
       }
     }
 
@@ -82,11 +82,13 @@ export default function AdminChatPage() {
           .eq("sender_type", "client")
           .eq("is_read", false);
 
+        const prof = s.user_id ? profileMap.get(s.user_id) : null;
         return {
           ...s,
           last_message: lastMsg?.message || "",
           unread_count: count || 0,
-          profile_name: s.user_id ? profileMap.get(s.user_id) : null,
+          profile_name: prof?.full_name || null,
+          profile_avatar: prof?.avatar_url || null,
         };
       })
     );
