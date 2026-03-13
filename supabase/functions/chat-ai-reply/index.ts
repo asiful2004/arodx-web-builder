@@ -287,7 +287,7 @@ serve(async (req) => {
       if (aiSettings.provider === "claude") {
         replyText = await callClaude(aiSettings.api_key, model, aiMessages);
       } else {
-        replyText = await callOpenAICompatible(url, aiSettings.api_key, model, aiMessages, skipAuth);
+        replyText = await callOpenAICompatible(url, aiSettings.api_key, model, aiMessages, skipAuth, aiSettings.provider);
       }
     } catch (apiErr) {
       console.error("AI provider error:", apiErr);
