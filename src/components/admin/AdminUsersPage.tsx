@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
-type AppRole = "admin" | "moderator" | "user" | "client" | "staff" | "hr" | "graphics_designer" | "web_developer" | "project_manager" | "digital_marketer";
+type AppRole = "admin" | "moderator" | "user" | "client" | "hr" | "graphics_designer" | "web_developer" | "project_manager" | "digital_marketer";
 
 interface UserProfile {
   id: string;
@@ -61,11 +61,6 @@ const roleConfig: Record<AppRole, { label: string; icon: typeof Shield; classNam
     label: "ইউজার",
     icon: UserIcon,
     className: "bg-secondary text-secondary-foreground border-border",
-  },
-  staff: {
-    label: "স্টাফ",
-    icon: UserCog,
-    className: "bg-blue-500/10 text-blue-600 border-blue-500/20",
   },
   hr: {
     label: "এইচআর",
@@ -341,8 +336,8 @@ export default function AdminUsersPage() {
             <SelectItem value="admin">অ্যাডমিন</SelectItem>
             <SelectItem value="client">ক্লায়েন্ট</SelectItem>
             <SelectItem value="moderator">মডারেটর</SelectItem>
-            <SelectItem value="staff">স্টাফ</SelectItem>
             <SelectItem value="hr">এইচআর</SelectItem>
+            <SelectItem value="graphics_designer">গ্রাফিক্স ডিজাইনার</SelectItem>
             <SelectItem value="graphics_designer">গ্রাফিক্স ডিজাইনার</SelectItem>
             <SelectItem value="web_developer">ওয়েব ডেভেলপার</SelectItem>
             <SelectItem value="project_manager">প্রজেক্ট ম্যানেজার</SelectItem>
@@ -549,8 +544,8 @@ export default function AdminUsersPage() {
                       <SelectItem value="admin">অ্যাডমিন</SelectItem>
                       <SelectItem value="client">ক্লায়েন্ট</SelectItem>
                       <SelectItem value="moderator">মডারেটর</SelectItem>
-                      <SelectItem value="staff">স্টাফ</SelectItem>
                       <SelectItem value="hr">এইচআর</SelectItem>
+                      <SelectItem value="graphics_designer">গ্রাফিক্স ডিজাইনার</SelectItem>
                       <SelectItem value="graphics_designer">গ্রাফিক্স ডিজাইনার</SelectItem>
                       <SelectItem value="web_developer">ওয়েব ডেভেলপার</SelectItem>
                       <SelectItem value="project_manager">প্রজেক্ট ম্যানেজার</SelectItem>

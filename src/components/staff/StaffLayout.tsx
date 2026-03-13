@@ -38,13 +38,16 @@ export default function StaffLayout() {
         if (data) setProfile(data);
       });
 
-    // Check staff, admin, or hr role
+    // Check admin, hr, or any sub-role
+    const subRoles = ['graphics_designer', 'web_developer', 'project_manager', 'digital_marketer'];
     Promise.all([
       supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
-      supabase.rpc("has_role", { _user_id: user.id, _role: "staff" as any }),
       supabase.rpc("has_role", { _user_id: user.id, _role: "hr" as any }),
-    ]).then(([adminRes, staffRes, hrRes]) => {
-      if (!adminRes.data && !staffRes.data && !hrRes.data) {
+      supabase.from("user_roles").select("role").eq("user_id", user.id),
+    ]).then(([adminRes, hrRes, rolesRes]) => {
+      const userRoles = (rolesRes.data || []).map((r: any) => r.role);
+      const hasSubRole = userRoles.some((r: string) => subRoles.includes(r));
+      if (!adminRes.data && !hrRes.data && !hasSubRole) {
         navigate("/dashboard");
         toast({ title: "অ্যাক্সেস নেই", description: "আপনার স্টাফ প্যানেলে অ্যাক্সেস নেই।", variant: "destructive" });
         return;

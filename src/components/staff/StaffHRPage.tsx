@@ -34,12 +34,14 @@ const SUB_ROLES: { value: SubRole; label: string; icon: typeof Palette; color: s
   { value: "digital_marketer", label: "ডিজিটাল মার্কেটার", icon: Megaphone, color: "bg-green-500/10 text-green-600 border-green-500/20" },
 ];
 
+const ALL_SUB_ROLE_VALUES = SUB_ROLES.map((r) => r.value as string);
+
 interface StaffMember {
   user_id: string;
   full_name: string | null;
   avatar_url: string | null;
   roles: string[];
-  role_ids: Record<string, string>; // role -> role_id mapping
+  role_ids: Record<string, string>;
 }
 
 export default function StaffHRPage() {
@@ -50,6 +52,7 @@ export default function StaffHRPage() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [allUsers, setAllUsers] = useState<{ user_id: string; full_name: string | null }[]>([]);
   const [selectedUserId, setSelectedUserId] = useState("");
+  const [selectedRole, setSelectedRole] = useState<SubRole | "">("");
   const [adding, setAdding] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -67,18 +70,18 @@ export default function StaffHRPage() {
       return;
     }
 
-    // Find staff user_ids
-    const staffUserIds = new Set(
-      allRoles.filter((r) => r.role === "staff").map((r) => r.user_id)
+    // Find users who have any sub-role
+    const subRoleUsers = new Set(
+      allRoles.filter((r) => ALL_SUB_ROLE_VALUES.includes(r.role)).map((r) => r.user_id)
     );
 
-    if (staffUserIds.size === 0) {
+    if (subRoleUsers.size === 0) {
       setStaffMembers([]);
       setLoading(false);
       return;
     }
 
-    const userIdsArr = Array.from(staffUserIds);
+    const userIdsArr = Array.from(subRoleUsers);
     const { data: profiles } = await supabase
       .from("profiles")
       .select("user_id, full_name, avatar_url")
@@ -124,21 +127,26 @@ export default function StaffHRPage() {
   const handleOpenAddDialog = () => {
     fetchAvailableUsers();
     setSelectedUserId("");
+    setSelectedRole("");
     setAddDialogOpen(true);
   };
 
   const handleAddStaff = async () => {
-    if (!selectedUserId) return;
+    if (!selectedUserId || !selectedRole) return;
     setAdding(true);
     const { error } = await supabase.from("user_roles").insert({
       user_id: selectedUserId,
-      role: "staff" as any,
+      role: selectedRole as any,
     });
     setAdding(false);
     if (error) {
-      toast({ title: "সমস্যা হয়েছে", description: error.message, variant: "destructive" });
+      if (error.code === "23505") {
+        toast({ title: "এই রোল আগে থেকেই আছে", variant: "destructive" });
+      } else {
+        toast({ title: "সমস্যা হয়েছে", description: error.message, variant: "destructive" });
+      }
     } else {
-      toast({ title: "স্টাফ সফলভাবে যোগ হয়েছে" });
+      toast({ title: "সফলভাবে যোগ হয়েছে" });
       setAddDialogOpen(false);
       fetchStaff();
     }
@@ -177,8 +185,8 @@ export default function StaffHRPage() {
 
   const handleRemoveStaff = async (member: StaffMember) => {
     setActionLoading(`remove-${member.user_id}`);
-    // Remove staff role and all sub-roles
-    const allStaffRoles = ["staff", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
+    // Remove all sub-roles
+    const allStaffRoles = ALL_SUB_ROLE_VALUES;
     const idsToRemove = Object.entries(member.role_ids)
       .filter(([role]) => allStaffRoles.includes(role))
       .map(([, id]) => id);
@@ -371,8 +379,8 @@ export default function StaffHRPage() {
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>নতুন স্টাফ যোগ করুন</DialogTitle>
-            <DialogDescription>একজন ইউজারকে স্টাফ রোল দিন</DialogDescription>
+            <DialogTitle>নতুন মেম্বার যোগ করুন</DialogTitle>
+            <DialogDescription>একজন ইউজারকে টিমে যোগ করুন এবং রোল দিন</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
@@ -390,10 +398,25 @@ export default function StaffHRPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label>রোল সিলেক্ট করুন</Label>
+              <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as SubRole)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="রোল বাছাই করুন" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUB_ROLES.map((sr) => (
+                    <SelectItem key={sr.value} value={sr.value}>
+                      {sr.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddDialogOpen(false)}>বাতিল</Button>
-            <Button onClick={handleAddStaff} disabled={!selectedUserId || adding} className="gap-1.5">
+            <Button onClick={handleAddStaff} disabled={!selectedUserId || !selectedRole || adding} className="gap-1.5">
               {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
               যোগ করুন
             </Button>
