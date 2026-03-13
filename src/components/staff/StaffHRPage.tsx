@@ -169,7 +169,7 @@ export default function StaffHRPage() {
             </div>
           ) : (
             filteredTasks().map((task) => (
-              <TaskCard key={task.id} task={task} canManage onRefetch={refetch} showRole />
+              <TaskCard key={task.id} task={task} canManage canChangeStatus={false} onRefetch={refetch} showRole />
             ))
           )}
         </TabsContent>
