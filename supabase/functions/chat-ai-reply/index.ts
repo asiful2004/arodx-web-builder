@@ -180,7 +180,7 @@ serve(async (req) => {
         if (provider === "claude") {
           reply = await callClaude(api_key, model, msgs);
         } else {
-          reply = await callOpenAICompatible(url, api_key, model, msgs, skipAuth);
+          reply = await callOpenAICompatible(url, api_key, model, msgs, skipAuth, provider);
         }
         return new Response(JSON.stringify({ reply: reply || "রিপ্লাই পাওয়া যায়নি" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
