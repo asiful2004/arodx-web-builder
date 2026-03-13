@@ -113,9 +113,10 @@ export default function AdminUsersPage() {
 
   const fetchUsersWithRoles = async () => {
     setLoading(true);
-    const [profilesRes, rolesRes] = await Promise.all([
+    const [profilesRes, rolesRes, emailsRes] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at", { ascending: false }),
       supabase.from("user_roles").select("*"),
+      supabase.rpc("get_user_emails"),
     ]);
 
     const rolesMap = new Map<string, AppRole[]>();
@@ -125,9 +126,15 @@ export default function AdminUsersPage() {
       rolesMap.set(r.user_id, existing);
     });
 
+    const emailsMap = new Map<string, string>();
+    (emailsRes.data || []).forEach((e: any) => {
+      emailsMap.set(e.user_id, e.email);
+    });
+
     const users: UserProfile[] = (profilesRes.data || []).map((p: any) => ({
       ...p,
       roles: rolesMap.get(p.user_id) || [],
+      email: emailsMap.get(p.user_id) || null,
     }));
 
     setProfiles(users);
