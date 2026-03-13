@@ -475,11 +475,11 @@ export default function LiveChat() {
                       type="button"
                       size="icon"
                       variant="ghost"
-                      className={`h-8 w-8 shrink-0 ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground hover:text-foreground"}`}
+                      className={`h-8 w-8 shrink-0 ${isListening ? "text-destructive animate-pulse" : isTranscribing ? "text-primary animate-spin" : "text-muted-foreground hover:text-foreground"}`}
                       onClick={isListening ? stopListening : startListening}
-                      disabled={sending}
+                      disabled={sending || isTranscribing}
                     >
-                      {isListening ? <Square className="h-3.5 w-3.5 fill-current" /> : <Mic className="h-4 w-4" />}
+                      {isTranscribing ? <Loader2 className="h-4 w-4" /> : isListening ? <Square className="h-3.5 w-3.5 fill-current" /> : <Mic className="h-4 w-4" />}
                     </Button>
                     {input.trim() && (
                       <Button type="submit" size="icon" className="h-8 w-8 shrink-0" disabled={sending}>
