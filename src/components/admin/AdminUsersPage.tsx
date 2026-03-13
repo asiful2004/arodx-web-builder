@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
-type AppRole = "admin" | "moderator" | "user" | "client" | "staff";
+type AppRole = "admin" | "moderator" | "user" | "client" | "staff" | "hr";
 
 interface UserProfile {
   id: string;
@@ -66,6 +66,11 @@ const roleConfig: Record<AppRole, { label: string; icon: typeof Shield; classNam
     label: "স্টাফ",
     icon: UserCog,
     className: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  },
+  hr: {
+    label: "এইচআর",
+    icon: Users,
+    className: "bg-purple-500/10 text-purple-600 border-purple-500/20",
   },
 };
 
@@ -316,6 +321,8 @@ export default function AdminUsersPage() {
             <SelectItem value="admin">অ্যাডমিন</SelectItem>
             <SelectItem value="client">ক্লায়েন্ট</SelectItem>
             <SelectItem value="moderator">মডারেটর</SelectItem>
+            <SelectItem value="staff">স্টাফ</SelectItem>
+            <SelectItem value="hr">এইচআর</SelectItem>
             <SelectItem value="user">ইউজার</SelectItem>
           </SelectContent>
         </Select>
@@ -518,6 +525,8 @@ export default function AdminUsersPage() {
                       <SelectItem value="admin">অ্যাডমিন</SelectItem>
                       <SelectItem value="client">ক্লায়েন্ট</SelectItem>
                       <SelectItem value="moderator">মডারেটর</SelectItem>
+                      <SelectItem value="staff">স্টাফ</SelectItem>
+                      <SelectItem value="hr">এইচআর</SelectItem>
                       <SelectItem value="user">ইউজার</SelectItem>
                     </SelectContent>
                   </Select>
