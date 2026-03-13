@@ -28,6 +28,26 @@ export default function CreateTicketPage() {
   const [orderId, setOrderId] = useState<string>("");
   const [orders, setOrders] = useState<{ id: string; package_name: string; domain_name: string | null; business_name: string | null }[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [activeTicket, setActiveTicket] = useState<{ id: string; ticket_number: string; subject: string } | null>(null);
+  const [checkingActive, setCheckingActive] = useState(true);
+
+  // Check for existing active (non-resolved/non-closed) ticket
+  useEffect(() => {
+    const checkActiveTicket = async () => {
+      const { data } = await supabase
+        .from("tickets")
+        .select("id, ticket_number, subject")
+        .eq("user_id", user.id)
+        .in("status", ["open", "in_progress", "waiting"])
+        .limit(1);
+      
+      if (data && data.length > 0) {
+        setActiveTicket(data[0]);
+      }
+      setCheckingActive(false);
+    };
+    checkActiveTicket();
+  }, [user.id]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -39,7 +59,6 @@ export default function CreateTicketPage() {
 
       if (!orderData) { setOrders([]); return; }
 
-      // Fetch businesses linked to these orders
       const orderIds = orderData.map((o) => o.id);
       const { data: bizData } = await supabase
         .from("businesses")
@@ -83,6 +102,44 @@ export default function CreateTicketPage() {
       navigate("/dashboard/tickets");
     }
   };
+
+  if (checkingActive) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (activeTicket) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate("/dashboard/tickets")}>
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <h1 className="text-lg font-bold font-display text-foreground">নতুন টিকেট তৈরি করুন</h1>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-8 max-w-2xl text-center space-y-4">
+          <div className="h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+            <Send className="w-6 h-6 text-destructive" />
+          </div>
+          <h2 className="text-base font-semibold text-foreground">আপনার একটি সক্রিয় টিকেট আছে</h2>
+          <p className="text-sm text-muted-foreground">
+            একই সময়ে একাধিক টিকেট খোলা যায় না। আপনার বর্তমান টিকেট ({activeTicket.ticket_number} - {activeTicket.subject}) সমাধান বা বন্ধ হলে নতুন টিকেট তৈরি করতে পারবেন।
+          </p>
+          <div className="flex gap-3 justify-center pt-2">
+            <Button variant="outline" onClick={() => navigate("/dashboard/tickets")}>
+              টিকেট তালিকা
+            </Button>
+            <Button onClick={() => navigate(`/dashboard/tickets/${activeTicket.id}`)}>
+              টিকেট দেখুন
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
