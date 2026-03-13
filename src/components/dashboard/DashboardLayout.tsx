@@ -4,7 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bell, BellOff, Volume2 } from "lucide-react";
+import { ArrowLeft, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -31,10 +31,6 @@ export default function DashboardLayout() {
   const [userRole, setUserRole] = useState<string>("");
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(() => {
-    const stored = localStorage.getItem("notif_sound");
-    return stored !== "false";
-  });
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const navigate = useNavigate();
@@ -74,20 +70,13 @@ export default function DashboardLayout() {
   }, [user]);
 
   const playNotifSound = useCallback(() => {
-    if (!soundEnabled) return;
     if (!audioRef.current) {
       audioRef.current = new Audio("https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3");
       audioRef.current.volume = 0.5;
     }
     audioRef.current.currentTime = 0;
     audioRef.current.play().catch(() => {});
-  }, [soundEnabled]);
-
-  const toggleSound = () => {
-    const next = !soundEnabled;
-    setSoundEnabled(next);
-    localStorage.setItem("notif_sound", String(next));
-  };
+  }, []);
 
   // Fetch notifications from DB
   const fetchNotifications = useCallback(async () => {
@@ -189,24 +178,11 @@ export default function DashboardLayout() {
                 <SheetHeader className="border-b border-border pb-3">
                   <div className="flex items-center justify-between">
                     <SheetTitle className="text-base">নোটিফিকেশন</SheetTitle>
-                    <div className="flex items-center gap-2">
-                      {unreadCount > 0 && (
-                        <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
-                          সব পঠিত
-                        </Button>
-                      )}
-                      <button
-                        onClick={toggleSound}
-                        className="p-1.5 rounded-md hover:bg-accent transition-colors"
-                        title={soundEnabled ? "সাউন্ড বন্ধ করুন" : "সাউন্ড চালু করুন"}
-                      >
-                        {soundEnabled ? (
-                          <Volume2 className="h-4 w-4 text-primary" />
-                        ) : (
-                          <BellOff className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </button>
-                    </div>
+                    {unreadCount > 0 && (
+                      <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
+                        সব পঠিত
+                      </Button>
+                    )}
                   </div>
                 </SheetHeader>
 
