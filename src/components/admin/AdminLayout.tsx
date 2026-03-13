@@ -62,14 +62,18 @@ export default function AdminLayout() {
           if (data) setProfile(data);
         });
 
-      supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
-        if (!data) {
-          navigate("/dashboard");
-          toast({ title: "অ্যাক্সেস নেই", description: "আপনি অ্যাডমিন নন।", variant: "destructive" });
-          return;
-        }
-        setIsAdmin(true);
-      });
+      // Check admin or staff role
+      const [adminRes, staffRes] = await Promise.all([
+        supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
+        supabase.rpc("has_role", { _user_id: user.id, _role: "staff" as any }),
+      ]);
+      
+      if (!adminRes.data && !staffRes.data) {
+        navigate("/dashboard");
+        toast({ title: "অ্যাক্সেস নেই", description: "আপনার এই প্যানেলে অ্যাক্সেস নেই।", variant: "destructive" });
+        return;
+      }
+      setIsAdmin(!!adminRes.data);
     }
   }, [user]);
 

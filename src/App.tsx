@@ -33,6 +33,7 @@ import AdminTicketsPage from "./components/admin/AdminTicketsPage";
 import AdminTicketDetailPage from "./components/admin/AdminTicketDetailPage";
 import AdminSettingsPage from "./components/admin/AdminSettingsPage";
 import AdminChatPage from "./components/admin/AdminChatPage";
+import StaffPanelPage from "./components/admin/StaffPanelPage";
 import LiveChat from "./components/LiveChat";
 import Checkout from "./pages/Checkout";
 import RenewalPage from "./pages/Renewal";
