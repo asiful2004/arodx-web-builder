@@ -75,13 +75,17 @@ async function callClaude(apiKey: string, model: string, messages: any[]): Promi
   return data.content?.[0]?.text || "";
 }
 
-async function callOpenAICompatible(url: string, apiKey: string, model: string, messages: any[]): Promise<string> {
+async function callOpenAICompatible(url: string, apiKey: string, model: string, messages: any[], skipAuth = false): Promise<string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (!skipAuth && apiKey) {
+    headers["Authorization"] = `Bearer ${apiKey}`;
+  }
+
   const response = await fetch(url, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify({
       model,
       messages,

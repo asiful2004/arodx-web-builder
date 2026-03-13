@@ -112,6 +112,9 @@ export default function ChatAiConfigPanel() {
 
     if (settings.provider === "custom") {
       updateData.model_name = `${customEndpoint}||${customModel}`;
+    } else if (settings.provider === "ollama") {
+      const ollamaUrl = customEndpoint || "http://localhost:11434";
+      updateData.model_name = `${ollamaUrl}||${settings.model_name}`;
     }
 
     const { error } = await supabase
