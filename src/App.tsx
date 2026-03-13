@@ -91,6 +91,12 @@ const App = () => {
                 <Route path="chat" element={<AdminChatPage />} />
                 <Route path="staff" element={<StaffPanelPage />} />
               </Route>
+              <Route path="/staff" element={<StaffLayout />}>
+                <Route index element={<StaffOverviewPage />} />
+                <Route path="tickets" element={<AdminTicketsPage />} />
+                <Route path="tickets/:ticketId" element={<AdminTicketDetailPage />} />
+                <Route path="chat" element={<AdminChatPage />} />
+              </Route>
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/renewal" element={<RenewalPage />} />
               <Route path="*" element={<NotFound />} />
