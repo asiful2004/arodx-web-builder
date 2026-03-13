@@ -20,11 +20,11 @@ import {
 import {
   Users, Loader2, Search, Shield, ShieldCheck, UserCog,
   RefreshCw, Calendar, UserPlus, Trash2, Crown, User as UserIcon,
-  KeyRound, Eye, EyeOff,
+  KeyRound, Eye, EyeOff, Palette, Code, Briefcase, Megaphone,
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 
-type AppRole = "admin" | "moderator" | "user" | "client" | "staff" | "hr";
+type AppRole = "admin" | "moderator" | "user" | "client" | "staff" | "hr" | "graphics_designer" | "web_developer" | "project_manager" | "digital_marketer";
 
 interface UserProfile {
   id: string;
