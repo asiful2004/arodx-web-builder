@@ -515,24 +515,63 @@ export default function AdminChatPage() {
                   })}
                 </div>
 
+                {/* Hidden file input */}
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+
                 {/* Input */}
                 {activeSessionData?.status !== "closed" && (
-                  <div className="border-t border-border p-2 md:p-3">
-                    <form
-                      onSubmit={(e) => { e.preventDefault(); sendReply(); }}
-                      className="flex items-center gap-2"
-                    >
-                      <Input
-                        placeholder="রিপ্লাই লিখুন..."
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        className="flex-1 text-sm h-9"
-                        autoFocus
-                      />
-                      <Button type="submit" size="icon" className="h-9 w-9 shrink-0" disabled={!input.trim() || sending}>
-                        <Send className="h-4 w-4" />
-                      </Button>
-                    </form>
+                  <div className="border-t border-border p-2">
+                    {isRecording ? (
+                      <div className="flex items-center gap-2 px-2">
+                        <div className="flex-1 flex items-center gap-2">
+                          <span className="h-2.5 w-2.5 rounded-full bg-destructive animate-pulse" />
+                          <span className="text-sm font-medium text-destructive">{formatTime(recordingTime)}</span>
+                          <span className="text-xs text-muted-foreground">রেকর্ডিং...</span>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={cancelRecording}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                        <Button size="icon" className="h-8 w-8 bg-destructive hover:bg-destructive/90" onClick={stopRecording}>
+                          <Square className="h-3 w-3 fill-current" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <form onSubmit={(e) => { e.preventDefault(); sendReply(); }} className="flex items-center gap-1.5">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={sending}
+                        >
+                          <Image className="h-4 w-4" />
+                        </Button>
+                        <Input
+                          placeholder="রিপ্লাই লিখুন..."
+                          value={input}
+                          onChange={(e) => setInput(e.target.value)}
+                          className="flex-1 text-sm h-8 border-0 bg-muted/50 focus-visible:ring-0"
+                          autoFocus
+                        />
+                        {input.trim() ? (
+                          <Button type="submit" size="icon" className="h-8 w-8 shrink-0" disabled={sending}>
+                            <Send className="h-4 w-4" />
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+                            onClick={startRecording}
+                            disabled={sending}
+                          >
+                            <Mic className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </form>
+                    )}
                   </div>
                 )}
               </>
