@@ -20,7 +20,7 @@ const DEFAULT_SYSTEM_PROMPT = `তুমি ArodX এর একজন বাং�
 - উত্তর ২-৩ বাক্যে সীমাবদ্ধ রাখো`;
 
 // Provider endpoint mapping
-function getEndpoint(provider: string, modelName: string): { url: string; model: string } {
+function getEndpoint(provider: string, modelName: string): { url: string; model: string; skipAuth?: boolean } {
   switch (provider) {
     case "openai":
       return { url: "https://api.openai.com/v1/chat/completions", model: modelName };
@@ -32,10 +32,15 @@ function getEndpoint(provider: string, modelName: string): { url: string; model:
       return { url: "https://api.deepseek.com/chat/completions", model: modelName };
     case "claude":
       return { url: "https://api.anthropic.com/v1/messages", model: modelName };
-    case "custom": {
-      // model_name stores "endpoint||model" for custom
+    case "ollama": {
       const parts = modelName.split("||");
-      return { url: parts[0] || "", model: parts[1] || "default" };
+      const baseUrl = parts[0] || "http://localhost:11434";
+      const model = parts[1] || "llama3.1";
+      return { url: `${baseUrl}/v1/chat/completions`, model, skipAuth: true };
+    }
+    case "custom": {
+      const cparts = modelName.split("||");
+      return { url: cparts[0] || "", model: cparts[1] || "default" };
     }
     default:
       return { url: "https://api.openai.com/v1/chat/completions", model: modelName };
