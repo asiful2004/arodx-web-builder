@@ -41,7 +41,7 @@ export const TASK_PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: 
 export const ROLE_CONFIG = {
   graphics_designer: { label: "গ্রাফিক্স ডিজাইনার", short: "ডিজাইনার", color: "bg-pink-500/10 text-pink-600 border-pink-500/20" },
   web_developer: { label: "ওয়েব ডেভেলপার", short: "ডেভেলপার", color: "bg-cyan-500/10 text-cyan-600 border-cyan-500/20" },
-  project_manager: { label: "প্রজেক্ট ম্যানেজার", short: "PM", color: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
+  project_manager: { label: "প্রজেক্ট ম্যানেজার", short: "প্রজেক্ট ম্যানেজার", color: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
   digital_marketer: { label: "ডিজিটাল মার্কেটার", short: "মার্কেটার", color: "bg-green-500/10 text-green-600 border-green-500/20" },
 } as const;
 
