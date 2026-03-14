@@ -76,7 +76,7 @@ export default function PublicProfilePage() {
     if (!userId) return;
 
     Promise.all([
-      supabase.from("profiles").select("full_name, avatar_url, bio, social_links, created_at").eq("user_id", userId).single(),
+      supabase.from("profiles").select("full_name, avatar_url, bio, social_links, created_at, cover_url").eq("user_id", userId).single(),
       supabase.from("user_roles").select("role").eq("user_id", userId),
     ]).then(([profileRes, rolesRes]) => {
       if (!profileRes.data) {
@@ -86,6 +86,7 @@ export default function PublicProfilePage() {
         setProfile({
           full_name: data.full_name,
           avatar_url: data.avatar_url,
+          cover_url: data.cover_url || null,
           bio: data.bio || null,
           social_links: Array.isArray(data.social_links) ? data.social_links : [],
           created_at: data.created_at,
