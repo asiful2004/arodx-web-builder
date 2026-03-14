@@ -58,8 +58,8 @@ export default function ProfilePage() {
       toast({ title: "শুধু ইমেজ ফাইল আপলোড করুন", variant: "destructive" });
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      toast({ title: "ফাইল সাইজ ২MB এর বেশি হতে পারবে না", variant: "destructive" });
+    if (file.size > 100 * 1024 * 1024) {
+      toast({ title: "ফাইল সাইজ ১০০MB এর বেশি হতে পারবে না", variant: "destructive" });
       return;
     }
 
