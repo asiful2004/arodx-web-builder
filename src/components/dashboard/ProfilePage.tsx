@@ -4,7 +4,7 @@ import { useOutletContext } from "react-router-dom";
 import { User as UserType } from "@supabase/supabase-js";
 import {
   User, Mail, Calendar, Clock, Edit3, Save, X, Camera, Loader2,
-  FileText, Link2, Plus, Trash2, Globe, Instagram, Facebook, Github, Twitter, Linkedin, Youtube
+  FileText, Link2, Plus, Trash2, Globe, Instagram, Facebook, Github, Twitter, Linkedin, Youtube, ImageIcon
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,6 +58,9 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState(profile.full_name || "");
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || "");
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [bio, setBio] = useState("");
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -66,6 +69,7 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [loadingExtra, setLoadingExtra] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const initials = (profile.full_name || user.email || "U")
@@ -83,12 +87,13 @@ export default function ProfilePage() {
   useEffect(() => {
     supabase
       .from("profiles")
-      .select("bio, social_links")
+      .select("bio, social_links, cover_url")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
         if (data) {
           setBio((data as any).bio || "");
+          setCoverUrl((data as any).cover_url || null);
           const links = (data as any).social_links;
           setSocialLinks(Array.isArray(links) ? links : []);
         }
@@ -149,12 +154,53 @@ export default function ProfilePage() {
     setAvatarPreview(URL.createObjectURL(file));
   };
 
+  const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "শুধু ইমেজ ফাইল আপলোড করুন", variant: "destructive" });
+      return;
+    }
+    if (file.size > 100 * 1024 * 1024) {
+      toast({ title: "ফাইল সাইজ ১০০MB এর বেশি হতে পারবে না", variant: "destructive" });
+      return;
+    }
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+  };
+
+  const resizeCover = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      if (file.type === "image/gif") { resolve(file); return; }
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement("canvas");
+        const targetW = 1200, targetH = 400;
+        // Crop to 3:1 aspect ratio from center
+        const targetRatio = targetW / targetH;
+        let sw = img.width, sh = img.width / targetRatio;
+        if (sh > img.height) { sh = img.height; sw = img.height * targetRatio; }
+        const sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
+        canvas.width = targetW; canvas.height = targetH;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetW, targetH);
+        canvas.toBlob(
+          (blob) => blob ? resolve(blob) : reject(new Error("Resize failed")),
+          "image/webp", 0.85
+        );
+      };
+      img.onerror = () => reject(new Error("Image load failed"));
+      img.src = url;
+    });
+  };
+
   const uploadAvatar = async (): Promise<string | null> => {
     if (!avatarFile) return avatarUrl || null;
 
     setUploading(true);
     try {
-      // Resize non-GIF images to 500x500 WebP
       const isGif = avatarFile.type === "image/gif";
       const processedBlob = isGif ? avatarFile : await resizeImage(avatarFile, 500);
       const ext = isGif ? "gif" : "webp";
@@ -162,17 +208,10 @@ export default function ProfilePage() {
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, processedBlob, {
-          upsert: true,
-          contentType: isGif ? "image/gif" : "image/webp",
-        });
-
+        .upload(filePath, processedBlob, { upsert: true, contentType: isGif ? "image/gif" : "image/webp" });
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
-
+      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(filePath);
       return publicUrl;
     } catch (error: any) {
       toast({ title: "আপলোড ব্যর্থ", description: error.message, variant: "destructive" });
@@ -182,16 +221,33 @@ export default function ProfilePage() {
     }
   };
 
+  const uploadCover = async (): Promise<string | null> => {
+    if (!coverFile) return coverUrl;
+    try {
+      const isGif = coverFile.type === "image/gif";
+      const processedBlob = isGif ? coverFile : await resizeCover(coverFile);
+      const ext = isGif ? "gif" : "webp";
+      const filePath = `${user.id}/cover-${Date.now()}.${ext}`;
+
+      const { error } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, processedBlob, { upsert: true, contentType: isGif ? "image/gif" : "image/webp" });
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      return publicUrl;
+    } catch (error: any) {
+      toast({ title: "কভার আপলোড ব্যর্থ", description: error.message, variant: "destructive" });
+      return coverUrl;
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
-      const newAvatarUrl = await uploadAvatar();
-      if (avatarFile && !newAvatarUrl) {
-        setSaving(false);
-        return;
-      }
+      const [newAvatarUrl, newCoverUrl] = await Promise.all([uploadAvatar(), uploadCover()]);
+      if (avatarFile && !newAvatarUrl) { setSaving(false); return; }
 
-      // Filter out empty social links
       const validLinks = socialLinks.filter((l) => l.platform && l.url.trim());
 
       const { error } = await supabase
@@ -199,6 +255,7 @@ export default function ProfilePage() {
         .update({
           full_name: fullName,
           avatar_url: newAvatarUrl,
+          cover_url: newCoverUrl,
           bio: bio.trim() || null,
           social_links: validLinks,
         } as any)
@@ -207,9 +264,12 @@ export default function ProfilePage() {
 
       setProfile({ full_name: fullName, avatar_url: newAvatarUrl });
       setAvatarUrl(newAvatarUrl || "");
+      setCoverUrl(newCoverUrl);
       setSocialLinks(validLinks);
       setAvatarFile(null);
       setAvatarPreview(null);
+      setCoverFile(null);
+      setCoverPreview(null);
       setEditing(false);
       toast({ title: "প্রোফাইল আপডেট হয়েছে!" });
     } catch (error: any) {
@@ -240,15 +300,17 @@ export default function ProfilePage() {
     setAvatarUrl(profile.avatar_url || "");
     setAvatarFile(null);
     setAvatarPreview(null);
-    // Re-fetch to restore bio/social from DB
+    setCoverFile(null);
+    setCoverPreview(null);
     supabase
       .from("profiles")
-      .select("bio, social_links")
+      .select("bio, social_links, cover_url")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
         if (data) {
           setBio((data as any).bio || "");
+          setCoverUrl((data as any).cover_url || null);
           const links = (data as any).social_links;
           setSocialLinks(Array.isArray(links) ? links : []);
         }
@@ -263,7 +325,34 @@ export default function ProfilePage() {
         animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl border border-border bg-card overflow-hidden"
       >
-        <div className="h-16 sm:h-20 bg-gradient-primary opacity-15" />
+        {/* Cover Photo */}
+        <div
+          className="h-28 sm:h-36 relative bg-gradient-primary/15 bg-cover bg-center group cursor-pointer"
+          style={coverUrl ? { backgroundImage: `url(${coverUrl})` } : undefined}
+          onClick={() => editing && coverInputRef.current?.click()}
+        >
+          {!coverUrl && !coverPreview && (
+            <div className="absolute inset-0 bg-gradient-primary opacity-15" />
+          )}
+          {coverPreview && (
+            <img src={coverPreview} alt="Cover preview" className="absolute inset-0 w-full h-full object-cover" />
+          )}
+          {editing && (
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-2 text-white text-xs font-medium">
+                <ImageIcon className="w-4 h-4" />
+                কভার পরিবর্তন করুন
+              </div>
+            </div>
+          )}
+          <input
+            ref={coverInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            className="hidden"
+            onChange={handleCoverSelect}
+          />
+        </div>
         <div className="px-4 sm:px-6 pb-4 sm:pb-6 -mt-8 sm:-mt-10 flex items-end gap-3 sm:gap-4">
           <Avatar className="w-14 h-14 sm:w-16 sm:h-16 border-4 border-card shadow-lg shrink-0">
             <AvatarImage src={profile.avatar_url || undefined} className="object-cover" />

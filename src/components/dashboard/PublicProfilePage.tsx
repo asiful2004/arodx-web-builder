@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface ProfileData {
   full_name: string | null;
   avatar_url: string | null;
+  cover_url: string | null;
   bio: string | null;
   social_links: { platform: string; url: string }[];
   created_at: string;
@@ -75,7 +76,7 @@ export default function PublicProfilePage() {
     if (!userId) return;
 
     Promise.all([
-      supabase.from("profiles").select("full_name, avatar_url, bio, social_links, created_at").eq("user_id", userId).single(),
+      supabase.from("profiles").select("full_name, avatar_url, bio, social_links, created_at, cover_url").eq("user_id", userId).single(),
       supabase.from("user_roles").select("role").eq("user_id", userId),
     ]).then(([profileRes, rolesRes]) => {
       if (!profileRes.data) {
@@ -85,6 +86,7 @@ export default function PublicProfilePage() {
         setProfile({
           full_name: data.full_name,
           avatar_url: data.avatar_url,
+          cover_url: data.cover_url || null,
           bio: data.bio || null,
           social_links: Array.isArray(data.social_links) ? data.social_links : [],
           created_at: data.created_at,
@@ -144,7 +146,12 @@ export default function PublicProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           className="rounded-2xl border border-border bg-card overflow-hidden"
         >
-          <div className="h-20 sm:h-24 bg-gradient-primary opacity-15" />
+          <div
+            className="h-28 sm:h-36 bg-cover bg-center relative"
+            style={profile.cover_url ? { backgroundImage: `url(${profile.cover_url})` } : undefined}
+          >
+            {!profile.cover_url && <div className="absolute inset-0 bg-gradient-primary opacity-15" />}
+          </div>
           <div className="px-6 pb-6 -mt-10 flex flex-col items-center text-center">
             <Avatar className="w-20 h-20 border-4 border-card shadow-lg">
               <AvatarImage src={profile.avatar_url || undefined} className="object-cover" />
