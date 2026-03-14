@@ -106,11 +106,19 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         <SheetHeader className="border-b border-border pb-3">
           <div className="flex items-center justify-between">
             <SheetTitle className="text-base">নোটিফিকেশন</SheetTitle>
-            {unreadCount > 0 && (
-              <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
-                সব পঠিত
-              </Button>
-            )}
+            <div className="flex items-center gap-1">
+              {unreadCount > 0 && (
+                <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
+                  সব পঠিত
+                </Button>
+              )}
+              {readNotifications.length > 0 && (
+                <Button variant="ghost" size="sm" className="text-xs h-7 text-destructive hover:text-destructive" onClick={clearRead}>
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  পঠিত মুছুন
+                </Button>
+              )}
+            </div>
           </div>
         </SheetHeader>
 
