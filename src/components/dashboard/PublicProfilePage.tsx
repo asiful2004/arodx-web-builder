@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface ProfileData {
   full_name: string | null;
   avatar_url: string | null;
+  cover_url: string | null;
   bio: string | null;
   social_links: { platform: string; url: string }[];
   created_at: string;
