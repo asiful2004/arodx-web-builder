@@ -58,6 +58,9 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState(profile.full_name || "");
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || "");
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [bio, setBio] = useState("");
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -66,6 +69,7 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [loadingExtra, setLoadingExtra] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const initials = (profile.full_name || user.email || "U")
