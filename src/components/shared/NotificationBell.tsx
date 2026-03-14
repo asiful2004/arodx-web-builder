@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell } from "lucide-react";
+import { Bell, Trash2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface Notification {
   id: string;
@@ -24,6 +25,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const playNotifSound = useCallback(() => {
     if (!audioRef.current) {
@@ -66,6 +68,15 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
   }, [userId, playNotifSound]);
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const readNotifications = notifications.filter((n) => n.is_read);
+
+  const clearRead = async () => {
+    const readIds = readNotifications.map((n) => n.id);
+    if (readIds.length === 0) return;
+    await supabase.from("notifications").delete().in("id", readIds);
+    setNotifications((prev) => prev.filter((n) => !n.is_read));
+    toast({ title: "পঠিত নোটিফিকেশন মুছে ফেলা হয়েছে" });
+  };
 
   const markAllRead = async () => {
     await supabase
@@ -104,11 +115,19 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         <SheetHeader className="border-b border-border pb-3">
           <div className="flex items-center justify-between">
             <SheetTitle className="text-base">নোটিফিকেশন</SheetTitle>
-            {unreadCount > 0 && (
-              <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
-                সব পঠিত
-              </Button>
-            )}
+            <div className="flex items-center gap-1">
+              {unreadCount > 0 && (
+                <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
+                  সব পঠিত
+                </Button>
+              )}
+              {readNotifications.length > 0 && (
+                <Button variant="ghost" size="sm" className="text-xs h-7 text-destructive hover:text-destructive" onClick={clearRead}>
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  পঠিত মুছুন
+                </Button>
+              )}
+            </div>
           </div>
         </SheetHeader>
 
