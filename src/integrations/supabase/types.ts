@@ -192,6 +192,7 @@ export type Database = {
       device_login_requests: {
         Row: {
           approved_by: string | null
+          auth_token: string | null
           created_at: string
           device_info: Json
           expires_at: string
@@ -202,16 +203,18 @@ export type Database = {
         }
         Insert: {
           approved_by?: string | null
+          auth_token?: string | null
           created_at?: string
           device_info?: Json
           expires_at?: string
           id?: string
           status?: string
           token?: string
-          user_email: string
+          user_email?: string
         }
         Update: {
           approved_by?: string | null
+          auth_token?: string | null
           created_at?: string
           device_info?: Json
           expires_at?: string
