@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell, Trash2 } from "lucide-react";
+import { Bell, Trash2, CheckCheck } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -119,55 +119,50 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-80 sm:w-96 flex flex-col">
-        <SheetHeader className="border-b border-border pb-3">
-          <div className="flex flex-col gap-2">
-            <SheetTitle className="text-base">নোটিফিকেশন</SheetTitle>
-            <div className="flex flex-wrap items-center gap-1">
-              {unreadCount > 0 && (
-                <Button variant="ghost" size="sm" className="text-[11px] h-7 px-2" onClick={markAllRead}>
-                  সব পঠিত
-                </Button>
-              )}
-              {readNotifications.length > 0 && (
-                <Button variant="ghost" size="sm" className="text-[11px] h-7 px-2 text-destructive hover:text-destructive" onClick={clearRead}>
-                  <Trash2 className="h-3 w-3 mr-1" />
-                  পঠিত মুছুন
-                </Button>
-              )}
-              {notifications.length > 0 && (
-                <Button variant="ghost" size="sm" className="text-[11px] h-7 px-2 text-destructive hover:text-destructive" onClick={clearAll}>
-                  <Trash2 className="h-3 w-3 mr-1" />
-                  সব মুছুন
-                </Button>
-              )}
-            </div>
+      <SheetContent side="right" className="w-[85vw] max-w-96 flex flex-col p-0">
+        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-border">
+          <SheetTitle className="text-base font-semibold">নোটিফিকেশন</SheetTitle>
+          <div className="flex items-center gap-1">
+            {unreadCount > 0 && (
+              <Button variant="outline" size="sm" className="text-[11px] h-7 px-2 gap-1" onClick={markAllRead}>
+                <CheckCheck className="h-3 w-3" />
+                পঠিত
+              </Button>
+            )}
+            {notifications.length > 0 && (
+              <Button variant="outline" size="sm" className="text-[11px] h-7 px-2 gap-1 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive" onClick={clearAll}>
+                <Trash2 className="h-3 w-3" />
+                মুছুন
+              </Button>
+            )}
           </div>
-        </SheetHeader>
+        </div>
 
-        <div className="flex-1 overflow-y-auto py-2">
+        <div className="flex-1 overflow-y-auto">
           {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center py-16">
-              <Bell className="w-10 h-10 text-muted-foreground/30 mb-3" />
-              <p className="text-sm text-muted-foreground">কোনো নোটিফিকেশন নেই</p>
+            <div className="flex flex-col items-center justify-center h-full text-center py-16 px-4">
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                <Bell className="w-6 h-6 text-muted-foreground/40" />
+              </div>
+              <p className="text-sm font-medium text-muted-foreground">কোনো নোটিফিকেশন নেই</p>
               <p className="text-xs text-muted-foreground/60 mt-1">নতুন আপডেট আসলে এখানে দেখা যাবে</p>
             </div>
           ) : (
-            <div className="space-y-1">
+            <div className="divide-y divide-border">
               {notifications.map((n) => (
                 <div
                   key={n.id}
                   onClick={() => handleNotifClick(n)}
-                  className={`px-3 py-3 rounded-lg transition-colors cursor-pointer hover:bg-accent/50 ${
+                  className={`px-4 py-3 transition-colors cursor-pointer hover:bg-accent/50 ${
                     n.is_read ? "bg-transparent" : "bg-primary/5"
                   }`}
                 >
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start gap-2.5">
                     {!n.is_read && <span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />}
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-foreground">{n.title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{n.body}</p>
-                      <p className="text-[10px] text-muted-foreground/60 mt-1">
+                      <p className="text-sm font-medium text-foreground leading-snug">{n.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{n.body}</p>
+                      <p className="text-[10px] text-muted-foreground/50 mt-1">
                         {new Date(n.created_at).toLocaleString("bn-BD")}
                       </p>
                     </div>
