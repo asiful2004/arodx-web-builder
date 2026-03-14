@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell } from "lucide-react";
+import { Bell, Trash2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface Notification {
   id: string;
