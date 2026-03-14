@@ -164,6 +164,8 @@ export default function DashboardLayout() {
               </Link>
             </div>
 
+            <div className="flex items-center gap-1">
+              <OnlineMembersTrigger />
             <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
