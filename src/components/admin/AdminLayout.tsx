@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
+import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
 
 interface Profile {
   full_name: string | null;
