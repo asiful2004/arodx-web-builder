@@ -136,25 +136,22 @@ function PanelContent({ members }: { members: OnlineMember[] }) {
 
 export default function OnlineMembersPanel() {
   const { onlineMembers } = useOnlinePresence();
-  const isMobile = useIsMobile();
-  const [open, setOpen] = useState(false);
 
-  // Desktop: inline sidebar panel
-  if (!isMobile) {
-    return (
-      <div className="w-56 shrink-0 border-l border-border bg-card/50 hidden lg:flex flex-col">
-        <div className="h-14 flex items-center px-4 border-b border-border">
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-semibold text-foreground">মেম্বারস</span>
-          </div>
+  // Desktop only: inline sidebar panel (mobile uses OnlineMembersTrigger in header)
+  return (
+    <div className="w-56 shrink-0 border-l border-border bg-card/50 hidden lg:flex flex-col">
+      <div className="h-14 flex items-center px-4 border-b border-border">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-semibold text-foreground">মেম্বারস</span>
         </div>
-        <ScrollArea className="flex-1 p-2">
-          <PanelContent members={onlineMembers} />
-        </ScrollArea>
       </div>
-    );
-  }
+      <ScrollArea className="flex-1 p-2">
+        <PanelContent members={onlineMembers} />
+      </ScrollArea>
+    </div>
+  );
+}
 
   // Mobile: button + sheet
   return (
