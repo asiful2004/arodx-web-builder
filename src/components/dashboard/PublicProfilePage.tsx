@@ -146,7 +146,12 @@ export default function PublicProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           className="rounded-2xl border border-border bg-card overflow-hidden"
         >
-          <div className="h-20 sm:h-24 bg-gradient-primary opacity-15" />
+          <div
+            className="h-28 sm:h-36 bg-cover bg-center relative"
+            style={profile.cover_url ? { backgroundImage: `url(${profile.cover_url})` } : undefined}
+          >
+            {!profile.cover_url && <div className="absolute inset-0 bg-gradient-primary opacity-15" />}
+          </div>
           <div className="px-6 pb-6 -mt-10 flex flex-col items-center text-center">
             <Avatar className="w-20 h-20 border-4 border-card shadow-lg">
               <AvatarImage src={profile.avatar_url || undefined} className="object-cover" />
