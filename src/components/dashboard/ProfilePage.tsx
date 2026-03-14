@@ -87,12 +87,13 @@ export default function ProfilePage() {
   useEffect(() => {
     supabase
       .from("profiles")
-      .select("bio, social_links")
+      .select("bio, social_links, cover_url")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
         if (data) {
           setBio((data as any).bio || "");
+          setCoverUrl((data as any).cover_url || null);
           const links = (data as any).social_links;
           setSocialLinks(Array.isArray(links) ? links : []);
         }
