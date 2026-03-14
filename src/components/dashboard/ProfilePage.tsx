@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useOutletContext } from "react-router-dom";
 import { User as UserType } from "@supabase/supabase-js";
-import { User, Mail, Calendar, Clock, Edit3, Save, X } from "lucide-react";
+import { User, Mail, Calendar, Clock, Edit3, Save, X, Camera, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
