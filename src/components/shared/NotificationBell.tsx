@@ -135,6 +135,12 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                   পঠিত মুছুন
                 </Button>
               )}
+              {notifications.length > 0 && (
+                <Button variant="ghost" size="sm" className="text-xs h-7 text-destructive hover:text-destructive" onClick={clearAll}>
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  সব মুছুন
+                </Button>
+              )}
             </div>
           </div>
         </SheetHeader>
