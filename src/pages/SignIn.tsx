@@ -418,7 +418,13 @@ const SignIn = () => {
                     <p className="text-xs text-muted-foreground">
                       আপনার ফোনের সেটিংস → নিরাপত্তা → ডিভাইস অনুমোদন থেকে এই QR কোড স্ক্যান করুন
                     </p>
-                    <p className="text-[10px] text-muted-foreground/70">৫ মিনিটের মধ্যে স্ক্যান করুন</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                        <Timer className="w-3 h-3" />
+                        <span>{Math.floor(qrTimeLeft / 60)}:{String(qrTimeLeft % 60).padStart(2, '0')}</span>
+                      </div>
+                      <Progress value={(qrTimeLeft / 300) * 100} className="h-1 w-32 mx-auto" />
+                    </div>
                   </div>
                 </div>
               ) : null}
