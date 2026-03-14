@@ -78,6 +78,14 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
     toast({ title: "পঠিত নোটিফিকেশন মুছে ফেলা হয়েছে" });
   };
 
+  const clearAll = async () => {
+    if (notifications.length === 0) return;
+    const allIds = notifications.map((n) => n.id);
+    await supabase.from("notifications").delete().in("id", allIds);
+    setNotifications([]);
+    toast({ title: "সব নোটিফিকেশন মুছে ফেলা হয়েছে" });
+  };
+
   const markAllRead = async () => {
     await supabase
       .from("notifications")
