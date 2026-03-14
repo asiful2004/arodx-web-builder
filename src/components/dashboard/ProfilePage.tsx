@@ -300,15 +300,17 @@ export default function ProfilePage() {
     setAvatarUrl(profile.avatar_url || "");
     setAvatarFile(null);
     setAvatarPreview(null);
-    // Re-fetch to restore bio/social from DB
+    setCoverFile(null);
+    setCoverPreview(null);
     supabase
       .from("profiles")
-      .select("bio, social_links")
+      .select("bio, social_links, cover_url")
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
         if (data) {
           setBio((data as any).bio || "");
+          setCoverUrl((data as any).cover_url || null);
           const links = (data as any).social_links;
           setSocialLinks(Array.isArray(links) ? links : []);
         }
