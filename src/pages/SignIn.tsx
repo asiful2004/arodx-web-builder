@@ -9,7 +9,8 @@ import { lovable } from "@/integrations/lovable";
 import { useToast } from "@/hooks/use-toast";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
 import { QRCodeSVG } from "qrcode.react";
-import { Loader2, Smartphone, RefreshCw, QrCode, Mail } from "lucide-react";
+import { Loader2, Smartphone, RefreshCw, QrCode, Mail, Timer } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 type LoginMode = "email" | "qr";
 
