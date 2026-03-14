@@ -57,12 +57,37 @@ const SignIn = () => {
       setQrLoginToken(data.token);
       setQrLoginWaiting(true);
       setQrLoginExpired(false);
+      setQrTimeLeft(300);
     } catch (err: any) {
       toast({ title: "QR তৈরি ব্যর্থ", description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
   }, [toast]);
+
+  // Countdown timer for QR login
+  useEffect(() => {
+    if (!qrLoginWaiting || qrLoginExpired) return;
+    const interval = setInterval(() => {
+      setQrTimeLeft((prev) => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [qrLoginWaiting, qrLoginExpired]);
+
+  // Countdown timer for device approval QR
+  useEffect(() => {
+    if (!waitingApproval || qrExpired) return;
+    const interval = setInterval(() => {
+      setQrDeviceTimeLeft((prev) => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [waitingApproval, qrExpired]);
 
   // Auto-generate QR when switching to QR mode
   useEffect(() => {
