@@ -35,6 +35,7 @@ export default function LiveChat() {
   const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const [showTyping, setShowTyping] = useState(false);
   const aiReplyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [guestName, setGuestName] = useState("");
   const [started, setStarted] = useState(false);
@@ -135,6 +136,7 @@ export default function LiveChat() {
           setMessages((prev) => [...prev, msg]);
           if (msg.sender_id) fetchSenderProfiles([msg]);
           if (msg.sender_type === "admin") {
+            setShowTyping(false);
             playNotifSound();
             if (!open) setUnread((c) => c + 1);
           }
@@ -231,7 +233,7 @@ export default function LiveChat() {
       attachment_url: attachUrl,
     });
     setSending(false);
-
+    setShowTyping(true);
     // Start AI auto-reply timer
     if (sessionId) triggerAiReply(sessionId);
   };
@@ -484,6 +486,34 @@ export default function LiveChat() {
                       </div>
                     );
                   })}
+
+                  {/* Typing indicator */}
+                  <AnimatePresence>
+                    {showTyping && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex gap-2 flex-row"
+                      >
+                        <Avatar className="h-7 w-7 shrink-0 mt-0.5">
+                          <AvatarImage src={aiRobotAvatar} />
+                          <AvatarFallback className="text-[10px] font-bold bg-accent text-accent-foreground">AX</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col items-start">
+                          <p className="text-[10px] mb-0.5 text-muted-foreground">টাইপ করছে...</p>
+                          <div className="px-4 py-2.5 rounded-xl bg-accent text-accent-foreground rounded-tl-sm">
+                            <div className="flex items-center gap-1">
+                              <span className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "0ms", animationDuration: "1s" }} />
+                              <span className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "150ms", animationDuration: "1s" }} />
+                              <span className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "300ms", animationDuration: "1s" }} />
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Input Area */}
