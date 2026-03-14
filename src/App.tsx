@@ -15,6 +15,7 @@ import ResetPassword from "./pages/ResetPassword";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import OverviewPage from "./components/dashboard/OverviewPage";
 import ProfilePage from "./components/dashboard/ProfilePage";
+import PublicProfilePage from "./components/dashboard/PublicProfilePage";
 import OrdersPage from "./components/dashboard/OrdersPage";
 import BusinessDetailPage from "./components/dashboard/BusinessDetailPage";
 import BusinessConfigPage from "./components/dashboard/BusinessConfigPage";
