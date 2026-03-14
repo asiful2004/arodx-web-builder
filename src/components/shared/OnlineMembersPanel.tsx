@@ -136,53 +136,20 @@ function PanelContent({ members }: { members: OnlineMember[] }) {
 
 export default function OnlineMembersPanel() {
   const { onlineMembers } = useOnlinePresence();
-  const isMobile = useIsMobile();
-  const [open, setOpen] = useState(false);
 
-  // Desktop: inline sidebar panel
-  if (!isMobile) {
-    return (
-      <div className="w-56 shrink-0 border-l border-border bg-card/50 hidden lg:flex flex-col">
-        <div className="h-14 flex items-center px-4 border-b border-border">
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-semibold text-foreground">মেম্বারস</span>
-          </div>
-        </div>
-        <ScrollArea className="flex-1 p-2">
-          <PanelContent members={onlineMembers} />
-        </ScrollArea>
-      </div>
-    );
-  }
-
-  // Mobile: button + sheet
+  // Desktop only: inline sidebar panel (mobile uses OnlineMembersTrigger in header)
   return (
-    <>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="relative">
-            <Users className="h-5 w-5" />
-            {onlineMembers.length > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">
-                {onlineMembers.length}
-              </span>
-            )}
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="right" className="w-72 flex flex-col">
-          <SheetHeader className="border-b border-border pb-3">
-            <SheetTitle className="text-base flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              অনলাইন মেম্বারস
-            </SheetTitle>
-          </SheetHeader>
-          <ScrollArea className="flex-1 py-3">
-            <PanelContent members={onlineMembers} />
-          </ScrollArea>
-        </SheetContent>
-      </Sheet>
-    </>
+    <div className="w-56 shrink-0 border-l border-border bg-card/50 hidden lg:flex flex-col">
+      <div className="h-14 flex items-center px-4 border-b border-border">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-semibold text-foreground">মেম্বারস</span>
+        </div>
+      </div>
+      <ScrollArea className="flex-1 p-2">
+        <PanelContent members={onlineMembers} />
+      </ScrollArea>
+    </div>
   );
 }
 
