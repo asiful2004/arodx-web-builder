@@ -4,7 +4,7 @@ import { useOutletContext } from "react-router-dom";
 import { User as UserType } from "@supabase/supabase-js";
 import {
   User, Mail, Calendar, Clock, Edit3, Save, X, Camera, Loader2,
-  FileText, Link2, Plus, Trash2, Globe, Instagram, Facebook, Github, Twitter, Linkedin, Youtube
+  FileText, Link2, Plus, Trash2, Globe, Instagram, Facebook, Github, Twitter, Linkedin, Youtube, ImageIcon
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
