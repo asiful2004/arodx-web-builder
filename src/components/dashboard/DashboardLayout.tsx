@@ -8,6 +8,7 @@ import { ArrowLeft, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
 
 interface Profile {
   full_name: string | null;
@@ -163,6 +164,8 @@ export default function DashboardLayout() {
               </Link>
             </div>
 
+            <div className="flex items-center gap-1">
+              <OnlineMembersTrigger />
             <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
@@ -220,12 +223,15 @@ export default function DashboardLayout() {
                 </div>
               </SheetContent>
             </Sheet>
+            </div>
           </header>
 
           <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
             <Outlet context={{ user, profile, setProfile, isAdmin }} />
           </main>
         </div>
+
+        <OnlineMembersPanel />
       </div>
     </SidebarProvider>
   );
