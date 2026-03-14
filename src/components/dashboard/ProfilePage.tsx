@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useOutletContext } from "react-router-dom";
 import { User as UserType } from "@supabase/supabase-js";
-import { User, Mail, Calendar, Clock, Edit3, Save, X } from "lucide-react";
+import { User, Mail, Calendar, Clock, Edit3, Save, X, Camera, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -32,7 +32,11 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState(profile.full_name || "");
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || "");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const initials = (profile.full_name || user.email || "U")
@@ -46,15 +50,68 @@ export default function ProfilePage() {
     (Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24)
   );
 
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "শুধু ইমেজ ফাইল আপলোড করুন", variant: "destructive" });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "ফাইল সাইজ ২MB এর বেশি হতে পারবে না", variant: "destructive" });
+      return;
+    }
+
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
+
+  const uploadAvatar = async (): Promise<string | null> => {
+    if (!avatarFile) return avatarUrl || null;
+
+    setUploading(true);
+    try {
+      const ext = avatarFile.name.split(".").pop();
+      const filePath = `${user.id}/avatar-${Date.now()}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, avatarFile, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error: any) {
+      toast({ title: "আপলোড ব্যর্থ", description: error.message, variant: "destructive" });
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
+      const newAvatarUrl = await uploadAvatar();
+      if (avatarFile && !newAvatarUrl) {
+        setSaving(false);
+        return;
+      }
+
       const { error } = await supabase
         .from("profiles")
-        .update({ full_name: fullName, avatar_url: avatarUrl })
+        .update({ full_name: fullName, avatar_url: newAvatarUrl })
         .eq("user_id", user.id);
       if (error) throw error;
-      setProfile({ full_name: fullName, avatar_url: avatarUrl });
+      setProfile({ full_name: fullName, avatar_url: newAvatarUrl });
+      setAvatarUrl(newAvatarUrl || "");
+      setAvatarFile(null);
+      setAvatarPreview(null);
       setEditing(false);
       toast({ title: "প্রোফাইল আপডেট হয়েছে!" });
     } catch (error: any) {
@@ -110,15 +167,40 @@ export default function ProfilePage() {
         <div className="p-6">
           {editing ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+              {/* Avatar Upload */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-2 block">প্রোফাইল ছবি</label>
+                <div className="flex items-center gap-4">
+                  <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                    <Avatar className="w-16 h-16 border-2 border-dashed border-primary/40 group-hover:border-primary transition-colors">
+                      <AvatarImage src={avatarPreview || avatarUrl || undefined} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold">{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      {uploading ? (
+                        <Loader2 className="w-5 h-5 text-white animate-spin" />
+                      ) : (
+                        <Camera className="w-5 h-5 text-white" />
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={handleAvatarSelect}
+                    />
+                  </div>
+                  <div className="text-xs text-muted-foreground space-y-0.5">
+                    <p>ক্লিক করে ছবি আপলোড করুন</p>
+                    <p>PNG, JPG, WebP • সর্বোচ্চ ২MB</p>
+                  </div>
+                </div>
+              </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">পুরো নাম</label>
                 <Input value={fullName} onChange={(e) => setFullName(e.target.value)}
                   placeholder="আপনার নাম লিখুন" className="bg-secondary/50 border-border rounded-xl" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">অ্যাভাটার URL</label>
-                <Input value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)}
-                  placeholder="https://example.com/avatar.jpg" className="bg-secondary/50 border-border rounded-xl" />
               </div>
               <div className="flex gap-3 pt-2">
                 <Button onClick={handleSave} disabled={saving} size="sm"
@@ -130,6 +212,8 @@ export default function ProfilePage() {
                   setEditing(false);
                   setFullName(profile.full_name || "");
                   setAvatarUrl(profile.avatar_url || "");
+                  setAvatarFile(null);
+                  setAvatarPreview(null);
                 }} className="gap-1.5 rounded-xl">
                   <X className="w-3.5 h-3.5" /> বাতিল
                 </Button>
