@@ -88,6 +88,7 @@ export default function StaffLayout() {
               </Link>
             </div>
             <div className="flex items-center gap-2">
+              <OnlineMembersTrigger />
               {canSendNotif && <SendNotificationDialog />}
               <NotificationBell userId={user.id} />
             </div>
