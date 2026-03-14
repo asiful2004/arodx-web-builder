@@ -58,8 +58,8 @@ export default function ProfilePage() {
       toast({ title: "শুধু ইমেজ ফাইল আপলোড করুন", variant: "destructive" });
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      toast({ title: "ফাইল সাইজ ২MB এর বেশি হতে পারবে না", variant: "destructive" });
+    if (file.size > 100 * 1024 * 1024) {
+      toast({ title: "ফাইল সাইজ ১০০MB এর বেশি হতে পারবে না", variant: "destructive" });
       return;
     }
 
@@ -193,7 +193,8 @@ export default function ProfilePage() {
                   </div>
                   <div className="text-xs text-muted-foreground space-y-0.5">
                     <p>ক্লিক করে ছবি আপলোড করুন</p>
-                    <p>PNG, JPG, WebP • সর্বোচ্চ ২MB</p>
+                    <p>PNG, JPG, WebP • সর্বোচ্চ ১০০MB</p>
+                    <p>সেরা রেজাল্টের জন্য <strong>500×500px</strong> স্কয়ার ইমেজ দিন</p>
                   </div>
                 </div>
               </div>
