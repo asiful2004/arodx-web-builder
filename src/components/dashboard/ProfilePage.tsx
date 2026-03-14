@@ -212,6 +212,8 @@ export default function ProfilePage() {
                   setEditing(false);
                   setFullName(profile.full_name || "");
                   setAvatarUrl(profile.avatar_url || "");
+                  setAvatarFile(null);
+                  setAvatarPreview(null);
                 }} className="gap-1.5 rounded-xl">
                   <X className="w-3.5 h-3.5" /> বাতিল
                 </Button>
