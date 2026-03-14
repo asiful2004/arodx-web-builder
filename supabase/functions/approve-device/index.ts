@@ -79,8 +79,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Verify the approver owns this email
-    if (user.email !== request.user_email) {
+    // For QR-only login (user_email is 'pending'), allow any authenticated user to approve
+    // For email-based requests, verify the approver owns this email
+    if (request.user_email !== "pending" && user.email !== request.user_email) {
       return new Response(JSON.stringify({ error: "You can only approve your own device requests" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -101,10 +102,33 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Approve the request
+    // Generate a magic link for the new device to sign in
+    const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+      type: "magiclink",
+      email: user.email!,
+    });
+
+    if (linkError || !linkData) {
+      return new Response(JSON.stringify({ error: "Failed to generate auth token" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Extract the token_hash from the generated link
+    const actionLink = linkData.properties?.action_link || "";
+    const url = new URL(actionLink);
+    const tokenHash = url.searchParams.get("token_hash") || url.hash?.split("token_hash=")[1]?.split("&")[0] || "";
+
+    // Approve the request and store the auth token
     const { error: updateError } = await supabaseAdmin
       .from("device_login_requests")
-      .update({ status: "approved", approved_by: user.id })
+      .update({
+        status: "approved",
+        approved_by: user.id,
+        user_email: user.email!,
+        auth_token: tokenHash,
+      })
       .eq("id", request.id);
 
     if (updateError) {
