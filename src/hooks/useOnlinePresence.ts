@@ -43,7 +43,7 @@ export function useOnlinePresence() {
 
   // Realtime Presence
   useEffect(() => {
-    if (!user || !myProfile.full_name === undefined) return;
+    if (!user) return;
 
     const channel = supabase.channel("online-users", {
       config: { presence: { key: user.id } },
