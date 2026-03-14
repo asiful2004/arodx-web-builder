@@ -73,15 +73,18 @@ function groupByRole(members: OnlineMember[]) {
   return sorted;
 }
 
-function MemberItem({ member }: { member: OnlineMember }) {
+function MemberItem({ member, onNavigate }: { member: OnlineMember; onNavigate?: (path: string) => void }) {
   const primaryRole = getPrimaryRole(member.roles);
   const colorClass = ROLE_COLORS[primaryRole] || ROLE_COLORS.user;
 
   return (
-    <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-accent/50 transition-colors group">
+    <div
+      className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+      onClick={() => onNavigate?.(`/dashboard/profile/${member.user_id}`)}
+    >
       <div className="relative">
         <Avatar className="h-8 w-8">
-          <AvatarImage src={member.avatar_url || undefined} />
+          <AvatarImage src={member.avatar_url || undefined} className="object-cover" />
           <AvatarFallback className="text-[10px] bg-muted text-muted-foreground">
             {getInitials(member.full_name)}
           </AvatarFallback>
@@ -92,6 +95,9 @@ function MemberItem({ member }: { member: OnlineMember }) {
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-foreground truncate leading-tight">
           {member.full_name || "Unknown"}
+        </p>
+        <p className="text-[10px] text-muted-foreground truncate">
+          {ROLE_LABELS[primaryRole] || primaryRole}
         </p>
       </div>
     </div>
