@@ -252,6 +252,7 @@ const SignIn = () => {
       setQrToken(token);
       setWaitingApproval(true);
       setQrExpired(false);
+      setQrDeviceTimeLeft(300);
     } catch (err: any) {
       toast({ title: "QR তৈরি ব্যর্থ", description: err.message, variant: "destructive" });
     }
