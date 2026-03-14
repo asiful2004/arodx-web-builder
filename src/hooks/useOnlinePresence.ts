@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export interface OnlineMember {
   user_id: string;
@@ -13,15 +14,17 @@ export interface OnlineMember {
 export function useOnlinePresence() {
   const { user } = useAuth();
   const [onlineMembers, setOnlineMembers] = useState<OnlineMember[]>([]);
-  const [myProfile, setMyProfile] = useState<{ full_name: string | null; avatar_url: string | null }>({
-    full_name: null,
-    avatar_url: null,
-  });
-  const [myRoles, setMyRoles] = useState<string[]>([]);
+  const [myProfile, setMyProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
+  const [myRoles, setMyRoles] = useState<string[] | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   // Fetch own profile & roles
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setMyProfile(null);
+      setMyRoles(null);
+      return;
+    }
 
     supabase
       .from("profiles")
@@ -29,7 +32,7 @@ export function useOnlinePresence() {
       .eq("user_id", user.id)
       .single()
       .then(({ data }) => {
-        if (data) setMyProfile(data);
+        setMyProfile(data ?? { full_name: null, avatar_url: null });
       });
 
     supabase
@@ -37,17 +40,19 @@ export function useOnlinePresence() {
       .select("role")
       .eq("user_id", user.id)
       .then(({ data }) => {
-        if (data) setMyRoles(data.map((r: any) => r.role));
+        setMyRoles(data ? data.map((r: any) => r.role) : []);
       });
   }, [user]);
 
-  // Realtime Presence
+  // Realtime Presence — only start after profile+roles are loaded
   useEffect(() => {
-    if (!user) return;
+    if (!user || myProfile === null || myRoles === null) return;
 
     const channel = supabase.channel("online-users", {
       config: { presence: { key: user.id } },
     });
+
+    channelRef.current = channel;
 
     channel
       .on("presence", { event: "sync" }, () => {
@@ -83,8 +88,9 @@ export function useOnlinePresence() {
     return () => {
       channel.untrack();
       supabase.removeChannel(channel);
+      channelRef.current = null;
     };
-  }, [user, myProfile.full_name, myProfile.avatar_url, myRoles]);
+  }, [user, myProfile, myRoles]);
 
   return { onlineMembers };
 }
