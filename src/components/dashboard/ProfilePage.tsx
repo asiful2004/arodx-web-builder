@@ -96,6 +96,42 @@ export default function ProfilePage() {
       });
   }, [user.id]);
 
+  const resizeImage = (file: File, maxSize: number): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      // GIFs should not be resized (preserve animation)
+      if (file.type === "image/gif") {
+        resolve(file);
+        return;
+      }
+
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement("canvas");
+        let { width, height } = img;
+
+        // Crop to square from center, then resize
+        const min = Math.min(width, height);
+        const sx = (width - min) / 2;
+        const sy = (height - min) / 2;
+
+        canvas.width = maxSize;
+        canvas.height = maxSize;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, sx, sy, min, min, 0, 0, maxSize, maxSize);
+
+        canvas.toBlob(
+          (blob) => (blob ? resolve(blob) : reject(new Error("Resize failed"))),
+          "image/webp",
+          0.85
+        );
+      };
+      img.onerror = () => reject(new Error("Image load failed"));
+      img.src = url;
+    });
+  };
+
   const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -118,12 +154,18 @@ export default function ProfilePage() {
 
     setUploading(true);
     try {
-      const ext = avatarFile.name.split(".").pop();
+      // Resize non-GIF images to 500x500 WebP
+      const isGif = avatarFile.type === "image/gif";
+      const processedBlob = isGif ? avatarFile : await resizeImage(avatarFile, 500);
+      const ext = isGif ? "gif" : "webp";
       const filePath = `${user.id}/avatar-${Date.now()}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, avatarFile, { upsert: true });
+        .upload(filePath, processedBlob, {
+          upsert: true,
+          contentType: isGif ? "image/gif" : "image/webp",
+        });
 
       if (uploadError) throw uploadError;
 
