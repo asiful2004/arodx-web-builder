@@ -35,6 +35,8 @@ const SignIn = () => {
   const [qrLoginToken, setQrLoginToken] = useState<string | null>(null);
   const [qrLoginWaiting, setQrLoginWaiting] = useState(false);
   const [qrLoginExpired, setQrLoginExpired] = useState(false);
+  const [qrTimeLeft, setQrTimeLeft] = useState(300); // 5 minutes in seconds
+  const [qrDeviceTimeLeft, setQrDeviceTimeLeft] = useState(300);
 
   // Generate QR for QR-only login
   const generateQrLogin = useCallback(async () => {
