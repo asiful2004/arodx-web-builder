@@ -8,6 +8,7 @@ import { ArrowLeft, Bell } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
 
 interface Profile {
   full_name: string | null;
