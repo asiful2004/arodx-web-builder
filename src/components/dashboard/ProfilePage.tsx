@@ -32,7 +32,11 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState(profile.full_name || "");
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || "");
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const initials = (profile.full_name || user.email || "U")
@@ -46,15 +50,68 @@ export default function ProfilePage() {
     (Date.now() - new Date(user.created_at).getTime()) / (1000 * 60 * 60 * 24)
   );
 
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "শুধু ইমেজ ফাইল আপলোড করুন", variant: "destructive" });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "ফাইল সাইজ ২MB এর বেশি হতে পারবে না", variant: "destructive" });
+      return;
+    }
+
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
+
+  const uploadAvatar = async (): Promise<string | null> => {
+    if (!avatarFile) return avatarUrl || null;
+
+    setUploading(true);
+    try {
+      const ext = avatarFile.name.split(".").pop();
+      const filePath = `${user.id}/avatar-${Date.now()}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, avatarFile, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error: any) {
+      toast({ title: "আপলোড ব্যর্থ", description: error.message, variant: "destructive" });
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
+      const newAvatarUrl = await uploadAvatar();
+      if (avatarFile && !newAvatarUrl) {
+        setSaving(false);
+        return;
+      }
+
       const { error } = await supabase
         .from("profiles")
-        .update({ full_name: fullName, avatar_url: avatarUrl })
+        .update({ full_name: fullName, avatar_url: newAvatarUrl })
         .eq("user_id", user.id);
       if (error) throw error;
-      setProfile({ full_name: fullName, avatar_url: avatarUrl });
+      setProfile({ full_name: fullName, avatar_url: newAvatarUrl });
+      setAvatarUrl(newAvatarUrl || "");
+      setAvatarFile(null);
+      setAvatarPreview(null);
       setEditing(false);
       toast({ title: "প্রোফাইল আপডেট হয়েছে!" });
     } catch (error: any) {
