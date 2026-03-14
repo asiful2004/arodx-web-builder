@@ -78,6 +78,14 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
     toast({ title: "পঠিত নোটিফিকেশন মুছে ফেলা হয়েছে" });
   };
 
+  const clearAll = async () => {
+    if (notifications.length === 0) return;
+    const allIds = notifications.map((n) => n.id);
+    await supabase.from("notifications").delete().in("id", allIds);
+    setNotifications([]);
+    toast({ title: "সব নোটিফিকেশন মুছে ফেলা হয়েছে" });
+  };
+
   const markAllRead = async () => {
     await supabase
       .from("notifications")
@@ -125,6 +133,12 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
                 <Button variant="ghost" size="sm" className="text-xs h-7 text-destructive hover:text-destructive" onClick={clearRead}>
                   <Trash2 className="h-3 w-3 mr-1" />
                   পঠিত মুছুন
+                </Button>
+              )}
+              {notifications.length > 0 && (
+                <Button variant="ghost" size="sm" className="text-xs h-7 text-destructive hover:text-destructive" onClick={clearAll}>
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  সব মুছুন
                 </Button>
               )}
             </div>
