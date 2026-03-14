@@ -25,6 +25,7 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const playNotifSound = useCallback(() => {
     if (!audioRef.current) {
