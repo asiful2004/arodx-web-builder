@@ -264,6 +264,7 @@ export default function AdminLayout() {
             </div>
 
             <div className="flex items-center gap-2">
+              <OnlineMembersTrigger />
               <SendNotificationDialog />
               {/* Persistent chat alert */}
               {unansweredSessions.size > 0 && !location.pathname.includes("/admin/chat") && (
