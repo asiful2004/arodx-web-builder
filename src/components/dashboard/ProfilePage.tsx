@@ -167,15 +167,40 @@ export default function ProfilePage() {
         <div className="p-6">
           {editing ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+              {/* Avatar Upload */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-2 block">প্রোফাইল ছবি</label>
+                <div className="flex items-center gap-4">
+                  <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                    <Avatar className="w-16 h-16 border-2 border-dashed border-primary/40 group-hover:border-primary transition-colors">
+                      <AvatarImage src={avatarPreview || avatarUrl || undefined} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold">{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      {uploading ? (
+                        <Loader2 className="w-5 h-5 text-white animate-spin" />
+                      ) : (
+                        <Camera className="w-5 h-5 text-white" />
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={handleAvatarSelect}
+                    />
+                  </div>
+                  <div className="text-xs text-muted-foreground space-y-0.5">
+                    <p>ক্লিক করে ছবি আপলোড করুন</p>
+                    <p>PNG, JPG, WebP • সর্বোচ্চ ২MB</p>
+                  </div>
+                </div>
+              </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">পুরো নাম</label>
                 <Input value={fullName} onChange={(e) => setFullName(e.target.value)}
                   placeholder="আপনার নাম লিখুন" className="bg-secondary/50 border-border rounded-xl" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">অ্যাভাটার URL</label>
-                <Input value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)}
-                  placeholder="https://example.com/avatar.jpg" className="bg-secondary/50 border-border rounded-xl" />
               </div>
               <div className="flex gap-3 pt-2">
                 <Button onClick={handleSave} disabled={saving} size="sm"
