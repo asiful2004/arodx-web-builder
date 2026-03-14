@@ -486,6 +486,34 @@ export default function LiveChat() {
                       </div>
                     );
                   })}
+
+                  {/* Typing indicator */}
+                  <AnimatePresence>
+                    {showTyping && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex gap-2 flex-row"
+                      >
+                        <Avatar className="h-7 w-7 shrink-0 mt-0.5">
+                          <AvatarImage src={aiRobotAvatar} />
+                          <AvatarFallback className="text-[10px] font-bold bg-accent text-accent-foreground">AX</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col items-start">
+                          <p className="text-[10px] mb-0.5 text-muted-foreground">টাইপ করছে...</p>
+                          <div className="px-4 py-2.5 rounded-xl bg-accent text-accent-foreground rounded-tl-sm">
+                            <div className="flex items-center gap-1">
+                              <span className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "0ms", animationDuration: "1s" }} />
+                              <span className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "150ms", animationDuration: "1s" }} />
+                              <span className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "300ms", animationDuration: "1s" }} />
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Input Area */}
