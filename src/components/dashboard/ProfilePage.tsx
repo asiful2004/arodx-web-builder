@@ -325,7 +325,34 @@ export default function ProfilePage() {
         animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl border border-border bg-card overflow-hidden"
       >
-        <div className="h-16 sm:h-20 bg-gradient-primary opacity-15" />
+        {/* Cover Photo */}
+        <div
+          className="h-28 sm:h-36 relative bg-gradient-primary/15 bg-cover bg-center group cursor-pointer"
+          style={coverUrl ? { backgroundImage: `url(${coverUrl})` } : undefined}
+          onClick={() => editing && coverInputRef.current?.click()}
+        >
+          {!coverUrl && !coverPreview && (
+            <div className="absolute inset-0 bg-gradient-primary opacity-15" />
+          )}
+          {coverPreview && (
+            <img src={coverPreview} alt="Cover preview" className="absolute inset-0 w-full h-full object-cover" />
+          )}
+          {editing && (
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-2 text-white text-xs font-medium">
+                <ImageIcon className="w-4 h-4" />
+                কভার পরিবর্তন করুন
+              </div>
+            </div>
+          )}
+          <input
+            ref={coverInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            className="hidden"
+            onChange={handleCoverSelect}
+          />
+        </div>
         <div className="px-4 sm:px-6 pb-4 sm:pb-6 -mt-8 sm:-mt-10 flex items-end gap-3 sm:gap-4">
           <Avatar className="w-14 h-14 sm:w-16 sm:h-16 border-4 border-card shadow-lg shrink-0">
             <AvatarImage src={profile.avatar_url || undefined} className="object-cover" />
