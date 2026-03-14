@@ -343,6 +343,8 @@ export default function AdminLayout() {
             <Outlet context={{ user, profile }} />
           </main>
         </div>
+
+        <OnlineMembersPanel />
       </div>
     </SidebarProvider>
   );

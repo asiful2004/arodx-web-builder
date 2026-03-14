@@ -98,6 +98,8 @@ export default function StaffLayout() {
             <Outlet context={{ user, profile }} />
           </main>
         </div>
+
+        <OnlineMembersPanel />
       </div>
     </SidebarProvider>
   );

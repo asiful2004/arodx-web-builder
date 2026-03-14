@@ -223,12 +223,15 @@ export default function DashboardLayout() {
                 </div>
               </SheetContent>
             </Sheet>
+            </div>
           </header>
 
           <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
             <Outlet context={{ user, profile, setProfile, isAdmin }} />
           </main>
         </div>
+
+        <OnlineMembersPanel />
       </div>
     </SidebarProvider>
   );
