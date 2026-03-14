@@ -15,6 +15,7 @@ import ResetPassword from "./pages/ResetPassword";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import OverviewPage from "./components/dashboard/OverviewPage";
 import ProfilePage from "./components/dashboard/ProfilePage";
+import PublicProfilePage from "./components/dashboard/PublicProfilePage";
 import OrdersPage from "./components/dashboard/OrdersPage";
 import BusinessDetailPage from "./components/dashboard/BusinessDetailPage";
 import BusinessConfigPage from "./components/dashboard/BusinessConfigPage";
@@ -77,6 +78,7 @@ const App = () => {
               <Route path="/dashboard" element={<DashboardLayout />}>
                 <Route index element={<OverviewPage />} />
                 <Route path="profile" element={<ProfilePage />} />
+                <Route path="profile/:userId" element={<PublicProfilePage />} />
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="business/:orderId" element={<BusinessDetailPage />} />
                 <Route path="business/:orderId/config" element={<BusinessConfigPage />} />

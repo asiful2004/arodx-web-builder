@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -73,15 +74,18 @@ function groupByRole(members: OnlineMember[]) {
   return sorted;
 }
 
-function MemberItem({ member }: { member: OnlineMember }) {
+function MemberItem({ member, onNavigate }: { member: OnlineMember; onNavigate?: (path: string) => void }) {
   const primaryRole = getPrimaryRole(member.roles);
   const colorClass = ROLE_COLORS[primaryRole] || ROLE_COLORS.user;
 
   return (
-    <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-accent/50 transition-colors group">
+    <div
+      className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+      onClick={() => onNavigate?.(`/dashboard/profile/${member.user_id}`)}
+    >
       <div className="relative">
         <Avatar className="h-8 w-8">
-          <AvatarImage src={member.avatar_url || undefined} />
+          <AvatarImage src={member.avatar_url || undefined} className="object-cover" />
           <AvatarFallback className="text-[10px] bg-muted text-muted-foreground">
             {getInitials(member.full_name)}
           </AvatarFallback>
@@ -93,12 +97,15 @@ function MemberItem({ member }: { member: OnlineMember }) {
         <p className="text-sm font-medium text-foreground truncate leading-tight">
           {member.full_name || "Unknown"}
         </p>
+        <p className="text-[10px] text-muted-foreground truncate">
+          {ROLE_LABELS[primaryRole] || primaryRole}
+        </p>
       </div>
     </div>
   );
 }
 
-function PanelContent({ members }: { members: OnlineMember[] }) {
+function PanelContent({ members, onNavigate }: { members: OnlineMember[]; onNavigate?: (path: string) => void }) {
   const grouped = groupByRole(members);
 
   return (
@@ -118,7 +125,7 @@ function PanelContent({ members }: { members: OnlineMember[] }) {
           </p>
           <div className="space-y-0.5">
             {roleMembers.map((m) => (
-              <MemberItem key={m.user_id} member={m} />
+              <MemberItem key={m.user_id} member={m} onNavigate={onNavigate} />
             ))}
           </div>
         </div>
@@ -136,8 +143,8 @@ function PanelContent({ members }: { members: OnlineMember[] }) {
 
 export default function OnlineMembersPanel() {
   const { onlineMembers } = useOnlinePresence();
+  const navigate = useNavigate();
 
-  // Desktop only: inline sidebar panel (mobile uses OnlineMembersTrigger in header)
   return (
     <div className="w-56 shrink-0 border-l border-border bg-card/50 hidden lg:flex flex-col">
       <div className="h-14 flex items-center px-4 border-b border-border">
@@ -147,7 +154,7 @@ export default function OnlineMembersPanel() {
         </div>
       </div>
       <ScrollArea className="flex-1 p-2">
-        <PanelContent members={onlineMembers} />
+        <PanelContent members={onlineMembers} onNavigate={navigate} />
       </ScrollArea>
     </div>
   );
@@ -157,6 +164,12 @@ export default function OnlineMembersPanel() {
 export function OnlineMembersTrigger() {
   const { onlineMembers } = useOnlinePresence();
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleNavigate = (path: string) => {
+    setOpen(false);
+    navigate(path);
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -178,7 +191,7 @@ export function OnlineMembersTrigger() {
           </SheetTitle>
         </SheetHeader>
         <ScrollArea className="flex-1 py-3">
-          <PanelContent members={onlineMembers} />
+          <PanelContent members={onlineMembers} onNavigate={handleNavigate} />
         </ScrollArea>
       </SheetContent>
     </Sheet>
