@@ -68,6 +68,15 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
   }, [userId, playNotifSound]);
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
+  const readNotifications = notifications.filter((n) => n.is_read);
+
+  const clearRead = async () => {
+    const readIds = readNotifications.map((n) => n.id);
+    if (readIds.length === 0) return;
+    await supabase.from("notifications").delete().in("id", readIds);
+    setNotifications((prev) => prev.filter((n) => !n.is_read));
+    toast({ title: "পঠিত নোটিফিকেশন মুছে ফেলা হয়েছে" });
+  };
 
   const markAllRead = async () => {
     await supabase
