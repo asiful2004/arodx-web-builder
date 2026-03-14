@@ -121,22 +121,22 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
       </SheetTrigger>
       <SheetContent side="right" className="w-80 sm:w-96 flex flex-col">
         <SheetHeader className="border-b border-border pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2">
             <SheetTitle className="text-base">নোটিফিকেশন</SheetTitle>
-            <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-1">
               {unreadCount > 0 && (
-                <Button variant="ghost" size="sm" className="text-xs h-7" onClick={markAllRead}>
+                <Button variant="ghost" size="sm" className="text-[11px] h-7 px-2" onClick={markAllRead}>
                   সব পঠিত
                 </Button>
               )}
               {readNotifications.length > 0 && (
-                <Button variant="ghost" size="sm" className="text-xs h-7 text-destructive hover:text-destructive" onClick={clearRead}>
+                <Button variant="ghost" size="sm" className="text-[11px] h-7 px-2 text-destructive hover:text-destructive" onClick={clearRead}>
                   <Trash2 className="h-3 w-3 mr-1" />
                   পঠিত মুছুন
                 </Button>
               )}
               {notifications.length > 0 && (
-                <Button variant="ghost" size="sm" className="text-xs h-7 text-destructive hover:text-destructive" onClick={clearAll}>
+                <Button variant="ghost" size="sm" className="text-[11px] h-7 px-2 text-destructive hover:text-destructive" onClick={clearAll}>
                   <Trash2 className="h-3 w-3 mr-1" />
                   সব মুছুন
                 </Button>
