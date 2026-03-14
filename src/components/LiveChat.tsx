@@ -233,7 +233,7 @@ export default function LiveChat() {
       attachment_url: attachUrl,
     });
     setSending(false);
-
+    setShowTyping(true);
     // Start AI auto-reply timer
     if (sessionId) triggerAiReply(sessionId);
   };
