@@ -136,6 +136,7 @@ export default function LiveChat() {
           setMessages((prev) => [...prev, msg]);
           if (msg.sender_id) fetchSenderProfiles([msg]);
           if (msg.sender_type === "admin") {
+            setShowTyping(false);
             playNotifSound();
             if (!open) setUnread((c) => c + 1);
           }
