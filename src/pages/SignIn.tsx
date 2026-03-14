@@ -324,7 +324,13 @@ const SignIn = () => {
                   <Loader2 className="w-4 h-4 animate-spin" />
                   অনুমোদনের অপেক্ষায়...
                 </div>
-                <p className="text-xs text-muted-foreground">৫ মিনিটের মধ্যে স্ক্যান করুন</p>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                    <Timer className="w-3 h-3" />
+                    <span>{Math.floor(qrDeviceTimeLeft / 60)}:{String(qrDeviceTimeLeft % 60).padStart(2, '0')}</span>
+                  </div>
+                  <Progress value={(qrDeviceTimeLeft / 300) * 100} className="h-1 w-32 mx-auto" />
+                </div>
               </div>
             )}
 
