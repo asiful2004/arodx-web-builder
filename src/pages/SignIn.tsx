@@ -9,7 +9,8 @@ import { lovable } from "@/integrations/lovable";
 import { useToast } from "@/hooks/use-toast";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
 import { QRCodeSVG } from "qrcode.react";
-import { Loader2, Smartphone, RefreshCw, QrCode, Mail } from "lucide-react";
+import { Loader2, Smartphone, RefreshCw, QrCode, Mail, Timer } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 type LoginMode = "email" | "qr";
 
@@ -35,6 +36,8 @@ const SignIn = () => {
   const [qrLoginToken, setQrLoginToken] = useState<string | null>(null);
   const [qrLoginWaiting, setQrLoginWaiting] = useState(false);
   const [qrLoginExpired, setQrLoginExpired] = useState(false);
+  const [qrTimeLeft, setQrTimeLeft] = useState(300); // 5 minutes in seconds
+  const [qrDeviceTimeLeft, setQrDeviceTimeLeft] = useState(300);
 
   // Generate QR for QR-only login
   const generateQrLogin = useCallback(async () => {
@@ -55,12 +58,37 @@ const SignIn = () => {
       setQrLoginToken(data.token);
       setQrLoginWaiting(true);
       setQrLoginExpired(false);
+      setQrTimeLeft(300);
     } catch (err: any) {
       toast({ title: "QR তৈরি ব্যর্থ", description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
   }, [toast]);
+
+  // Countdown timer for QR login
+  useEffect(() => {
+    if (!qrLoginWaiting || qrLoginExpired) return;
+    const interval = setInterval(() => {
+      setQrTimeLeft((prev) => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [qrLoginWaiting, qrLoginExpired]);
+
+  // Countdown timer for device approval QR
+  useEffect(() => {
+    if (!waitingApproval || qrExpired) return;
+    const interval = setInterval(() => {
+      setQrDeviceTimeLeft((prev) => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [waitingApproval, qrExpired]);
 
   // Auto-generate QR when switching to QR mode
   useEffect(() => {
@@ -224,6 +252,7 @@ const SignIn = () => {
       setQrToken(token);
       setWaitingApproval(true);
       setQrExpired(false);
+      setQrDeviceTimeLeft(300);
     } catch (err: any) {
       toast({ title: "QR তৈরি ব্যর্থ", description: err.message, variant: "destructive" });
     }
@@ -296,7 +325,13 @@ const SignIn = () => {
                   <Loader2 className="w-4 h-4 animate-spin" />
                   অনুমোদনের অপেক্ষায়...
                 </div>
-                <p className="text-xs text-muted-foreground">৫ মিনিটের মধ্যে স্ক্যান করুন</p>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                    <Timer className="w-3 h-3" />
+                    <span>{Math.floor(qrDeviceTimeLeft / 60)}:{String(qrDeviceTimeLeft % 60).padStart(2, '0')}</span>
+                  </div>
+                  <Progress value={(qrDeviceTimeLeft / 300) * 100} className="h-1 w-32 mx-auto" />
+                </div>
               </div>
             )}
 
@@ -384,7 +419,13 @@ const SignIn = () => {
                     <p className="text-xs text-muted-foreground">
                       আপনার ফোনের সেটিংস → নিরাপত্তা → ডিভাইস অনুমোদন থেকে এই QR কোড স্ক্যান করুন
                     </p>
-                    <p className="text-[10px] text-muted-foreground/70">৫ মিনিটের মধ্যে স্ক্যান করুন</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                        <Timer className="w-3 h-3" />
+                        <span>{Math.floor(qrTimeLeft / 60)}:{String(qrTimeLeft % 60).padStart(2, '0')}</span>
+                      </div>
+                      <Progress value={(qrTimeLeft / 300) * 100} className="h-1 w-32 mx-auto" />
+                    </div>
                   </div>
                 </div>
               ) : null}
