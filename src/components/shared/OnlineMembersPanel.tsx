@@ -164,6 +164,12 @@ export default function OnlineMembersPanel() {
 export function OnlineMembersTrigger() {
   const { onlineMembers } = useOnlinePresence();
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleNavigate = (path: string) => {
+    setOpen(false);
+    navigate(path);
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -185,7 +191,7 @@ export function OnlineMembersTrigger() {
           </SheetTitle>
         </SheetHeader>
         <ScrollArea className="flex-1 py-3">
-          <PanelContent members={onlineMembers} />
+          <PanelContent members={onlineMembers} onNavigate={handleNavigate} />
         </ScrollArea>
       </SheetContent>
     </Sheet>
