@@ -33,6 +33,7 @@ const ServiceStatus = () => {
 const ContactSection = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [submitted, setSubmitted] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const { data: settings } = useSiteSettings();
   const contact = settings?.contact;
