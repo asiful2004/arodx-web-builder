@@ -72,7 +72,8 @@ export default function StaffLayout() {
     );
   }
 
-  const presenceValue = useOnlinePresenceProvider();
+
+
 
   return (
     <OnlinePresenceContext.Provider value={presenceValue}>
