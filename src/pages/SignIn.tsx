@@ -3,13 +3,14 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useToast } from "@/hooks/use-toast";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { QRCodeSVG } from "qrcode.react";
-import { Mail, QrCode, Loader2, RefreshCw, Timer } from "lucide-react";
+import { Mail, QrCode, Loader2, RefreshCw, Timer, ShieldAlert } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 type LoginMode = "email" | "qr";
@@ -29,6 +30,22 @@ function getDeviceInfoSimple() {
   return { browser, os, deviceName: `${browser} on ${os}` };
 }
 
+const RATE_LIMIT_KEY = "login_attempts";
+
+function getRateLimitState() {
+  try {
+    const stored = localStorage.getItem(RATE_LIMIT_KEY);
+    if (!stored) return { attempts: 0, lockedUntil: 0 };
+    return JSON.parse(stored);
+  } catch {
+    return { attempts: 0, lockedUntil: 0 };
+  }
+}
+
+function setRateLimitState(state: { attempts: number; lockedUntil: number }) {
+  localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(state));
+}
+
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,7 +57,58 @@ const SignIn = () => {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirect");
   const { checkDeviceCount, isDeviceRegistered, registerDevice } = useDeviceAuth();
+  const { data: siteSettings } = useSiteSettings();
 
+  // Rate limit config from admin settings
+  const rateLimitConfig = useMemo(() => {
+    const rl = siteSettings?.rate_limit;
+    return {
+      maxAttempts: rl?.max_attempts ?? 5,
+      lockoutMinutes: rl?.lockout_minutes ?? 15,
+      enabled: rl?.enabled ?? true,
+    };
+  }, [siteSettings]);
+
+  // Rate limit state
+  const [rateLimitState, setRateLimitStateLocal] = useState(getRateLimitState);
+  const [lockCountdown, setLockCountdown] = useState(0);
+
+  const isLocked = rateLimitConfig.enabled && rateLimitState.lockedUntil > Date.now();
+  const attemptsLeft = rateLimitConfig.maxAttempts - rateLimitState.attempts;
+
+  // Countdown timer for lockout
+  useEffect(() => {
+    if (!isLocked) { setLockCountdown(0); return; }
+    const update = () => {
+      const remaining = Math.max(0, Math.ceil((rateLimitState.lockedUntil - Date.now()) / 1000));
+      setLockCountdown(remaining);
+      if (remaining <= 0) {
+        setRateLimitState({ attempts: 0, lockedUntil: 0 });
+        setRateLimitStateLocal({ attempts: 0, lockedUntil: 0 });
+      }
+    };
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, [isLocked, rateLimitState.lockedUntil]);
+
+  const recordFailedAttempt = () => {
+    const current = getRateLimitState();
+    const newAttempts = current.attempts + 1;
+    let lockedUntil = current.lockedUntil;
+    if (newAttempts >= rateLimitConfig.maxAttempts) {
+      lockedUntil = Date.now() + rateLimitConfig.lockoutMinutes * 60 * 1000;
+    }
+    const newState = { attempts: newAttempts, lockedUntil };
+    setRateLimitState(newState);
+    setRateLimitStateLocal(newState);
+  };
+
+  const resetAttempts = () => {
+    const newState = { attempts: 0, lockedUntil: 0 };
+    setRateLimitState(newState);
+    setRateLimitStateLocal(newState);
+  };
   // QR login state
   const [qrLoginToken, setQrLoginToken] = useState<string | null>(null);
   const [qrLoginWaiting, setQrLoginWaiting] = useState(false);
@@ -146,11 +214,19 @@ const SignIn = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLocked) {
+      toast({ title: "অ্যাকাউন্ট লক করা হয়েছে", description: `${Math.ceil(lockCountdown / 60)} মিনিট পর আবার চেষ্টা করুন`, variant: "destructive" });
+      return;
+    }
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      if (error) {
+        if (rateLimitConfig.enabled) recordFailedAttempt();
+        throw error;
+      }
 
+      resetAttempts();
       const user = data.user;
       if (!user) throw new Error("User not found");
 
@@ -173,7 +249,10 @@ const SignIn = () => {
       toast({ title: "সফলভাবে লগইন হয়েছে!" });
       navigate(redirectTo || "/");
     } catch (error: any) {
-      toast({ title: "লগইন ব্যর্থ", description: error.message, variant: "destructive" });
+      const msg = rateLimitConfig.enabled && attemptsLeft <= 1
+        ? `অ্যাকাউন্ট ${rateLimitConfig.lockoutMinutes} মিনিটের জন্য লক হয়ে যাবে`
+        : error.message;
+      toast({ title: "লগইন ব্যর্থ", description: msg, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -212,7 +291,34 @@ const SignIn = () => {
             <p className="text-muted-foreground mt-2">Sign in to your account</p>
           </div>
 
-          {/* Login Mode Toggle */}
+          {/* Rate Limit Lockout Warning */}
+          {isLocked && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-center space-y-2"
+            >
+              <ShieldAlert className="w-8 h-8 text-destructive mx-auto" />
+              <p className="text-sm font-semibold text-destructive">অ্যাকাউন্ট সাময়িকভাবে লক হয়েছে</p>
+              <p className="text-xs text-muted-foreground">
+                অনেকবার ভুল পাসওয়ার্ড দেওয়ায় {rateLimitConfig.lockoutMinutes} মিনিটের জন্য লক করা হয়েছে
+              </p>
+              <div className="text-lg font-bold text-destructive font-display">
+                {Math.floor(lockCountdown / 60)}:{String(lockCountdown % 60).padStart(2, '0')}
+              </div>
+              <Progress value={(lockCountdown / (rateLimitConfig.lockoutMinutes * 60)) * 100} className="h-1.5" />
+            </motion.div>
+          )}
+
+          {/* Attempts warning */}
+          {rateLimitConfig.enabled && !isLocked && rateLimitState.attempts > 0 && attemptsLeft <= 3 && (
+            <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                ⚠️ আর {attemptsLeft}টি চেষ্টা বাকি আছে। এরপর অ্যাকাউন্ট {rateLimitConfig.lockoutMinutes} মিনিটের জন্য লক হয়ে যাবে।
+              </p>
+            </div>
+          )}
+
           <div className="flex rounded-xl bg-muted/50 p-1 mb-6">
             <button
               type="button"
@@ -379,9 +485,9 @@ const SignIn = () => {
                 <Button
                   type="submit"
                   className="w-full rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90"
-                  disabled={loading}
+                  disabled={loading || isLocked}
                 >
-                  {loading ? "Signing in..." : "Sign In"}
+                  {loading ? "Signing in..." : isLocked ? "লক করা হয়েছে" : "Sign In"}
                 </Button>
               </form>
             </>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Settings, Save, Loader2, Plus, Trash2, Globe, Layout, DollarSign, Users, Briefcase, Mail, Image, FileText } from "lucide-react";
+import { Settings, Save, Loader2, Plus, Trash2, Globe, Layout, DollarSign, Users, Briefcase, Mail, Image, FileText, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -528,6 +528,61 @@ function FooterTab() {
   );
 }
 
+function RateLimitTab() {
+  return (
+    <SectionEditor sectionKey="rate_limit" title="লগইন রেট লিমিট" icon={ShieldAlert}>
+      {(data, setData) => (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/30">
+            <div>
+              <Label className="text-sm font-semibold">রেট লিমিট সক্রিয়</Label>
+              <p className="text-xs text-muted-foreground mt-1">ভুল পাসওয়ার্ড দিলে নির্দিষ্ট সময়ের জন্য লগইন ব্লক হবে</p>
+            </div>
+            <Switch
+              checked={data.enabled ?? true}
+              onCheckedChange={(v) => setData({ ...data, enabled: v })}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">সর্বোচ্চ চেষ্টা</Label>
+              <Input
+                type="number"
+                min={1}
+                max={20}
+                value={data.max_attempts ?? 5}
+                onChange={(e) => setData({ ...data, max_attempts: parseInt(e.target.value) || 5 })}
+                className="text-sm"
+              />
+              <p className="text-[10px] text-muted-foreground">এতবার ভুল পাসওয়ার্ড দিলে লক হবে</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">লকআউট সময় (মিনিট)</Label>
+              <Input
+                type="number"
+                min={1}
+                max={60}
+                value={data.lockout_minutes ?? 15}
+                onChange={(e) => setData({ ...data, lockout_minutes: parseInt(e.target.value) || 15 })}
+                className="text-sm"
+              />
+              <p className="text-[10px] text-muted-foreground">কত মিনিট লগইন ব্লক থাকবে</p>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-lg bg-primary/5 border border-primary/10">
+            <p className="text-xs text-muted-foreground">
+              <strong>বর্তমান সেটিং:</strong> {data.max_attempts ?? 5}বার ভুল পাসওয়ার্ড দিলে {data.lockout_minutes ?? 15} মিনিটের জন্য লগইন ব্লক হবে।
+            </p>
+          </div>
+        </div>
+      )}
+    </SectionEditor>
+  );
+}
+
 export default function AdminSettingsPage() {
   return (
     <div className="space-y-6">
@@ -547,6 +602,7 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="portfolio" className="text-xs">Portfolio</TabsTrigger>
           <TabsTrigger value="contact" className="text-xs">Contact</TabsTrigger>
           <TabsTrigger value="footer" className="text-xs">Footer</TabsTrigger>
+          <TabsTrigger value="rate_limit" className="text-xs">🔒 Rate Limit</TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
@@ -559,6 +615,7 @@ export default function AdminSettingsPage() {
           <TabsContent value="portfolio"><PortfolioTab /></TabsContent>
           <TabsContent value="contact"><ContactTab /></TabsContent>
           <TabsContent value="footer"><FooterTab /></TabsContent>
+          <TabsContent value="rate_limit"><RateLimitTab /></TabsContent>
         </div>
       </Tabs>
     </div>
