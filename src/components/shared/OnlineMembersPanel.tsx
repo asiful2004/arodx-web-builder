@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users } from "lucide-react";
+import { Users, Monitor, Smartphone, Tablet } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useOnlinePresence, OnlineMember } from "@/hooks/useOnlinePresence";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useOnlinePresence, OnlineMember, DeviceType } from "@/hooks/useOnlinePresence";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -74,9 +75,23 @@ function groupByRole(members: OnlineMember[]) {
   return sorted;
 }
 
+const DEVICE_ICON: Record<DeviceType, typeof Monitor> = {
+  desktop: Monitor,
+  mobile: Smartphone,
+  tablet: Tablet,
+};
+
+const DEVICE_LABEL: Record<DeviceType, string> = {
+  desktop: "ডেস্কটপ",
+  mobile: "মোবাইল",
+  tablet: "ট্যাবলেট",
+};
+
 function MemberItem({ member, onNavigate }: { member: OnlineMember; onNavigate?: (path: string) => void }) {
   const primaryRole = getPrimaryRole(member.roles);
   const colorClass = ROLE_COLORS[primaryRole] || ROLE_COLORS.user;
+  const DeviceIcon = DEVICE_ICON[member.device_type] || Monitor;
+  const deviceLabel = `${DEVICE_LABEL[member.device_type] || "ডেস্কটপ"} · ${member.browser || "Unknown"} · ${member.os || "Unknown"}`;
 
   return (
     <div
@@ -101,6 +116,16 @@ function MemberItem({ member, onNavigate }: { member: OnlineMember; onNavigate?:
           {ROLE_LABELS[primaryRole] || primaryRole}
         </p>
       </div>
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DeviceIcon className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors" />
+          </TooltipTrigger>
+          <TooltipContent side="left" className="text-xs">
+            {deviceLabel}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 }
