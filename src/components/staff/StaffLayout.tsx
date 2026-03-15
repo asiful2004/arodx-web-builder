@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import NotificationBell from "@/components/shared/NotificationBell";
 import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
+import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
 
 interface Profile {
   full_name: string | null;

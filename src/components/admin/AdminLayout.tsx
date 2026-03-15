@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Button } from "@/components/ui/button";
 import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
+import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
 
 interface Profile {
   full_name: string | null;

@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import NotificationBell from "@/components/shared/NotificationBell";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
+import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
 
 interface Profile {
   full_name: string | null;
