@@ -38,6 +38,7 @@ export default function AdminLayout() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const presenceValue = useOnlinePresenceProvider();
 
   // Persistent chat notification state
   const [unansweredSessions, setUnansweredSessions] = useState<Set<string>>(new Set());
