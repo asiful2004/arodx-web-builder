@@ -164,6 +164,7 @@ export type Database = {
           created_at: string
           guest_email: string | null
           guest_name: string | null
+          guest_phone: string | null
           id: string
           status: string
           updated_at: string
@@ -173,6 +174,7 @@ export type Database = {
           created_at?: string
           guest_email?: string | null
           guest_name?: string | null
+          guest_phone?: string | null
           id?: string
           status?: string
           updated_at?: string
@@ -182,6 +184,7 @@ export type Database = {
           created_at?: string
           guest_email?: string | null
           guest_name?: string | null
+          guest_phone?: string | null
           id?: string
           status?: string
           updated_at?: string

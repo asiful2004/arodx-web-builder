@@ -39,6 +39,7 @@ export default function LiveChat() {
   const [sessionStatus, setSessionStatus] = useState<string>("active");
   const aiReplyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [guestName, setGuestName] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
   const [started, setStarted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [unread, setUnread] = useState(0);
@@ -170,16 +171,25 @@ export default function LiveChat() {
 
   const startChat = async () => {
     const name = user?.user_metadata?.full_name || guestName.trim();
-    if (!name && !user) return;
+    const phone = guestPhone.trim();
+    if (!user && (!name || !phone)) return;
     const { data, error } = await supabase
       .from("chat_sessions")
-      .insert({ user_id: user?.id || null, guest_name: user ? null : name, guest_email: user?.email || null })
+      .insert({ 
+        user_id: user?.id || null, 
+        guest_name: user ? null : name, 
+        guest_email: user?.email || null,
+        guest_phone: user ? null : phone || null,
+      } as any)
       .select("id")
       .single();
     if (data && !error) {
       setSessionId(data.id);
       localStorage.setItem(SESSION_KEY, data.id);
-      if (!user) setGuestName(name);
+      if (!user) {
+        setGuestName(name);
+        setGuestPhone(phone);
+      }
       setStarted(true);
       await supabase.from("chat_messages").insert({
         session_id: data.id, sender_type: "system",
@@ -453,14 +463,23 @@ export default function LiveChat() {
                   <p className="text-xs text-muted-foreground mt-1">আমরা সাহায্য করতে এখানে আছি</p>
                 </div>
                 {!user && (
-                  <Input
-                    placeholder="আপনার নাম"
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
-                    className="text-sm"
-                  />
+                  <div className="w-full space-y-2">
+                    <Input
+                      placeholder="আপনার নাম"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      className="text-sm"
+                    />
+                    <Input
+                      placeholder="ফোন নম্বর (যেমন: 01XXXXXXXXX)"
+                      value={guestPhone}
+                      onChange={(e) => setGuestPhone(e.target.value)}
+                      className="text-sm"
+                      type="tel"
+                    />
+                  </div>
                 )}
-                <Button onClick={startChat} className="w-full" disabled={!user && !guestName.trim()}>
+                <Button onClick={startChat} className="w-full" disabled={!user && (!guestName.trim() || !guestPhone.trim())}>
                   চ্যাট শুরু করুন
                 </Button>
               </div>

@@ -1,0 +1,1 @@
+ALTER TABLE public.chat_sessions ADD COLUMN IF NOT EXISTS guest_phone text DEFAULT NULL;
