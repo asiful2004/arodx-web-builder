@@ -18,7 +18,7 @@ const HeroSection = () => {
   const ctaSecondaryLink = hero?.cta_secondary_link || "#portfolio";
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
+    <section aria-label="Hero - Arodx Digital Agency" className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
       <motion.div
         className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px]"
         animate={{ x: [0, 30, -20, 0], y: [0, -20, 30, 0], scale: [1, 1.1, 0.9, 1] }}

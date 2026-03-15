@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://arodx-web-builder.lovable.app/sitemap.xml
