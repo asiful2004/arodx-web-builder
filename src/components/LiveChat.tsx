@@ -36,6 +36,7 @@ export default function LiveChat() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [showTyping, setShowTyping] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState<string>("active");
   const aiReplyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [guestName, setGuestName] = useState("");
   const [started, setStarted] = useState(false);
