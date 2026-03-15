@@ -275,6 +275,93 @@ export type Database = {
           },
         ]
       }
+      job_applications: {
+        Row: {
+          address: string | null
+          auto_delete_at: string | null
+          cover_letter: string | null
+          created_at: string
+          date_of_birth: string | null
+          email: string
+          experience_details: string | null
+          experience_years: number | null
+          face_photo_url: string
+          full_name: string
+          id: string
+          job_category: string
+          job_type: string
+          nid_back_url: string
+          nid_front_url: string
+          nid_number: string
+          other_category: string | null
+          phone: string
+          portfolio_links: Json | null
+          portfolio_url: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          auto_delete_at?: string | null
+          cover_letter?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email: string
+          experience_details?: string | null
+          experience_years?: number | null
+          face_photo_url: string
+          full_name: string
+          id?: string
+          job_category: string
+          job_type?: string
+          nid_back_url: string
+          nid_front_url: string
+          nid_number: string
+          other_category?: string | null
+          phone: string
+          portfolio_links?: Json | null
+          portfolio_url: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          auto_delete_at?: string | null
+          cover_letter?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string
+          experience_details?: string | null
+          experience_years?: number | null
+          face_photo_url?: string
+          full_name?: string
+          id?: string
+          job_category?: string
+          job_type?: string
+          nid_back_url?: string
+          nid_front_url?: string
+          nid_number?: string
+          other_category?: string | null
+          phone?: string
+          portfolio_links?: Json | null
+          portfolio_url?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string
