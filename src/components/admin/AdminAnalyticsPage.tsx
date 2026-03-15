@@ -389,7 +389,7 @@ export default function AdminAnalyticsPage() {
             <Ticket className="w-3 h-3 mr-1 shrink-0" />
             <span className="truncate">সাপোর্ট</span>
           </TabsTrigger>
-        </Tabs>
+        </TabsList>
 
         {/* ════════ TRAFFIC TAB ════════ */}
         <TabsContent value="traffic" className="space-y-3 sm:space-y-4">
