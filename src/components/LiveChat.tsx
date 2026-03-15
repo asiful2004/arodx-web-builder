@@ -150,6 +150,14 @@ export default function LiveChat() {
           }
         }
       )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "chat_sessions", filter: `id=eq.${sessionId}` },
+        (payload) => {
+          const updated = payload.new as any;
+          setSessionStatus(updated.status);
+        }
+      )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [sessionId, open, playNotifSound]);
