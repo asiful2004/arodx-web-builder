@@ -9,6 +9,7 @@ import { useState, useCallback, lazy, Suspense } from "react";
 import Preloader from "@/components/Preloader";
 import Index from "./pages/Index";
 import LiveChat from "./components/LiveChat";
+import { usePageTracker } from "@/hooks/usePageTracker";
 
 // Lazy load non-critical routes for performance
 const SignIn = lazy(() => import("./pages/SignIn"));
@@ -62,6 +63,8 @@ const LazyFallback = () => (
   </div>
 );
 
+const PageTracker = () => { usePageTracker(); return null; };
+
 const App = () => {
   const [loading, setLoading] = useState(() => {
     if (sessionStorage.getItem("preloaded")) return false;
@@ -80,6 +83,7 @@ const App = () => {
         {loading && <Preloader onComplete={handleComplete} />}
         <BrowserRouter>
           <AuthProvider>
+            <PageTracker />
             <Suspense fallback={<LazyFallback />}>
               <Routes>
                 <Route path="/" element={<><Index /><LiveChat /></>} />
