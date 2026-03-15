@@ -37,6 +37,7 @@ const AdminTicketsPage = lazy(() => import("./components/admin/AdminTicketsPage"
 const AdminTicketDetailPage = lazy(() => import("./components/admin/AdminTicketDetailPage"));
 const AdminSettingsPage = lazy(() => import("./components/admin/AdminSettingsPage"));
 const AdminChatPage = lazy(() => import("./components/admin/AdminChatPage"));
+const AdminAnalyticsPage = lazy(() => import("./components/admin/AdminAnalyticsPage"));
 const StaffPanelPage = lazy(() => import("./components/admin/StaffPanelPage"));
 const StaffLayout = lazy(() => import("./components/staff/StaffLayout"));
 const StaffOverviewPage = lazy(() => import("./components/staff/StaffOverviewPage"));
