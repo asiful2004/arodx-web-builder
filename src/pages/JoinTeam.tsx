@@ -262,6 +262,46 @@ export default function JoinTeam() {
       </header>
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center space-y-4"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+            <Briefcase className="h-3.5 w-3.5 text-primary" />
+            <span className="text-xs font-medium text-primary">ক্যারিয়ার সুযোগ</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
+            আমাদের টিমে <span className="text-gradient">জয়েন করুন</span>
+          </h1>
+          <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
+            আপনি কি ক্রিয়েটিভ ও দক্ষ? Arodx টিমে ফুল-টাইম, পার্ট-টাইম বা ফ্রিল্যান্সার হিসেবে কাজ করার সুযোগ পান। নিচের সুবিধাগুলো উপভোগ করুন:
+          </p>
+
+          {/* Facilities */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            {[
+              { icon: "💰", title: "প্রতিযোগী বেতন", desc: "দক্ষতা অনুযায়ী আকর্ষণীয় পারিশ্রমিক" },
+              { icon: "🏠", title: "রিমোট ওয়ার্ক", desc: "ঘরে বসেই কাজ করার সুবিধা" },
+              { icon: "📈", title: "ক্যারিয়ার গ্রোথ", desc: "স্কিল ডেভেলপমেন্ট ও প্রমোশন" },
+              { icon: "🤝", title: "টিম সাপোর্ট", desc: "দক্ষ ও সহযোগী টিম এনভায়রনমেন্ট" },
+            ].map((f, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.05 }}
+                className="rounded-xl border border-border bg-card p-3 text-center space-y-1"
+              >
+                <span className="text-2xl">{f.icon}</span>
+                <p className="text-xs font-semibold text-foreground">{f.title}</p>
+                <p className="text-[10px] text-muted-foreground leading-snug">{f.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
         {/* Progress Steps */}
         <div className="flex items-center justify-between gap-1">
           {STEPS.map((s, i) => {
