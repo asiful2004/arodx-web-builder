@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import FileUploadBox from "@/components/shared/FileUploadBox";
 import {
-  ArrowLeft, ArrowRight, Upload, User, Briefcase, FileText, Send,
+  ArrowLeft, ArrowRight, User, Briefcase, FileText, Send,
   Camera, CreditCard, CheckCircle2, Loader2, Plus, X, Link as LinkIcon,
 } from "lucide-react";
 
@@ -69,9 +70,31 @@ export default function JoinTeam() {
   const [nidBackPreview, setNidBackPreview] = useState("");
   const [facePreview, setFacePreview] = useState("");
 
-  const nidFrontRef = useRef<HTMLInputElement>(null);
-  const nidBackRef = useRef<HTMLInputElement>(null);
-  const faceRef = useRef<HTMLInputElement>(null);
+  const createFileHandler = useCallback(
+    (setter: (f: File | null) => void, previewSetter: (s: string) => void) => {
+      return (file: File | null) => {
+        if (!file) {
+          setter(null);
+          previewSetter("");
+          return;
+        }
+        setter(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          previewSetter(typeof reader.result === "string" ? reader.result : "");
+        };
+        reader.onerror = () => {
+          previewSetter("");
+        };
+        reader.readAsDataURL(file);
+      };
+    },
+    []
+  );
+
+  const handleNidFrontChange = useCallback(createFileHandler(setNidFront, setNidFrontPreview), [createFileHandler]);
+  const handleNidBackChange = useCallback(createFileHandler(setNidBack, setNidBackPreview), [createFileHandler]);
+  const handleFaceChange = useCallback(createFileHandler(setFacePhoto, setFacePreview), [createFileHandler]);
 
   if (authLoading) {
     return (
@@ -100,28 +123,6 @@ export default function JoinTeam() {
       </div>
     );
   }
-
-  const handleFileSelect = async (
-    file: File | null,
-    setter: (f: File | null) => void,
-    previewSetter: (s: string) => void
-  ) => {
-    if (!file) {
-      setter(null);
-      previewSetter("");
-      return;
-    }
-
-    setter(file);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      previewSetter(typeof reader.result === "string" ? reader.result : "");
-    };
-    reader.onerror = () => {
-      previewSetter("");
-    };
-    reader.readAsDataURL(file);
-  };
 
   const uploadFile = async (file: File, folder: string): Promise<string> => {
     const ext = file.name.split(".").pop();
@@ -217,89 +218,6 @@ export default function JoinTeam() {
     const updated = [...portfolioLinks];
     updated[i] = v;
     setPortfolioLinks(updated);
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const FileUploadBox = ({
-    label, file, preview, inputRef, onSelect, icon: Icon,
-  }: {
-    label: string; file: File | null; preview: string;
-    inputRef: React.RefObject<HTMLInputElement>;
-    onSelect: (f: File | null) => void; icon: typeof Upload;
-  }) => {
-    const hasSelection = Boolean(file);
-
-    return (
-      <div
-        onClick={(e) => {
-          e.stopPropagation();
-          if (inputRef.current) {
-            inputRef.current.value = "";
-            inputRef.current.click();
-          }
-        }}
-        className={`group relative cursor-pointer rounded-xl border-2 transition-all overflow-hidden ${
-          hasSelection
-            ? "border-primary/30 bg-primary/5"
-            : "border-dashed border-border hover:border-primary/50 bg-muted/30 hover:bg-muted/50"
-        }`}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onClick={(e) => e.stopPropagation()}
-          onChange={(e) => {
-            const f = e.target.files?.[0] || null;
-            onSelect(f);
-          }}
-        />
-
-        {hasSelection ? (
-          <div className="relative">
-            <div className="aspect-[4/3] bg-muted/40">
-              {preview ? (
-                <img src={preview} alt={label} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Icon className="h-6 w-6 text-muted-foreground" />
-                </div>
-              )}
-              <div className="absolute inset-0 bg-foreground/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <p className="text-primary-foreground text-xs font-medium">পরিবর্তন করুন</p>
-              </div>
-            </div>
-            <div className="p-2 bg-primary/10 border-t border-primary/20">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-semibold text-foreground truncate">{label} ✓</p>
-                  {file && (
-                    <p className="text-[9px] text-muted-foreground truncate">
-                      {file.name} • {formatFileSize(file.size)}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="aspect-[4/3] flex flex-col items-center justify-center gap-2 p-4">
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Icon className="h-5 w-5 text-primary" />
-            </div>
-            <p className="text-xs font-medium text-foreground">{label}</p>
-            <p className="text-[10px] text-muted-foreground">ক্লিক করে আপলোড করুন</p>
-          </div>
-        )}
-      </div>
-    );
   };
 
   return (
@@ -438,24 +356,21 @@ export default function JoinTeam() {
                         label="NID সামনের পাশ"
                         file={nidFront}
                         preview={nidFrontPreview}
-                        inputRef={nidFrontRef as any}
-                        onSelect={(f) => handleFileSelect(f, setNidFront, setNidFrontPreview)}
+                        onFileChange={handleNidFrontChange}
                         icon={CreditCard}
                       />
                       <FileUploadBox
                         label="NID পিছনের পাশ"
                         file={nidBack}
                         preview={nidBackPreview}
-                        inputRef={nidBackRef as any}
-                        onSelect={(f) => handleFileSelect(f, setNidBack, setNidBackPreview)}
+                        onFileChange={handleNidBackChange}
                         icon={CreditCard}
                       />
                       <FileUploadBox
                         label="ফেস ফটো (সেলফি)"
                         file={facePhoto}
                         preview={facePreview}
-                        inputRef={faceRef as any}
-                        onSelect={(f) => handleFileSelect(f, setFacePhoto, setFacePreview)}
+                        onFileChange={handleFaceChange}
                         icon={Camera}
                       />
                     </div>
