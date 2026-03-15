@@ -22,6 +22,7 @@ export default function DashboardLayout() {
   const [userRole, setUserRole] = useState<string>("");
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const navigate = useNavigate();
+  const presenceValue = useOnlinePresenceProvider();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -64,8 +65,6 @@ export default function DashboardLayout() {
       </div>
     );
   }
-
-  const presenceValue = useOnlinePresenceProvider();
 
   return (
     <OnlinePresenceContext.Provider value={presenceValue}>
