@@ -120,7 +120,7 @@ const HeroSection = () => {
           transition={{ type: "spring" as const, stiffness: 80, damping: 15, delay: 0.4 }}
           className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3"
         >
-          ব্যবসা আপনার, tension আমাদের।
+          স্বপ্ন আপনার, বাস্তবে রূপ দেবো আমরা।
         </motion.p>
 
         <motion.p
