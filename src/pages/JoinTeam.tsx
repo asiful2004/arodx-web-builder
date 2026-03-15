@@ -65,6 +65,11 @@ export default function JoinTeam() {
   const [portfolioLinks, setPortfolioLinks] = useState<string[]>([""]);
   const [coverLetter, setCoverLetter] = useState("");
 
+  // Preview URLs
+  const [nidFrontPreview, setNidFrontPreview] = useState("");
+  const [nidBackPreview, setNidBackPreview] = useState("");
+  const [facePreview, setFacePreview] = useState("");
+
   const createFileHandler = useCallback(
     (setter: (f: File | null) => void, previewSetter: (s: string) => void) => {
       return (file: File | null) => {
