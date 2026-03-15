@@ -115,6 +115,7 @@ const SignIn = () => {
   const [qrLoginExpired, setQrLoginExpired] = useState(false);
   const [qrTimeLeft, setQrTimeLeft] = useState(300);
 
+  const generateQrLogin = useCallback(async () => {
     try {
       setLoading(true);
       const info = getDeviceInfoSimple();
