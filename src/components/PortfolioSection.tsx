@@ -19,7 +19,7 @@ const PortfolioSection = () => {
   const projects = port?.projects || defaultProjects;
 
   return (
-    <section id="portfolio" className="py-24 px-4">
+    <section id="portfolio" aria-label="Portfolio - আমাদের কাজ" className="py-24 px-4">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
