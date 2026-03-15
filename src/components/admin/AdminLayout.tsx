@@ -351,5 +351,6 @@ export default function AdminLayout() {
         <OnlineMembersPanel />
       </div>
     </SidebarProvider>
+    </OnlinePresenceContext.Provider>
   );
 }

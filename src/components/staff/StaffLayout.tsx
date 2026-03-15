@@ -106,5 +106,6 @@ export default function StaffLayout() {
         <OnlineMembersPanel />
       </div>
     </SidebarProvider>
+    </OnlinePresenceContext.Provider>
   );
 }
