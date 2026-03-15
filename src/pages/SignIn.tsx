@@ -485,9 +485,9 @@ const SignIn = () => {
                 <Button
                   type="submit"
                   className="w-full rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90"
-                  disabled={loading}
+                  disabled={loading || isLocked}
                 >
-                  {loading ? "Signing in..." : "Sign In"}
+                  {loading ? "Signing in..." : isLocked ? "লক করা হয়েছে" : "Sign In"}
                 </Button>
               </form>
             </>
