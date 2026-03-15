@@ -208,33 +208,57 @@ export default function JoinTeam() {
     setPortfolioLinks(updated);
   };
 
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
   const FileUploadBox = ({
-    label, file, preview, inputRef, onSelect, icon: Icon,
+    label, file, preview, inputRef, onSelect, icon: Icon, capture,
   }: {
     label: string; file: File | null; preview: string;
     inputRef: React.RefObject<HTMLInputElement>;
     onSelect: (f: File | null) => void; icon: typeof Upload;
+    capture?: "user" | "environment";
   }) => (
     <div
       onClick={() => inputRef.current?.click()}
-      className="group relative cursor-pointer rounded-xl border-2 border-dashed border-border hover:border-primary/50 transition-all bg-muted/30 hover:bg-muted/50 overflow-hidden"
+      className={`group relative cursor-pointer rounded-xl border-2 transition-all overflow-hidden ${
+        preview
+          ? "border-green-500/50 bg-green-500/5"
+          : "border-dashed border-border hover:border-primary/50 bg-muted/30 hover:bg-muted/50"
+      }`}
     >
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
+        capture={capture}
         className="hidden"
         onChange={(e) => onSelect(e.target.files?.[0] || null)}
       />
       {preview ? (
-        <div className="aspect-[4/3] relative">
-          <img src={preview} alt={label} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <p className="text-white text-xs font-medium">পরিবর্তন করুন</p>
+        <div className="relative">
+          <div className="aspect-[4/3]">
+            <img src={preview} alt={label} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <p className="text-white text-xs font-medium">পরিবর্তন করুন</p>
+            </div>
           </div>
-          <Badge className="absolute top-2 right-2 bg-green-500 text-[10px]">
-            <CheckCircle2 className="h-3 w-3 mr-1" /> আপলোড হয়েছে
-          </Badge>
+          <div className="p-2 bg-green-500/10 border-t border-green-500/20">
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 text-green-600 shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-semibold text-green-700 dark:text-green-400 truncate">{label} ✓</p>
+                {file && (
+                  <p className="text-[9px] text-green-600/80 dark:text-green-500/80 truncate">
+                    {file.name} • {formatFileSize(file.size)}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="aspect-[4/3] flex flex-col items-center justify-center gap-2 p-4">
