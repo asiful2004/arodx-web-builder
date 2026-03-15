@@ -206,20 +206,11 @@ export default function LiveChat() {
     return data.publicUrl;
   };
 
-  // Trigger AI auto-reply after configured delay if no admin responds
+  // Trigger AI auto-reply after a default delay, let edge function handle settings check
   const triggerAiReply = useCallback(async (sid: string) => {
     if (aiReplyTimerRef.current) clearTimeout(aiReplyTimerRef.current);
-    
-    // Fetch AI settings to check if enabled and get delay
-    const { data: aiSettings } = await supabase
-      .from("chat_ai_settings" as any)
-      .select("enabled, auto_reply_delay")
-      .limit(1)
-      .single();
 
-    if (!aiSettings || !(aiSettings as any).enabled) return;
-
-    const delay = ((aiSettings as any).auto_reply_delay || 10) * 1000;
+    const delay = 10 * 1000; // default 10s delay
 
     aiReplyTimerRef.current = setTimeout(async () => {
       try {
