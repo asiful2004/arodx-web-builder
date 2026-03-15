@@ -150,50 +150,76 @@ const ContactSection = () => {
             </motion.div>
           </motion.div>
 
-          <motion.form
-            initial={{ opacity: 0, x: 40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ type: "spring" as const, stiffness: 60, damping: 15 }}
-            onSubmit={handleSubmit}
-            className="space-y-5"
-          >
-            {[
-              { name: "name", type: "text", placeholder: "আপনার নাম" },
-              { name: "email", type: "email", placeholder: "আপনার ইমেইল" },
-            ].map((field, i) => (
-              <motion.div key={field.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                <input
-                  type={field.type}
-                  placeholder={field.placeholder}
-                  required
-                  value={formData[field.name as keyof typeof formData]}
-                  onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
-                  onFocus={() => setFocusedField(field.name)}
-                  onBlur={() => setFocusedField(null)}
-                  className={`w-full px-4 py-3 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-300 ${focusedField === field.name ? "border-primary/50 ring-2 ring-primary/20 shadow-lg shadow-primary/5" : "border-border"}`}
-                />
+          <AnimatePresence mode="wait">
+            {submitted ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className="flex flex-col items-center justify-center text-center p-10 rounded-2xl border border-primary/20 bg-primary/5 min-h-[320px]"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.1 }}
+                >
+                  <CheckCircle2 className="h-16 w-16 text-primary mb-4" />
+                </motion.div>
+                <h3 className="text-lg font-bold text-foreground mb-2">মেসেজ পাঠানো হয়েছে!</h3>
+                <p className="text-muted-foreground text-sm max-w-xs">
+                  আপনার মেসেজটি আমরা পেয়েছি। অনুগ্রহ করে অপেক্ষা করুন, আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।
+                </p>
               </motion.div>
-            ))}
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
-              <textarea
-                placeholder="আপনার মেসেজ"
-                required
-                rows={5}
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                onFocus={() => setFocusedField("message")}
-                onBlur={() => setFocusedField(null)}
-                className={`w-full px-4 py-3 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none resize-none transition-all duration-300 ${focusedField === "message" ? "border-primary/50 ring-2 ring-primary/20 shadow-lg shadow-primary/5" : "border-border"}`}
-              />
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
-              <Button type="submit" size="lg" className="w-full bg-gradient-primary text-primary-foreground font-semibold py-6 hover:opacity-90 transition-opacity relative overflow-hidden group">
-                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-                <span className="relative z-10 flex items-center justify-center">মেসেজ পাঠান <Send className="ml-2 h-4 w-4" /></span>
-              </Button>
-            </motion.div>
-          </motion.form>
+            ) : (
+              <motion.form
+                key="form"
+                initial={{ opacity: 0, x: 40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ type: "spring" as const, stiffness: 60, damping: 15 }}
+                onSubmit={handleSubmit}
+                className="space-y-5"
+              >
+                {[
+                  { name: "name", type: "text", placeholder: "আপনার নাম" },
+                  { name: "email", type: "email", placeholder: "আপনার ইমেইল" },
+                ].map((field, i) => (
+                  <motion.div key={field.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                    <input
+                      type={field.type}
+                      placeholder={field.placeholder}
+                      required
+                      value={formData[field.name as keyof typeof formData]}
+                      onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
+                      onFocus={() => setFocusedField(field.name)}
+                      onBlur={() => setFocusedField(null)}
+                      className={`w-full px-4 py-3 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-300 ${focusedField === field.name ? "border-primary/50 ring-2 ring-primary/20 shadow-lg shadow-primary/5" : "border-border"}`}
+                    />
+                  </motion.div>
+                ))}
+                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
+                  <textarea
+                    placeholder="আপনার মেসেজ"
+                    required
+                    rows={5}
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    onFocus={() => setFocusedField("message")}
+                    onBlur={() => setFocusedField(null)}
+                    className={`w-full px-4 py-3 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none resize-none transition-all duration-300 ${focusedField === "message" ? "border-primary/50 ring-2 ring-primary/20 shadow-lg shadow-primary/5" : "border-border"}`}
+                  />
+                </motion.div>
+                <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
+                  <Button type="submit" size="lg" className="w-full bg-gradient-primary text-primary-foreground font-semibold py-6 hover:opacity-90 transition-opacity relative overflow-hidden group">
+                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+                    <span className="relative z-10 flex items-center justify-center">মেসেজ পাঠান <Send className="ml-2 h-4 w-4" /></span>
+                  </Button>
+                </motion.div>
+              </motion.form>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </section>
