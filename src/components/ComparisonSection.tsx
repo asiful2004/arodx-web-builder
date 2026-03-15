@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { X, Check, Users, UserRound, ArrowRight, AlertTriangle, TrendingDown, Wallet, Brain, Clock, ShieldCheck, Zap } from "lucide-react";
+import { X, Check, Users, UserRound, ArrowRight, AlertTriangle, TrendingDown, Wallet, Brain, Clock, ShieldCheck, Zap, Code } from "lucide-react";
 
 const hiringProblems = [
   {
