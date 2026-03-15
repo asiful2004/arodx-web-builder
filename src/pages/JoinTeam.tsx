@@ -356,24 +356,21 @@ export default function JoinTeam() {
                         label="NID সামনের পাশ"
                         file={nidFront}
                         preview={nidFrontPreview}
-                        inputRef={nidFrontRef as any}
-                        onSelect={(f) => handleFileSelect(f, setNidFront, setNidFrontPreview)}
+                        onFileChange={handleNidFrontChange}
                         icon={CreditCard}
                       />
                       <FileUploadBox
                         label="NID পিছনের পাশ"
                         file={nidBack}
                         preview={nidBackPreview}
-                        inputRef={nidBackRef as any}
-                        onSelect={(f) => handleFileSelect(f, setNidBack, setNidBackPreview)}
+                        onFileChange={handleNidBackChange}
                         icon={CreditCard}
                       />
                       <FileUploadBox
                         label="ফেস ফটো (সেলফি)"
                         file={facePhoto}
                         preview={facePreview}
-                        inputRef={faceRef as any}
-                        onSelect={(f) => handleFileSelect(f, setFacePhoto, setFacePreview)}
+                        onFileChange={handleFaceChange}
                         icon={Camera}
                       />
                     </div>
