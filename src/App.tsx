@@ -44,6 +44,8 @@ import GraphicsDesignerPanel from "./components/staff/panels/GraphicsDesignerPan
 import WebDeveloperPanel from "./components/staff/panels/WebDeveloperPanel";
 import ProjectManagerPanel from "./components/staff/panels/ProjectManagerPanel";
 import DigitalMarketerPanel from "./components/staff/panels/DigitalMarketerPanel";
+import HRApplicationsPage from "./components/staff/HRApplicationsPage";
+import JoinTeam from "./pages/JoinTeam";
 import LiveChat from "./components/LiveChat";
 import Checkout from "./pages/Checkout";
 import RenewalPage from "./pages/Renewal";
@@ -108,11 +110,13 @@ const App = () => {
                 <Route path="hr" element={<StaffHRPage />} />
                 <Route path="attendance" element={<AttendancePanel />} />
                 <Route path="attendance-report" element={<StaffAttendanceReportPage />} />
+                <Route path="applications" element={<HRApplicationsPage />} />
                 <Route path="graphics-designer" element={<GraphicsDesignerPanel />} />
                 <Route path="web-developer" element={<WebDeveloperPanel />} />
                 <Route path="project-manager" element={<ProjectManagerPanel />} />
                 <Route path="digital-marketer" element={<DigitalMarketerPanel />} />
               </Route>
+              <Route path="/join-team" element={<JoinTeam />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/renewal" element={<RenewalPage />} />
               <Route path="*" element={<NotFound />} />
