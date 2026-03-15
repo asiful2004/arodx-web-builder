@@ -117,6 +117,7 @@ const App = () => {
                 <Route path="digital-marketer" element={<DigitalMarketerPanel />} />
               </Route>
               <Route path="/join-team" element={<JoinTeam />} />
+              <Route path="/join" element={<JoinTeam />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/renewal" element={<RenewalPage />} />
               <Route path="*" element={<NotFound />} />
