@@ -25,6 +25,7 @@ const commonItems = [
 
 const hrManagementItems = [
   { title: "স্টাফ ম্যানেজমেন্ট", url: "/staff/hr", icon: Users },
+  { title: "জব আবেদন", url: "/staff/applications", icon: FileText },
   { title: "অ্যাটেন্ডেন্স রিপোর্ট", url: "/staff/attendance-report", icon: TrendingUp },
 ];
 
