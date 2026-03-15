@@ -48,8 +48,11 @@ const HeroSection = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: "spring" as const, stiffness: 100, damping: 15 }}
         >
-          <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full border border-primary/30 text-primary bg-primary/5">
-            {badge}
+          <span className="relative inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full text-primary bg-primary/5 overflow-hidden">
+            <span className="absolute inset-0 rounded-full p-[1.5px] bg-[conic-gradient(from_var(--border-angle),hsl(var(--primary))_0%,hsl(var(--accent))_25%,hsl(190_90%_60%)_50%,hsl(var(--accent))_75%,hsl(var(--primary))_100%)] animate-[border-spin_3s_linear_infinite]">
+              <span className="block w-full h-full rounded-full bg-background" />
+            </span>
+            <span className="relative z-10">{badge}</span>
           </span>
         </motion.div>
 
