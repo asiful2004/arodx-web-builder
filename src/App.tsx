@@ -44,6 +44,8 @@ import GraphicsDesignerPanel from "./components/staff/panels/GraphicsDesignerPan
 import WebDeveloperPanel from "./components/staff/panels/WebDeveloperPanel";
 import ProjectManagerPanel from "./components/staff/panels/ProjectManagerPanel";
 import DigitalMarketerPanel from "./components/staff/panels/DigitalMarketerPanel";
+import HRApplicationsPage from "./components/staff/HRApplicationsPage";
+import JoinTeam from "./pages/JoinTeam";
 import LiveChat from "./components/LiveChat";
 import Checkout from "./pages/Checkout";
 import RenewalPage from "./pages/Renewal";
