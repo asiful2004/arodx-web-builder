@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { X, Check, Users, UserRound, ArrowRight, AlertTriangle, TrendingDown, Wallet, Brain, Clock, ShieldCheck, Zap } from "lucide-react";
+import { X, Check, Users, UserRound, ArrowRight, AlertTriangle, TrendingDown, Wallet, Brain, Clock, ShieldCheck, Zap, Code } from "lucide-react";
 
 const hiringProblems = [
   {
@@ -44,6 +44,11 @@ const arodxBenefits = [
     icon: Zap,
     title: "দ্রুত ও ঝামেলামুক্ত",
     description: "হোস্টিং, মেইনটেন্যান্স, সাপোর্ট — সব দায়িত্ব আমাদের। আপনি শুধু ব্যবসায় ফোকাস করুন।",
+  },
+  {
+    icon: Code,
+    title: "টেকনিক্যাল জ্ঞান লাগবে না",
+    description: "এক্সপার্ট ডেভেলপার আপনার ওয়েবসাইট তৈরি করেন, হোস্টিং সেটআপ করেন এবং টেকনিক্যাল সব কিছু সামলান। আপনার কোনো টেকনিক্যাল জ্ঞান লাগবে না।",
   },
 ];
 
