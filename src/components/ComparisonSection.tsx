@@ -128,7 +128,7 @@ const ComparisonSection = () => {
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                 <Users className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="text-xl font-bold font-display text-primary">Arodx টিমের সাথে কাজ করলে</h3>
+              <h3 className="text-xl font-bold font-display text-primary">আমাদের প্যাকেজ কিনলে</h3>
             </div>
             <div className="space-y-5">
               {arodxBenefits.map((item, i) => (
