@@ -65,10 +65,31 @@ export default function JoinTeam() {
   const [portfolioLinks, setPortfolioLinks] = useState<string[]>([""]);
   const [coverLetter, setCoverLetter] = useState("");
 
-  // Preview URLs
-  const [nidFrontPreview, setNidFrontPreview] = useState("");
-  const [nidBackPreview, setNidBackPreview] = useState("");
-  const [facePreview, setFacePreview] = useState("");
+  const createFileHandler = useCallback(
+    (setter: (f: File | null) => void, previewSetter: (s: string) => void) => {
+      return (file: File | null) => {
+        if (!file) {
+          setter(null);
+          previewSetter("");
+          return;
+        }
+        setter(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          previewSetter(typeof reader.result === "string" ? reader.result : "");
+        };
+        reader.onerror = () => {
+          previewSetter("");
+        };
+        reader.readAsDataURL(file);
+      };
+    },
+    []
+  );
+
+  const handleNidFrontChange = useCallback(createFileHandler(setNidFront, setNidFrontPreview), [createFileHandler]);
+  const handleNidBackChange = useCallback(createFileHandler(setNidBack, setNidBackPreview), [createFileHandler]);
+  const handleFaceChange = useCallback(createFileHandler(setFacePhoto, setFacePreview), [createFileHandler]);
 
   if (authLoading) {
     return (
@@ -97,32 +118,6 @@ export default function JoinTeam() {
       </div>
     );
   }
-
-  const createFileHandler = useCallback(
-    (setter: (f: File | null) => void, previewSetter: (s: string) => void) => {
-      return (file: File | null) => {
-        if (!file) {
-          setter(null);
-          previewSetter("");
-          return;
-        }
-        setter(file);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          previewSetter(typeof reader.result === "string" ? reader.result : "");
-        };
-        reader.onerror = () => {
-          previewSetter("");
-        };
-        reader.readAsDataURL(file);
-      };
-    },
-    []
-  );
-
-  const handleNidFrontChange = useCallback(createFileHandler(setNidFront, setNidFrontPreview), []);
-  const handleNidBackChange = useCallback(createFileHandler(setNidBack, setNidBackPreview), []);
-  const handleFaceChange = useCallback(createFileHandler(setFacePhoto, setFacePreview), []);
 
   const uploadFile = async (file: File, folder: string): Promise<string> => {
     const ext = file.name.split(".").pop();
