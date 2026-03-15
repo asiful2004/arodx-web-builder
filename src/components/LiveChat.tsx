@@ -533,41 +533,50 @@ export default function LiveChat() {
                 </div>
 
                 {/* Input Area */}
-                <div className="border-t border-border p-2">
-                  <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex items-center gap-1.5">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={sending}
-                    >
-                      <Image className="h-4 w-4" />
+                {sessionStatus === "closed" ? (
+                  <div className="border-t border-border p-3 text-center space-y-2">
+                    <p className="text-xs text-muted-foreground">এই চ্যাট বন্ধ হয়ে গেছে।</p>
+                    <Button size="sm" variant="outline" className="text-xs" onClick={endChat}>
+                      নতুন চ্যাট শুরু করুন
                     </Button>
-                    <Input
-                      placeholder="মেসেজ লিখুন..."
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      className="flex-1 text-sm h-8 border-0 bg-muted/50 focus-visible:ring-0"
-                    />
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      className={`h-8 w-8 shrink-0 ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground hover:text-foreground"}`}
-                      onClick={isListening ? stopListening : startListening}
-                      disabled={sending}
-                    >
-                      {isListening ? <Square className="h-3.5 w-3.5 fill-current" /> : <Mic className="h-4 w-4" />}
-                    </Button>
-                    {input.trim() && (
-                      <Button type="submit" size="icon" className="h-8 w-8 shrink-0" disabled={sending}>
-                        <Send className="h-4 w-4" />
+                  </div>
+                ) : (
+                  <div className="border-t border-border p-2">
+                    <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex items-center gap-1.5">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={sending}
+                      >
+                        <Image className="h-4 w-4" />
                       </Button>
-                    )}
-                  </form>
-                </div>
+                      <Input
+                        placeholder="মেসেজ লিখুন..."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        className="flex-1 text-sm h-8 border-0 bg-muted/50 focus-visible:ring-0"
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        className={`h-8 w-8 shrink-0 ${isListening ? "text-destructive animate-pulse" : "text-muted-foreground hover:text-foreground"}`}
+                        onClick={isListening ? stopListening : startListening}
+                        disabled={sending}
+                      >
+                        {isListening ? <Square className="h-3.5 w-3.5 fill-current" /> : <Mic className="h-4 w-4" />}
+                      </Button>
+                      {input.trim() && (
+                        <Button type="submit" size="icon" className="h-8 w-8 shrink-0" disabled={sending}>
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </form>
+                  </div>
+                )}
               </>
             )}
           </motion.div>
