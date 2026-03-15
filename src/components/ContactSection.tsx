@@ -3,6 +3,7 @@ import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const getIsOpen = () => {
   const now = new Date();
@@ -16,47 +17,47 @@ const getIsOpen = () => {
 
 const ServiceStatus = () => {
   const [isOpen, setIsOpen] = useState(getIsOpen);
-
   useEffect(() => {
     const interval = setInterval(() => setIsOpen(getIsOpen()), 30000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
-      isOpen ? "bg-green-500/10 text-green-500" : "bg-destructive/10 text-destructive"
-    }`}>
+    <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${isOpen ? "bg-green-500/10 text-green-500" : "bg-destructive/10 text-destructive"}`}>
       <span className={`w-2 h-2 rounded-full ${isOpen ? "bg-green-500 animate-pulse" : "bg-destructive"}`} />
       {isOpen ? "চালু আছে" : "বন্ধ আছে"}
     </span>
   );
 };
 
-const contactItems = [
-  { icon: Mail, title: "ইমেইল", value: "arodxofficial@gmail.com" },
-  { icon: Phone, title: "ফোন", value: "+880 1XXX-XXXXXX" },
-  { icon: MapPin, title: "ঠিকানা", value: "ঢাকা, বাংলাদেশ" },
-];
-
 const ContactSection = () => {
   const { toast } = useToast();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const { data: settings } = useSiteSettings();
+  const contact = settings?.contact;
 
-  const isOfficeOpen = getIsOpen;
+  const badge = contact?.badge || "Contact";
+  const title = contact?.title || "যোগাযোগ";
+  const titleHighlight = contact?.title_highlight || "করুন";
+  const subtitle = contact?.subtitle || "আপনার প্রজেক্ট নিয়ে কথা বলতে চান? আমাদের মেসেজ করুন!";
+  const email = contact?.email || "arodxofficial@gmail.com";
+  const phone = contact?.phone || "+880 1XXX-XXXXXX";
+  const address = contact?.address || "ঢাকা, বাংলাদেশ";
+  const officeHours = contact?.office_hours || { sat_to_wed: "8:00 AM – 12:00 AM", thursday: "8:00 AM – 5:00 PM", friday: "বন্ধ" };
+
+  const contactItems = [
+    { icon: Mail, title: "ইমেইল", value: email },
+    { icon: Phone, title: "ফোন", value: phone },
+    { icon: MapPin, title: "ঠিকানা", value: address },
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isOfficeOpen()) {
-      toast({
-        title: "মেসেজ পাঠানো হয়েছে!",
-        description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।",
-      });
+    if (getIsOpen()) {
+      toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।" });
     } else {
-      toast({
-        title: "মেসেজ পাঠানো হয়েছে!",
-        description: "বর্তমানে অফিস বন্ধ আছে। অফিস চালু হলে আপনাকে রেসপন্স করা হবে।",
-      });
+      toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "বর্তমানে অফিস বন্ধ আছে। অফিস চালু হলে আপনাকে রেসপন্স করা হবে।" });
     }
     setFormData({ name: "", email: "", message: "" });
   };
@@ -77,18 +78,15 @@ const ContactSection = () => {
             viewport={{ once: true }}
             className="inline-block px-4 py-1.5 mb-4 text-sm font-medium rounded-full border border-primary/30 text-primary bg-primary/5"
           >
-            Contact
+            {badge}
           </motion.span>
           <h2 className="text-4xl md:text-5xl font-bold font-display mb-4">
-            যোগাযোগ <span className="text-gradient">করুন</span>
+            {title} <span className="text-gradient">{titleHighlight}</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            আপনার প্রজেক্ট নিয়ে কথা বলতে চান? আমাদের মেসেজ করুন!
-          </p>
+          <p className="text-muted-foreground max-w-xl mx-auto">{subtitle}</p>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-12">
-          {/* Contact Info */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -120,7 +118,6 @@ const ContactSection = () => {
               </motion.div>
             ))}
 
-            {/* Office Schedule */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -135,21 +132,20 @@ const ContactSection = () => {
               <div className="space-y-2.5 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">শনি – বুধবার</span>
-                  <span className="text-foreground">8:00 AM – 12:00 AM</span>
+                  <span className="text-foreground">{officeHours.sat_to_wed}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">বৃহস্পতিবার</span>
-                  <span className="text-foreground">8:00 AM – 5:00 PM</span>
+                  <span className="text-foreground">{officeHours.thursday}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">শুক্রবার</span>
-                  <span className="text-destructive">বন্ধ</span>
+                  <span className="text-destructive">{officeHours.friday}</span>
                 </div>
               </div>
             </motion.div>
           </motion.div>
 
-          {/* Contact Form */}
           <motion.form
             initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -162,13 +158,7 @@ const ContactSection = () => {
               { name: "name", type: "text", placeholder: "আপনার নাম" },
               { name: "email", type: "email", placeholder: "আপনার ইমেইল" },
             ].map((field, i) => (
-              <motion.div
-                key={field.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
+              <motion.div key={field.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                 <input
                   type={field.type}
                   placeholder={field.placeholder}
@@ -177,20 +167,11 @@ const ContactSection = () => {
                   onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
                   onFocus={() => setFocusedField(field.name)}
                   onBlur={() => setFocusedField(null)}
-                  className={`w-full px-4 py-3 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-300 ${
-                    focusedField === field.name
-                      ? "border-primary/50 ring-2 ring-primary/20 shadow-lg shadow-primary/5"
-                      : "border-border"
-                  }`}
+                  className={`w-full px-4 py-3 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none transition-all duration-300 ${focusedField === field.name ? "border-primary/50 ring-2 ring-primary/20 shadow-lg shadow-primary/5" : "border-border"}`}
                 />
               </motion.div>
             ))}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
               <textarea
                 placeholder="আপনার মেসেজ"
                 required
@@ -199,19 +180,11 @@ const ContactSection = () => {
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 onFocus={() => setFocusedField("message")}
                 onBlur={() => setFocusedField(null)}
-                className={`w-full px-4 py-3 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none resize-none transition-all duration-300 ${
-                  focusedField === "message"
-                    ? "border-primary/50 ring-2 ring-primary/20 shadow-lg shadow-primary/5"
-                    : "border-border"
-                }`}
+                className={`w-full px-4 py-3 rounded-xl border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none resize-none transition-all duration-300 ${focusedField === "message" ? "border-primary/50 ring-2 ring-primary/20 shadow-lg shadow-primary/5" : "border-border"}`}
               />
             </motion.div>
             <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full bg-gradient-primary text-primary-foreground font-semibold py-6 hover:opacity-90 transition-opacity relative overflow-hidden group"
-              >
+              <Button type="submit" size="lg" className="w-full bg-gradient-primary text-primary-foreground font-semibold py-6 hover:opacity-90 transition-opacity relative overflow-hidden group">
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
                 <span className="relative z-10 flex items-center justify-center">মেসেজ পাঠান <Send className="ml-2 h-4 w-4" /></span>
               </Button>

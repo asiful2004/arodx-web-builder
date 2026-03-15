@@ -1,28 +1,23 @@
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
-const projects = [
-  {
-    title: "E-Commerce Platform",
-    category: "Web Development",
-    description: "একটি সম্পূর্ণ ই-কমার্স প্ল্যাটফর্ম যেখানে পেমেন্ট ইন্টিগ্রেশন ও ইনভেন্টরি ম্যানেজমেন্ট আছে।",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop",
-  },
-  {
-    title: "Restaurant Branding",
-    category: "UI/UX Design",
-    description: "একটি রেস্টুরেন্টের জন্য সম্পূর্ণ ব্র্যান্ডিং — লোগো, মেনু ডিজাইন ও ওয়েবসাইট।",
-    image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop",
-  },
-  {
-    title: "Social Media Campaign",
-    category: "Digital Marketing",
-    description: "সোশ্যাল মিডিয়া ক্যাম্পেইন যা ক্লায়েন্টের সেলস ৩x বাড়িয়েছে।",
-    image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=400&fit=crop",
-  },
+const defaultProjects = [
+  { title: "E-Commerce Platform", category: "Web Development", description: "একটি সম্পূর্ণ ই-কমার্স প্ল্যাটফর্ম যেখানে পেমেন্ট ইন্টিগ্রেশন ও ইনভেন্টরি ম্যানেজমেন্ট আছে।", image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop" },
+  { title: "Restaurant Branding", category: "UI/UX Design", description: "একটি রেস্টুরেন্টের জন্য সম্পূর্ণ ব্র্যান্ডিং — লোগো, মেনু ডিজাইন ও ওয়েবসাইট।", image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop" },
+  { title: "Social Media Campaign", category: "Digital Marketing", description: "সোশ্যাল মিডিয়া ক্যাম্পেইন যা ক্লায়েন্টের সেলস ৩x বাড়িয়েছে।", image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=400&fit=crop" },
 ];
 
 const PortfolioSection = () => {
+  const { data: settings } = useSiteSettings();
+  const port = settings?.portfolio;
+
+  const badge = port?.badge || "Portfolio";
+  const title = port?.title || "আমাদের";
+  const titleHighlight = port?.title_highlight || "কাজ";
+  const subtitle = port?.subtitle || "আমরা এ পর্যন্ত যেসব প্রজেক্ট সফলভাবে সম্পন্ন করেছি তার কিছু নমুনা।";
+  const projects = port?.projects || defaultProjects;
+
   return (
     <section id="portfolio" className="py-24 px-4">
       <div className="max-w-6xl mx-auto">
@@ -34,20 +29,18 @@ const PortfolioSection = () => {
           className="text-center mb-16"
         >
           <span className="inline-block px-4 py-1.5 mb-4 text-sm font-medium rounded-full border border-primary/30 text-primary bg-primary/5">
-            Portfolio
+            {badge}
           </span>
           <h2 className="text-4xl md:text-5xl font-bold font-display mb-4">
-            আমাদের <span className="text-gradient">কাজ</span>
+            {title} <span className="text-gradient">{titleHighlight}</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            আমরা এ পর্যন্ত যেসব প্রজেক্ট সফলভাবে সম্পন্ন করেছি তার কিছু নমুনা।
-          </p>
+          <p className="text-muted-foreground max-w-xl mx-auto">{subtitle}</p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => (
+          {projects.map((project: any, index: number) => (
             <motion.div
-              key={project.title}
+              key={project.title + index}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

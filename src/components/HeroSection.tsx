@@ -1,51 +1,43 @@
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const HeroSection = () => {
+  const { data: settings } = useSiteSettings();
+  const hero = settings?.hero;
+
+  const badge = hero?.badge || "Digital Agency";
+  const titlePrefix = hero?.title_prefix || "We Are";
+  const titleBrand = hero?.title_brand || "Arodx";
+  const subtitle = hero?.subtitle || "স্বপ্ন আপনার, বাস্তবে রূপ দেবো আমরা।";
+  const description = hero?.description || "Creative design, development এবং marketing সবকিছু এক ছাদের নিচে।";
+  const ctaPrimaryText = hero?.cta_primary_text || "Get Started";
+  const ctaPrimaryLink = hero?.cta_primary_link || "#pricing";
+  const ctaSecondaryText = hero?.cta_secondary_text || "আমাদের কাজ দেখুন";
+  const ctaSecondaryLink = hero?.cta_secondary_link || "#portfolio";
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
-      {/* Animated background glow effects */}
       <motion.div
         className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px]"
-        animate={{
-          x: [0, 30, -20, 0],
-          y: [0, -20, 30, 0],
-          scale: [1, 1.1, 0.9, 1],
-        }}
+        animate={{ x: [0, 30, -20, 0], y: [0, -20, 30, 0], scale: [1, 1.1, 0.9, 1] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
         className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-accent/10 rounded-full blur-[100px]"
-        animate={{
-          x: [0, -30, 20, 0],
-          y: [0, 20, -30, 0],
-          scale: [1, 0.9, 1.1, 1],
-        }}
+        animate={{ x: [0, -30, 20, 0], y: [0, 20, -30, 0], scale: [1, 0.9, 1.1, 1] }}
         transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Floating grid dots */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute w-1 h-1 rounded-full bg-primary/20"
-            style={{
-              left: `${5 + (i * 37) % 90}%`,
-              top: `${10 + (i * 53) % 80}%`,
-            }}
-            animate={{
-              y: [0, -30, 0],
-              opacity: [0.1, 0.5, 0.1],
-            }}
-            transition={{
-              duration: 4 + (i % 3) * 2,
-              repeat: Infinity,
-              delay: i * 0.3,
-              ease: "easeInOut",
-            }}
+            style={{ left: `${5 + (i * 37) % 90}%`, top: `${10 + (i * 53) % 80}%` }}
+            animate={{ y: [0, -30, 0], opacity: [0.1, 0.5, 0.1] }}
+            transition={{ duration: 4 + (i % 3) * 2, repeat: Infinity, delay: i * 0.3, ease: "easeInOut" }}
           />
         ))}
       </div>
@@ -57,7 +49,7 @@ const HeroSection = () => {
           transition={{ type: "spring" as const, stiffness: 100, damping: 15 }}
         >
           <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full border border-primary/30 text-primary bg-primary/5">
-            Digital Agency
+            {badge}
           </span>
         </motion.div>
 
@@ -67,44 +59,29 @@ const HeroSection = () => {
           transition={{ type: "spring" as const, stiffness: 80, damping: 15, delay: 0.1 }}
           className="text-5xl md:text-7xl lg:text-8xl font-bold font-display tracking-tight mb-6"
         >
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
-            We Are{" "}
+          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.5 }}>
+            {titlePrefix}{" "}
           </motion.span>
           <span className="inline-flex relative">
-            {["A", "r", "o", "d", "x"].map((letter, i) => (
+            {titleBrand.split("").map((letter, i) => (
               <motion.span
                 key={i}
                 className="text-gradient inline-block cursor-default relative"
                 initial={{ opacity: 0, y: 80, rotateX: 90 }}
                 animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                transition={{
-                  type: "spring" as const,
-                  stiffness: 150,
-                  damping: 12,
-                  delay: 0.5 + i * 0.08,
-                }}
-                whileHover={{
-                  y: -12,
-                  scale: 1.2,
-                  transition: { type: "spring" as const, stiffness: 400, damping: 10 },
-                }}
+                transition={{ type: "spring" as const, stiffness: 150, damping: 12, delay: 0.5 + i * 0.08 }}
+                whileHover={{ y: -12, scale: 1.2, transition: { type: "spring" as const, stiffness: 400, damping: 10 } }}
                 style={{ display: "inline-block" }}
               >
                 {letter}
               </motion.span>
             ))}
-            {/* Animated underline */}
             <motion.div
               className="absolute -bottom-2 left-0 right-0 h-[3px] bg-gradient-primary rounded-full origin-left"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ delay: 1.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             />
-            {/* Glow behind text */}
             <motion.div
               className="absolute inset-0 blur-2xl bg-primary/20 -z-10 rounded-full"
               initial={{ opacity: 0, scale: 0.5 }}
@@ -120,7 +97,7 @@ const HeroSection = () => {
           transition={{ type: "spring" as const, stiffness: 80, damping: 15, delay: 0.4 }}
           className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3"
         >
-          স্বপ্ন আপনার, বাস্তবে রূপ দেবো আমরা।
+          {subtitle}
         </motion.p>
 
         <motion.p
@@ -129,7 +106,7 @@ const HeroSection = () => {
           transition={{ type: "spring" as const, stiffness: 80, damping: 15, delay: 0.5 }}
           className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto mb-10"
         >
-          Creative design, development এবং marketing সবকিছু এক ছাদের নিচে।
+          {description}
         </motion.p>
 
         <motion.div
@@ -140,21 +117,20 @@ const HeroSection = () => {
         >
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
             <Button size="lg" asChild className="bg-gradient-primary text-primary-foreground font-semibold px-8 py-6 text-base shadow-glow hover:opacity-90 transition-opacity relative overflow-hidden group">
-              <a href="#pricing">
+              <a href={ctaPrimaryLink}>
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-                <span className="relative z-10 flex items-center">Get Started <ArrowRight className="ml-2 h-5 w-5" /></span>
+                <span className="relative z-10 flex items-center">{ctaPrimaryText} <ArrowRight className="ml-2 h-5 w-5" /></span>
               </a>
             </Button>
           </motion.div>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
             <Button size="lg" variant="outline" asChild className="border-border text-foreground px-8 py-6 text-base hover:bg-secondary hover:border-primary/30 transition-all">
-              <a href="#portfolio">আমাদের কাজ দেখুন</a>
+              <a href={ctaSecondaryLink}>{ctaSecondaryText}</a>
             </Button>
           </motion.div>
         </motion.div>
       </div>
 
-      {/* Mouse scroll indicator */}
       <motion.a
         href="#services"
         initial={{ opacity: 0 }}
