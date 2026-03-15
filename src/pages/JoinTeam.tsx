@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import FileUploadBox from "@/components/shared/FileUploadBox";
 import {
-  ArrowLeft, ArrowRight, Upload, User, Briefcase, FileText, Send,
+  ArrowLeft, ArrowRight, User, Briefcase, FileText, Send,
   Camera, CreditCard, CheckCircle2, Loader2, Plus, X, Link as LinkIcon,
 } from "lucide-react";
 
