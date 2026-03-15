@@ -291,7 +291,34 @@ const SignIn = () => {
             <p className="text-muted-foreground mt-2">Sign in to your account</p>
           </div>
 
-          {/* Login Mode Toggle */}
+          {/* Rate Limit Lockout Warning */}
+          {isLocked && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-center space-y-2"
+            >
+              <ShieldAlert className="w-8 h-8 text-destructive mx-auto" />
+              <p className="text-sm font-semibold text-destructive">অ্যাকাউন্ট সাময়িকভাবে লক হয়েছে</p>
+              <p className="text-xs text-muted-foreground">
+                অনেকবার ভুল পাসওয়ার্ড দেওয়ায় {rateLimitConfig.lockoutMinutes} মিনিটের জন্য লক করা হয়েছে
+              </p>
+              <div className="text-lg font-bold text-destructive font-display">
+                {Math.floor(lockCountdown / 60)}:{String(lockCountdown % 60).padStart(2, '0')}
+              </div>
+              <Progress value={(lockCountdown / (rateLimitConfig.lockoutMinutes * 60)) * 100} className="h-1.5" />
+            </motion.div>
+          )}
+
+          {/* Attempts warning */}
+          {rateLimitConfig.enabled && !isLocked && rateLimitState.attempts > 0 && attemptsLeft <= 3 && (
+            <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                ⚠️ আর {attemptsLeft}টি চেষ্টা বাকি আছে। এরপর অ্যাকাউন্ট {rateLimitConfig.lockoutMinutes} মিনিটের জন্য লক হয়ে যাবে।
+              </p>
+            </div>
+          )}
+
           <div className="flex rounded-xl bg-muted/50 p-1 mb-6">
             <button
               type="button"
