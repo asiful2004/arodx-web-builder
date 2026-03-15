@@ -317,11 +317,26 @@ export default function AdminChatPage() {
 
   const closeSession = async (sessionId: string) => {
     await supabase.from("chat_sessions").update({ status: "closed" }).eq("id", sessionId);
+    await supabase.from("chat_messages").insert({
+      session_id: sessionId,
+      sender_type: "system",
+      message: "এই চ্যাট সাপোর্ট টিম দ্বারা বন্ধ করা হয়েছে।",
+    });
     fetchSessions();
     if (activeSession === sessionId) {
       setActiveSession(null);
       setMessages([]);
     }
+  };
+
+  const reopenSession = async (sessionId: string) => {
+    await supabase.from("chat_sessions").update({ status: "active" }).eq("id", sessionId);
+    await supabase.from("chat_messages").insert({
+      session_id: sessionId,
+      sender_type: "system",
+      message: "এই চ্যাট পুনরায় চালু করা হয়েছে।",
+    });
+    fetchSessions();
   };
 
   const getSessionName = (s: ChatSession) => {
