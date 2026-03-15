@@ -317,11 +317,26 @@ export default function AdminChatPage() {
 
   const closeSession = async (sessionId: string) => {
     await supabase.from("chat_sessions").update({ status: "closed" }).eq("id", sessionId);
+    await supabase.from("chat_messages").insert({
+      session_id: sessionId,
+      sender_type: "system",
+      message: "এই চ্যাট সাপোর্ট টিম দ্বারা বন্ধ করা হয়েছে।",
+    });
     fetchSessions();
     if (activeSession === sessionId) {
       setActiveSession(null);
       setMessages([]);
     }
+  };
+
+  const reopenSession = async (sessionId: string) => {
+    await supabase.from("chat_sessions").update({ status: "active" }).eq("id", sessionId);
+    await supabase.from("chat_messages").insert({
+      session_id: sessionId,
+      sender_type: "system",
+      message: "এই চ্যাট পুনরায় চালু করা হয়েছে।",
+    });
+    fetchSessions();
   };
 
   const getSessionName = (s: ChatSession) => {
@@ -464,16 +479,27 @@ export default function AdminChatPage() {
                       </p>
                     </div>
                   </div>
-                  {activeSessionData?.status !== "closed" && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-destructive shrink-0"
-                      onClick={() => closeSession(activeSession)}
-                    >
-                      <X className="h-3.5 w-3.5 mr-1" /> <span className="hidden sm:inline">চ্যাট</span> বন্ধ
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-1 shrink-0">
+                    {activeSessionData?.status === "closed" ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-primary"
+                        onClick={() => reopenSession(activeSession!)}
+                      >
+                        <MessageCircle className="h-3.5 w-3.5 mr-1" /> রিওপেন
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-destructive"
+                        onClick={() => closeSession(activeSession!)}
+                      >
+                        <X className="h-3.5 w-3.5 mr-1" /> <span className="hidden sm:inline">চ্যাট</span> বন্ধ
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Messages */}
