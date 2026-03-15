@@ -463,14 +463,23 @@ export default function LiveChat() {
                   <p className="text-xs text-muted-foreground mt-1">আমরা সাহায্য করতে এখানে আছি</p>
                 </div>
                 {!user && (
-                  <Input
-                    placeholder="আপনার নাম"
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
-                    className="text-sm"
-                  />
+                  <div className="w-full space-y-2">
+                    <Input
+                      placeholder="আপনার নাম"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      className="text-sm"
+                    />
+                    <Input
+                      placeholder="ফোন নম্বর (যেমন: 01XXXXXXXXX)"
+                      value={guestPhone}
+                      onChange={(e) => setGuestPhone(e.target.value)}
+                      className="text-sm"
+                      type="tel"
+                    />
+                  </div>
                 )}
-                <Button onClick={startChat} className="w-full" disabled={!user && !guestName.trim()}>
+                <Button onClick={startChat} className="w-full" disabled={!user && (!guestName.trim() || !guestPhone.trim())}>
                   চ্যাট শুরু করুন
                 </Button>
               </div>
