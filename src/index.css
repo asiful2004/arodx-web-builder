@@ -133,14 +133,12 @@
   }
 }
 
-@property --border-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes border-spin {
-  to {
-    --border-angle: 360deg;
-  }
+@keyframes rgb-border {
+  0%   { border-color: #ff0000; }
+  16%  { border-color: #ff00ff; }
+  33%  { border-color: #0000ff; }
+  50%  { border-color: #00ffff; }
+  66%  { border-color: #00ff00; }
+  83%  { border-color: #ffff00; }
+  100% { border-color: #ff0000; }
 }
