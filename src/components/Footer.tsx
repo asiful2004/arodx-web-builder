@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, ArrowUpRight, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const socialIconMap: Record<string, any> = { Facebook, Instagram, Twitter, Youtube };
@@ -77,18 +78,27 @@ const Footer = () => {
                   দ্রুত লিংক
                 </h4>
                 <ul className="space-y-2.5">
-                  {quickLinks.map((link: any, i: number) => (
-                    <li key={i}>
-                      <motion.a
-                        href={link.url}
-                        whileHover={{ x: 4 }}
-                        className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-1.5 group"
-                      >
-                        <span className="w-1 h-1 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
-                        {link.label}
-                      </motion.a>
-                    </li>
-                  ))}
+                  {quickLinks.map((link: any, i: number) => {
+                    const isInternal = link.url?.startsWith("/");
+                    const linkProps = isInternal
+                      ? {}
+                      : { target: undefined as any };
+                    const Comp = isInternal ? Link : "a";
+                    const hrefProp = isInternal ? { to: link.url } : { href: link.url };
+                    return (
+                      <li key={i}>
+                        <motion.div whileHover={{ x: 4 }}>
+                          <Comp
+                            {...(hrefProp as any)}
+                            className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-1.5 group"
+                          >
+                            <span className="w-1 h-1 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
+                            {link.label}
+                          </Comp>
+                        </motion.div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
