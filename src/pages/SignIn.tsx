@@ -3,13 +3,14 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { useToast } from "@/hooks/use-toast";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { QRCodeSVG } from "qrcode.react";
-import { Mail, QrCode, Loader2, RefreshCw, Timer } from "lucide-react";
+import { Mail, QrCode, Loader2, RefreshCw, Timer, ShieldAlert } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 type LoginMode = "email" | "qr";
