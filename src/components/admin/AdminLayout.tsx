@@ -246,7 +246,10 @@ export default function AdminLayout() {
     );
   }
 
+  const presenceValue = useOnlinePresenceProvider();
+
   return (
+    <OnlinePresenceContext.Provider value={presenceValue}>
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <AdminSidebar profile={profile} isAdmin={isAdmin} />
