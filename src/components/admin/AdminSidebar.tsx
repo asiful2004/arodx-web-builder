@@ -20,6 +20,7 @@ const mainItems = [
   { title: "ইউজার ম্যানেজমেন্ট", url: "/admin/users", icon: Users },
   { title: "টিকেট ম্যানেজমেন্ট", url: "/admin/tickets", icon: Ticket },
   { title: "লাইভ চ্যাট", url: "/admin/chat", icon: MessageCircle },
+  { title: "অ্যানালিটিক্স", url: "/admin/analytics", icon: BarChart3 },
 ];
 
 const staffItems = [
