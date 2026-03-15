@@ -48,10 +48,10 @@ const arodxBenefits = [
 ];
 
 const comparisonPoints = [
-  { feature: "মাসিক খরচ", hiring: "১০,০০০–১,৫০,০০০৳+", arodx: "১,৫০০–৯,৯৯৯৳" },
+  { feature: "মাসিক খরচ", hiring: "১০,০০০–১৫,০০০৳+", arodx: "১,৫০০–৯,৯৯৯৳" },
   { feature: "টিম সাইজ", hiring: "১ জন (সব কাজ একা)", arodx: "৪-৫ জন বিশেষজ্ঞ" },
   { feature: "কাজের মান", hiring: "অনিশ্চিত", arodx: "সর্বোচ্চ মান নিশ্চিত" },
-  { feature: "সাপোর্ট", hiring: "অফিস আওয়ার্সে", arodx: "24/7 ডেডিকেটেড সাপোর্ট" },
+  { feature: "সাপোর্ট", hiring: "অফিস আওয়ার্সে", arodx: "24/7 সাপোর্ট" },
   { feature: "স্কেলেবিলিটি", hiring: "সীমিত", arodx: "আনলিমিটেড" },
 ];
 
