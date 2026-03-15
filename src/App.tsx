@@ -63,6 +63,8 @@ const LazyFallback = () => (
   </div>
 );
 
+const PageTracker = () => { usePageTracker(); return null; };
+
 const App = () => {
   const [loading, setLoading] = useState(() => {
     if (sessionStorage.getItem("preloaded")) return false;
@@ -83,6 +85,7 @@ const App = () => {
           <AuthProvider>
             <PageTracker />
             <Suspense fallback={<LazyFallback />}>
+              <Routes>
                 <Route path="/" element={<><Index /><LiveChat /></>} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
