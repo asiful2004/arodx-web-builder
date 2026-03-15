@@ -247,7 +247,7 @@ export default function AdminLayout() {
     );
   }
 
-  const presenceValue = useOnlinePresenceProvider();
+
 
   return (
     <OnlinePresenceContext.Provider value={presenceValue}>
