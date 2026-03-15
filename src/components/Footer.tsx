@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, ArrowUpRight, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const socialIconMap: Record<string, any> = { Facebook, Instagram, Twitter, Youtube };
