@@ -48,7 +48,7 @@ const HeroSection = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: "spring" as const, stiffness: 100, damping: 15 }}
         >
-          <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full border border-primary/30 text-primary bg-primary/5">
+          <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium rounded-full border-2 text-primary bg-primary/5 animate-[rgb-border_4s_linear_infinite]">
             {badge}
           </span>
         </motion.div>
