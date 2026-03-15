@@ -86,11 +86,18 @@ export default function LiveChat() {
       setStarted(true);
       supabase
         .from("chat_sessions")
-        .select("guest_name")
+        .select("guest_name, status")
         .eq("id", stored)
         .single()
         .then(({ data }) => {
           if (data?.guest_name) setGuestName(data.guest_name);
+          if (data?.status) setSessionStatus(data.status);
+          // If session was deleted (no data), clear it
+          if (!data) {
+            localStorage.removeItem(SESSION_KEY);
+            setSessionId(null);
+            setStarted(false);
+          }
         });
     }
   }, []);
