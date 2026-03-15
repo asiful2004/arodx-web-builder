@@ -109,8 +109,12 @@ const SignIn = () => {
     setRateLimitState(newState);
     setRateLimitStateLocal(newState);
   };
+  // QR login state
+  const [qrLoginToken, setQrLoginToken] = useState<string | null>(null);
+  const [qrLoginWaiting, setQrLoginWaiting] = useState(false);
+  const [qrLoginExpired, setQrLoginExpired] = useState(false);
+  const [qrTimeLeft, setQrTimeLeft] = useState(300);
 
-  const generateQrLogin = useCallback(async () => {
     try {
       setLoading(true);
       const info = getDeviceInfoSimple();
