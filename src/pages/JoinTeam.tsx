@@ -223,7 +223,13 @@ export default function JoinTeam() {
     capture?: "user" | "environment";
   }) => (
     <div
-      onClick={() => inputRef.current?.click()}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (inputRef.current) {
+          inputRef.current.value = "";
+          inputRef.current.click();
+        }
+      }}
       className={`group relative cursor-pointer rounded-xl border-2 transition-all overflow-hidden ${
         preview
           ? "border-green-500/50 bg-green-500/5"
@@ -236,7 +242,11 @@ export default function JoinTeam() {
         accept="image/*"
         capture={capture}
         className="hidden"
-        onChange={(e) => onSelect(e.target.files?.[0] || null)}
+        onClick={(e) => e.stopPropagation()}
+        onChange={(e) => {
+          const f = e.target.files?.[0] || null;
+          onSelect(f);
+        }}
       />
       {preview ? (
         <div className="relative">
