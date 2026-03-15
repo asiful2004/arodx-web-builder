@@ -474,10 +474,54 @@ function FooterTab() {
   return (
     <SectionEditor sectionKey="footer" title="Footer" icon={FileText}>
       {(data, setData) => (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <FieldInput label="ব্র্যান্ড নাম" value={data.brand_name} onChange={(v) => setData({ ...data, brand_name: v })} />
           <FieldInput label="Tagline" value={data.tagline} onChange={(v) => setData({ ...data, tagline: v })} />
           <FieldInput label="Copyright Text" value={data.copyright_text} onChange={(v) => setData({ ...data, copyright_text: v })} />
+          <FieldInput label="বর্ণনা" value={data.description} onChange={(v) => setData({ ...data, description: v })} multiline />
+          <FieldInput label="ইমেইল" value={data.email} onChange={(v) => setData({ ...data, email: v })} />
+          <FieldInput label="ফোন" value={data.phone} onChange={(v) => setData({ ...data, phone: v })} />
+          <FieldInput label="ঠিকানা" value={data.address} onChange={(v) => setData({ ...data, address: v })} />
+
+          <div>
+            <Label className="text-sm font-semibold mb-3 block">সোশ্যাল মিডিয়া লিংক</Label>
+            <ListEditor
+              items={data.social_links || []}
+              setItems={(items) => setData({ ...data, social_links: items })}
+              fields={[
+                { key: "platform", label: "প্ল্যাটফর্ম নাম" },
+                { key: "url", label: "URL" },
+                { key: "icon", label: "Icon (Facebook, Instagram, Twitter, Youtube)" },
+              ]}
+              addLabel="নতুন সোশ্যাল লিংক যোগ করুন"
+            />
+          </div>
+
+          <div>
+            <Label className="text-sm font-semibold mb-3 block">দ্রুত লিংক</Label>
+            <ListEditor
+              items={data.quick_links || []}
+              setItems={(items) => setData({ ...data, quick_links: items })}
+              fields={[
+                { key: "label", label: "লেবেল" },
+                { key: "url", label: "URL" },
+              ]}
+              addLabel="নতুন লিংক যোগ করুন"
+            />
+          </div>
+
+          <div>
+            <Label className="text-sm font-semibold mb-3 block">সার্ভিস লিংক</Label>
+            <ListEditor
+              items={data.service_links || []}
+              setItems={(items) => setData({ ...data, service_links: items })}
+              fields={[
+                { key: "label", label: "সার্ভিস নাম" },
+                { key: "url", label: "URL" },
+              ]}
+              addLabel="নতুন সার্ভিস লিংক যোগ করুন"
+            />
+          </div>
         </div>
       )}
     </SectionEditor>
