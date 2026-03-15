@@ -30,6 +30,22 @@ function getDeviceInfoSimple() {
   return { browser, os, deviceName: `${browser} on ${os}` };
 }
 
+const RATE_LIMIT_KEY = "login_attempts";
+
+function getRateLimitState() {
+  try {
+    const stored = localStorage.getItem(RATE_LIMIT_KEY);
+    if (!stored) return { attempts: 0, lockedUntil: 0 };
+    return JSON.parse(stored);
+  } catch {
+    return { attempts: 0, lockedUntil: 0 };
+  }
+}
+
+function setRateLimitState(state: { attempts: number; lockedUntil: number }) {
+  localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(state));
+}
+
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,12 +57,58 @@ const SignIn = () => {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirect");
   const { checkDeviceCount, isDeviceRegistered, registerDevice } = useDeviceAuth();
+  const { data: siteSettings } = useSiteSettings();
 
-  // QR login state
-  const [qrLoginToken, setQrLoginToken] = useState<string | null>(null);
-  const [qrLoginWaiting, setQrLoginWaiting] = useState(false);
-  const [qrLoginExpired, setQrLoginExpired] = useState(false);
-  const [qrTimeLeft, setQrTimeLeft] = useState(300);
+  // Rate limit config from admin settings
+  const rateLimitConfig = useMemo(() => {
+    const rl = siteSettings?.rate_limit;
+    return {
+      maxAttempts: rl?.max_attempts ?? 5,
+      lockoutMinutes: rl?.lockout_minutes ?? 15,
+      enabled: rl?.enabled ?? true,
+    };
+  }, [siteSettings]);
+
+  // Rate limit state
+  const [rateLimitState, setRateLimitStateLocal] = useState(getRateLimitState);
+  const [lockCountdown, setLockCountdown] = useState(0);
+
+  const isLocked = rateLimitConfig.enabled && rateLimitState.lockedUntil > Date.now();
+  const attemptsLeft = rateLimitConfig.maxAttempts - rateLimitState.attempts;
+
+  // Countdown timer for lockout
+  useEffect(() => {
+    if (!isLocked) { setLockCountdown(0); return; }
+    const update = () => {
+      const remaining = Math.max(0, Math.ceil((rateLimitState.lockedUntil - Date.now()) / 1000));
+      setLockCountdown(remaining);
+      if (remaining <= 0) {
+        setRateLimitState({ attempts: 0, lockedUntil: 0 });
+        setRateLimitStateLocal({ attempts: 0, lockedUntil: 0 });
+      }
+    };
+    update();
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
+  }, [isLocked, rateLimitState.lockedUntil]);
+
+  const recordFailedAttempt = () => {
+    const current = getRateLimitState();
+    const newAttempts = current.attempts + 1;
+    let lockedUntil = current.lockedUntil;
+    if (newAttempts >= rateLimitConfig.maxAttempts) {
+      lockedUntil = Date.now() + rateLimitConfig.lockoutMinutes * 60 * 1000;
+    }
+    const newState = { attempts: newAttempts, lockedUntil };
+    setRateLimitState(newState);
+    setRateLimitStateLocal(newState);
+  };
+
+  const resetAttempts = () => {
+    const newState = { attempts: 0, lockedUntil: 0 };
+    setRateLimitState(newState);
+    setRateLimitStateLocal(newState);
+  };
 
   const generateQrLogin = useCallback(async () => {
     try {
