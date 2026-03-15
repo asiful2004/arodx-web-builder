@@ -457,7 +457,6 @@ export default function JoinTeam() {
                         inputRef={faceRef as any}
                         onSelect={(f) => handleFileSelect(f, setFacePhoto, setFacePreview)}
                         icon={Camera}
-                        capture="user"
                       />
                     </div>
                     <p className="text-[10px] text-muted-foreground bg-muted/50 rounded-lg p-3">
