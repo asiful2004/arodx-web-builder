@@ -48,10 +48,10 @@ const arodxBenefits = [
 ];
 
 const comparisonPoints = [
-  { feature: "মাসিক খরচ", hiring: "১০,০০০–১,৫০,০০০৳+", arodx: "১,৫০০–৯,৯৯৯৳" },
+  { feature: "মাসিক খরচ", hiring: "১০,০০০–১৫,০০০৳+", arodx: "১,৫০০–৯,৯৯৯৳" },
   { feature: "টিম সাইজ", hiring: "১ জন (সব কাজ একা)", arodx: "৪-৫ জন বিশেষজ্ঞ" },
   { feature: "কাজের মান", hiring: "অনিশ্চিত", arodx: "সর্বোচ্চ মান নিশ্চিত" },
-  { feature: "সাপোর্ট", hiring: "অফিস আওয়ার্সে", arodx: "24/7 ডেডিকেটেড সাপোর্ট" },
+  { feature: "সাপোর্ট", hiring: "অফিস আওয়ার্সে", arodx: "24/7 সাপোর্ট" },
   { feature: "স্কেলেবিলিটি", hiring: "সীমিত", arodx: "আনলিমিটেড" },
 ];
 
@@ -161,25 +161,55 @@ const ComparisonSection = () => {
           transition={{ type: "spring", stiffness: 80, damping: 15 }}
           className="rounded-2xl border border-border bg-card overflow-hidden"
         >
-          <div className="grid grid-cols-3 bg-muted/50 p-4 font-semibold text-sm">
-            <span className="text-muted-foreground">তুলনা</span>
-            <span className="text-center text-destructive">লোক নিয়োগ</span>
-            <span className="text-center text-primary">Arodx</span>
+          {/* Desktop Table */}
+          <div className="hidden md:block">
+            <div className="grid grid-cols-3 bg-muted/50 p-4 font-semibold text-sm">
+              <span className="text-muted-foreground">তুলনা</span>
+              <span className="text-center text-destructive">লোক নিয়োগ</span>
+              <span className="text-center text-primary">Arodx</span>
+            </div>
+            {comparisonPoints.map((point, i) => (
+              <motion.div
+                key={point.feature}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="grid grid-cols-3 p-4 border-t border-border items-center text-sm"
+              >
+                <span className="font-medium text-foreground">{point.feature}</span>
+                <span className="text-center text-muted-foreground">{point.hiring}</span>
+                <span className="text-center font-semibold text-primary">{point.arodx}</span>
+              </motion.div>
+            ))}
           </div>
-          {comparisonPoints.map((point, i) => (
-            <motion.div
-              key={point.feature}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-              className="grid grid-cols-3 p-4 border-t border-border items-center text-sm"
-            >
-              <span className="font-medium text-foreground">{point.feature}</span>
-              <span className="text-center text-muted-foreground">{point.hiring}</span>
-              <span className="text-center font-semibold text-primary">{point.arodx}</span>
-            </motion.div>
-          ))}
+
+          {/* Mobile Cards */}
+          <div className="md:hidden divide-y divide-border">
+            {comparisonPoints.map((point, i) => (
+              <motion.div
+                key={point.feature}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="p-4 space-y-2"
+              >
+                <span className="font-semibold text-foreground text-sm">{point.feature}</span>
+                <div className="flex justify-between items-center gap-2">
+                  <div className="flex-1 text-center rounded-lg bg-destructive/5 border border-destructive/10 py-2 px-2">
+                    <span className="text-[10px] uppercase tracking-wider text-destructive/60 block mb-0.5">নিয়োগ</span>
+                    <span className="text-xs text-muted-foreground">{point.hiring}</span>
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <div className="flex-1 text-center rounded-lg bg-primary/5 border border-primary/10 py-2 px-2">
+                    <span className="text-[10px] uppercase tracking-wider text-primary/60 block mb-0.5">Arodx</span>
+                    <span className="text-xs font-semibold text-primary">{point.arodx}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
