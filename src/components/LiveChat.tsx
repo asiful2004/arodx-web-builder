@@ -171,16 +171,25 @@ export default function LiveChat() {
 
   const startChat = async () => {
     const name = user?.user_metadata?.full_name || guestName.trim();
-    if (!name && !user) return;
+    const phone = guestPhone.trim();
+    if (!user && (!name || !phone)) return;
     const { data, error } = await supabase
       .from("chat_sessions")
-      .insert({ user_id: user?.id || null, guest_name: user ? null : name, guest_email: user?.email || null })
+      .insert({ 
+        user_id: user?.id || null, 
+        guest_name: user ? null : name, 
+        guest_email: user?.email || null,
+        guest_phone: user ? null : phone || null,
+      } as any)
       .select("id")
       .single();
     if (data && !error) {
       setSessionId(data.id);
       localStorage.setItem(SESSION_KEY, data.id);
-      if (!user) setGuestName(name);
+      if (!user) {
+        setGuestName(name);
+        setGuestPhone(phone);
+      }
       setStarted(true);
       await supabase.from("chat_messages").insert({
         session_id: data.id, sender_type: "system",
