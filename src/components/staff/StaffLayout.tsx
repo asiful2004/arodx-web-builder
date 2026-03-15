@@ -26,6 +26,7 @@ export default function StaffLayout() {
   const [canSendNotif, setCanSendNotif] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const presenceValue = useOnlinePresenceProvider();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -71,7 +72,8 @@ export default function StaffLayout() {
     );
   }
 
-  const presenceValue = useOnlinePresenceProvider();
+
+
 
   return (
     <OnlinePresenceContext.Provider value={presenceValue}>
