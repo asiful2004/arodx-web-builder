@@ -101,15 +101,26 @@ export default function JoinTeam() {
     );
   }
 
-  const handleFileSelect = (
+  const handleFileSelect = async (
     file: File | null,
     setter: (f: File | null) => void,
     previewSetter: (s: string) => void
   ) => {
-    if (file) {
-      setter(file);
-      previewSetter(URL.createObjectURL(file));
+    if (!file) {
+      setter(null);
+      previewSetter("");
+      return;
     }
+
+    setter(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      previewSetter(typeof reader.result === "string" ? reader.result : "");
+    };
+    reader.onerror = () => {
+      previewSetter("");
+    };
+    reader.readAsDataURL(file);
   };
 
   const uploadFile = async (file: File, folder: string): Promise<string> => {
