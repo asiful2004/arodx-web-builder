@@ -81,8 +81,8 @@ const App = () => {
         {loading && <Preloader onComplete={handleComplete} />}
         <BrowserRouter>
           <AuthProvider>
+            <PageTracker />
             <Suspense fallback={<LazyFallback />}>
-              <Routes>
                 <Route path="/" element={<><Index /><LiveChat /></>} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
