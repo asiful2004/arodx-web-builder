@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Phone, MapPin, Send, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
