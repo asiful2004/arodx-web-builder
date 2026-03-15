@@ -214,11 +214,19 @@ const SignIn = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLocked) {
+      toast({ title: "অ্যাকাউন্ট লক করা হয়েছে", description: `${Math.ceil(lockCountdown / 60)} মিনিট পর আবার চেষ্টা করুন`, variant: "destructive" });
+      return;
+    }
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      if (error) {
+        if (rateLimitConfig.enabled) recordFailedAttempt();
+        throw error;
+      }
 
+      resetAttempts();
       const user = data.user;
       if (!user) throw new Error("User not found");
 
@@ -241,7 +249,10 @@ const SignIn = () => {
       toast({ title: "সফলভাবে লগইন হয়েছে!" });
       navigate(redirectTo || "/");
     } catch (error: any) {
-      toast({ title: "লগইন ব্যর্থ", description: error.message, variant: "destructive" });
+      const msg = rateLimitConfig.enabled && attemptsLeft <= 1
+        ? `অ্যাকাউন্ট ${rateLimitConfig.lockoutMinutes} মিনিটের জন্য লক হয়ে যাবে`
+        : error.message;
+      toast({ title: "লগইন ব্যর্থ", description: msg, variant: "destructive" });
     } finally {
       setLoading(false);
     }
