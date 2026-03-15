@@ -91,13 +91,7 @@ export function useOnlinePresenceProvider() {
 
     channel
       .on("presence", { event: "sync" }, () => {
-        const state = channel.presenceState<{
-          user_id: string;
-          full_name: string | null;
-          avatar_url: string | null;
-          roles: string[];
-          online_at: string;
-        }>();
+        const state = channel.presenceState<OnlineMember>();
 
         const members: OnlineMember[] = [];
         for (const key of Object.keys(state)) {
@@ -110,12 +104,14 @@ export function useOnlinePresenceProvider() {
       })
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
+          const deviceInfo = detectDeviceType();
           await channel.track({
             user_id: user.id,
             full_name: myProfile.full_name,
             avatar_url: myProfile.avatar_url,
             roles: myRoles,
             online_at: new Date().toISOString(),
+            ...deviceInfo,
           });
         }
       });
