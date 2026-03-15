@@ -159,56 +159,72 @@ const ComparisonSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ type: "spring", stiffness: 80, damping: 15 }}
-          className="rounded-2xl border border-border bg-card overflow-hidden"
+          className="rounded-2xl border border-border bg-card overflow-hidden shadow-lg"
         >
-          {/* Desktop Table */}
-          <div className="hidden md:block">
-            <div className="grid grid-cols-3 bg-muted/50 p-4 font-semibold text-sm">
-              <span className="text-muted-foreground">তুলনা</span>
-              <span className="text-center text-destructive">লোক নিয়োগ</span>
-              <span className="text-center text-primary">Arodx</span>
+          {/* Table Header */}
+          <div className="grid grid-cols-[1.2fr_1fr_1fr] bg-muted/60 backdrop-blur-sm">
+            <div className="p-3 md:p-5 flex items-center">
+              <span className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wider">তুলনা</span>
             </div>
-            {comparisonPoints.map((point, i) => (
-              <motion.div
-                key={point.feature}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="grid grid-cols-3 p-4 border-t border-border items-center text-sm"
-              >
-                <span className="font-medium text-foreground">{point.feature}</span>
-                <span className="text-center text-muted-foreground">{point.hiring}</span>
-                <span className="text-center font-semibold text-primary">{point.arodx}</span>
-              </motion.div>
-            ))}
+            <div className="p-3 md:p-5 text-center border-l border-border/50">
+              <div className="inline-flex items-center gap-1.5 md:gap-2">
+                <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-destructive/10 flex items-center justify-center">
+                  <UserRound className="h-3 w-3 md:h-4 md:w-4 text-destructive" />
+                </div>
+                <span className="text-xs md:text-sm font-bold text-destructive">লোক নিয়োগ</span>
+              </div>
+            </div>
+            <div className="p-3 md:p-5 text-center border-l border-primary/20 bg-primary/5">
+              <div className="inline-flex items-center gap-1.5 md:gap-2">
+                <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Users className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+                </div>
+                <span className="text-xs md:text-sm font-bold text-primary">Arodx</span>
+              </div>
+            </div>
           </div>
 
-          {/* Mobile Cards */}
-          <div className="md:hidden divide-y divide-border">
-            {comparisonPoints.map((point, i) => (
-              <motion.div
-                key={point.feature}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="p-4 space-y-2"
-              >
-                <span className="font-semibold text-foreground text-sm">{point.feature}</span>
-                <div className="flex justify-between items-center gap-2">
-                  <div className="flex-1 text-center rounded-lg bg-destructive/5 border border-destructive/10 py-2 px-2">
-                    <span className="text-[10px] uppercase tracking-wider text-destructive/60 block mb-0.5">নিয়োগ</span>
-                    <span className="text-xs text-muted-foreground">{point.hiring}</span>
-                  </div>
-                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <div className="flex-1 text-center rounded-lg bg-primary/5 border border-primary/10 py-2 px-2">
-                    <span className="text-[10px] uppercase tracking-wider text-primary/60 block mb-0.5">Arodx</span>
-                    <span className="text-xs font-semibold text-primary">{point.arodx}</span>
-                  </div>
+          {/* Table Rows */}
+          {comparisonPoints.map((point, i) => (
+            <motion.div
+              key={point.feature}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08 }}
+              className={`grid grid-cols-[1.2fr_1fr_1fr] border-t border-border/50 ${
+                i % 2 === 0 ? "bg-transparent" : "bg-muted/20"
+              } hover:bg-muted/30 transition-colors`}
+            >
+              <div className="p-3 md:p-5 flex items-center">
+                <span className="text-xs md:text-sm font-semibold text-foreground">{point.feature}</span>
+              </div>
+              <div className="p-3 md:p-5 flex items-center justify-center border-l border-border/50">
+                <div className="flex items-center gap-1.5">
+                  <X className="h-3.5 w-3.5 text-destructive/60 shrink-0 hidden md:block" />
+                  <span className="text-[11px] md:text-sm text-muted-foreground text-center">{point.hiring}</span>
                 </div>
-              </motion.div>
-            ))}
+              </div>
+              <div className="p-3 md:p-5 flex items-center justify-center border-l border-primary/20 bg-primary/[0.02]">
+                <div className="flex items-center gap-1.5">
+                  <Check className="h-3.5 w-3.5 text-primary shrink-0 hidden md:block" />
+                  <span className="text-[11px] md:text-sm font-semibold text-primary text-center">{point.arodx}</span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+
+          {/* Bottom CTA row */}
+          <div className="grid grid-cols-[1.2fr_1fr_1fr] border-t-2 border-primary/20 bg-primary/[0.03]">
+            <div className="p-3 md:p-5 flex items-center">
+              <span className="text-xs md:text-sm font-bold text-foreground">সিদ্ধান্ত</span>
+            </div>
+            <div className="p-3 md:p-5 flex items-center justify-center border-l border-border/50">
+              <span className="text-[11px] md:text-xs text-destructive/70 font-medium text-center">বেশি খরচ, কম ফলাফল</span>
+            </div>
+            <div className="p-3 md:p-5 flex items-center justify-center border-l border-primary/20">
+              <span className="text-[11px] md:text-xs text-primary font-bold text-center">কম খরচে সেরা ফলাফল ✓</span>
+            </div>
           </div>
         </motion.div>
       </div>
