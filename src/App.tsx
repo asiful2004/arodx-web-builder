@@ -9,6 +9,7 @@ import { useState, useCallback, lazy, Suspense } from "react";
 import Preloader from "@/components/Preloader";
 import Index from "./pages/Index";
 import LiveChat from "./components/LiveChat";
+import { usePageTracker } from "@/hooks/usePageTracker";
 
 // Lazy load non-critical routes for performance
 const SignIn = lazy(() => import("./pages/SignIn"));
