@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import NotificationBell from "@/components/shared/NotificationBell";
 import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
+import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
 
 interface Profile {
   full_name: string | null;
@@ -70,7 +71,10 @@ export default function StaffLayout() {
     );
   }
 
+  const presenceValue = useOnlinePresenceProvider();
+
   return (
+    <OnlinePresenceContext.Provider value={presenceValue}>
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <StaffSidebar profile={profile} />
@@ -102,5 +106,6 @@ export default function StaffLayout() {
         <OnlineMembersPanel />
       </div>
     </SidebarProvider>
+    </OnlinePresenceContext.Provider>
   );
 }

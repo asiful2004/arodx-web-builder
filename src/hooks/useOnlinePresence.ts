@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -11,7 +11,15 @@ export interface OnlineMember {
   online_at: string;
 }
 
-export function useOnlinePresence() {
+interface OnlinePresenceContextType {
+  onlineMembers: OnlineMember[];
+}
+
+export const OnlinePresenceContext = createContext<OnlinePresenceContextType>({
+  onlineMembers: [],
+});
+
+export function useOnlinePresenceProvider() {
   const { user } = useAuth();
   const [onlineMembers, setOnlineMembers] = useState<OnlineMember[]>([]);
   const [myProfile, setMyProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
@@ -93,4 +101,9 @@ export function useOnlinePresence() {
   }, [user, myProfile, myRoles]);
 
   return { onlineMembers };
+}
+
+// Consumer hook — reads from context
+export function useOnlinePresence() {
+  return useContext(OnlinePresenceContext);
 }

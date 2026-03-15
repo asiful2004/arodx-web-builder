@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Button } from "@/components/ui/button";
 import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
+import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
 
 interface Profile {
   full_name: string | null;
@@ -245,7 +246,10 @@ export default function AdminLayout() {
     );
   }
 
+  const presenceValue = useOnlinePresenceProvider();
+
   return (
+    <OnlinePresenceContext.Provider value={presenceValue}>
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <AdminSidebar profile={profile} isAdmin={isAdmin} />
@@ -347,5 +351,6 @@ export default function AdminLayout() {
         <OnlineMembersPanel />
       </div>
     </SidebarProvider>
+    </OnlinePresenceContext.Provider>
   );
 }
