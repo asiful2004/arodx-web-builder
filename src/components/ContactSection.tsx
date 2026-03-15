@@ -55,12 +55,15 @@ const ContactSection = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitted(true);
     if (getIsOpen()) {
       toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।" });
     } else {
       toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "বর্তমানে অফিস বন্ধ আছে। অফিস চালু হলে আপনাকে রেসপন্স করা হবে।" });
     }
     setFormData({ name: "", email: "", message: "" });
+    // Reset submitted state after 8 seconds
+    setTimeout(() => setSubmitted(false), 8000);
   };
 
   return (
