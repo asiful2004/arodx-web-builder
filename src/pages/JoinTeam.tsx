@@ -70,10 +70,6 @@ export default function JoinTeam() {
   const [nidBackPreview, setNidBackPreview] = useState("");
   const [facePreview, setFacePreview] = useState("");
 
-  const nidFrontRef = useRef<HTMLInputElement>(null);
-  const nidBackRef = useRef<HTMLInputElement>(null);
-  const faceRef = useRef<HTMLInputElement>(null);
-
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
