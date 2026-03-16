@@ -800,6 +800,7 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="contact" className="text-xs">Contact</TabsTrigger>
           <TabsTrigger value="footer" className="text-xs">Footer</TabsTrigger>
           <TabsTrigger value="rate_limit" className="text-xs">🔒 Rate Limit</TabsTrigger>
+          <TabsTrigger value="cron_jobs" className="text-xs">⏰ Cron Jobs</TabsTrigger>
         </TabsList>
 
         <div className="mt-6">
@@ -813,6 +814,7 @@ export default function AdminSettingsPage() {
           <TabsContent value="contact"><ContactTab /></TabsContent>
           <TabsContent value="footer"><FooterTab /></TabsContent>
           <TabsContent value="rate_limit"><RateLimitTab /></TabsContent>
+          <TabsContent value="cron_jobs"><CronJobsTab /></TabsContent>
         </div>
       </Tabs>
     </div>
