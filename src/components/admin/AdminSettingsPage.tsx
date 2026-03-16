@@ -620,12 +620,28 @@ const CRON_JOB_LABELS: Record<string, { label: string; description: string }> = 
   },
 };
 
+const SCHEDULE_PRESETS = [
+  { label: "প্রতি ১০ মিনিট", value: "*/10 * * * *" },
+  { label: "প্রতি ৩০ মিনিট", value: "*/30 * * * *" },
+  { label: "প্রতি ঘণ্টায়", value: "0 * * * *" },
+  { label: "প্রতি ৩ ঘণ্টায়", value: "0 */3 * * *" },
+  { label: "প্রতি ৬ ঘণ্টায়", value: "0 */6 * * *" },
+  { label: "প্রতি ১২ ঘণ্টায়", value: "0 */12 * * *" },
+  { label: "প্রতিদিন রাত ১২টায়", value: "0 0 * * *" },
+  { label: "প্রতিদিন রাত ৩টায়", value: "0 3 * * *" },
+  { label: "প্রতিদিন সকাল ৬টায়", value: "0 6 * * *" },
+  { label: "প্রতি সপ্তাহে (রবিবার)", value: "0 0 * * 0" },
+];
+
 function CronJobsTab() {
   const { toast } = useToast();
   const [jobs, setJobs] = useState<CronJob[]>([]);
   const [runDetails, setRunDetails] = useState<CronRunDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [triggering, setTriggering] = useState<string | null>(null);
+  const [editingJob, setEditingJob] = useState<string | null>(null);
+  const [editSchedule, setEditSchedule] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const fetchCronData = useCallback(async () => {
     setLoading(true);
