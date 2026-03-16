@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Settings, Save, Loader2, Plus, Trash2, Globe, Layout, DollarSign, Users, Briefcase, Mail, Image, FileText, ShieldAlert } from "lucide-react";
+import { Settings, Save, Loader2, Plus, Trash2, Globe, Layout, DollarSign, Users, Briefcase, Mail, Image, FileText, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
