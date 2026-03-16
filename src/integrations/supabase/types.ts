@@ -889,6 +889,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_cron_schedule: {
+        Args: { _jobname: string; _schedule: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:
