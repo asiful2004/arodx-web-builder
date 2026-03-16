@@ -1,8 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Settings, Save, Loader2, Plus, Trash2, Globe, Layout, DollarSign, Users, Briefcase, Mail, Image, FileText, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
+import { Settings, Save, Loader2, Plus, Trash2, Globe, Layout, DollarSign, Users, Briefcase, Mail, Image, FileText, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -613,12 +620,28 @@ const CRON_JOB_LABELS: Record<string, { label: string; description: string }> = 
   },
 };
 
+const SCHEDULE_PRESETS = [
+  { label: "প্রতি ১০ মিনিট", value: "*/10 * * * *" },
+  { label: "প্রতি ৩০ মিনিট", value: "*/30 * * * *" },
+  { label: "প্রতি ঘণ্টায়", value: "0 * * * *" },
+  { label: "প্রতি ৩ ঘণ্টায়", value: "0 */3 * * *" },
+  { label: "প্রতি ৬ ঘণ্টায়", value: "0 */6 * * *" },
+  { label: "প্রতি ১২ ঘণ্টায়", value: "0 */12 * * *" },
+  { label: "প্রতিদিন রাত ১২টায়", value: "0 0 * * *" },
+  { label: "প্রতিদিন রাত ৩টায়", value: "0 3 * * *" },
+  { label: "প্রতিদিন সকাল ৬টায়", value: "0 6 * * *" },
+  { label: "প্রতি সপ্তাহে (রবিবার)", value: "0 0 * * 0" },
+];
+
 function CronJobsTab() {
   const { toast } = useToast();
   const [jobs, setJobs] = useState<CronJob[]>([]);
   const [runDetails, setRunDetails] = useState<CronRunDetail[]>([]);
   const [loading, setLoading] = useState(true);
   const [triggering, setTriggering] = useState<string | null>(null);
+  const [editingJob, setEditingJob] = useState<string | null>(null);
+  const [editSchedule, setEditSchedule] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const fetchCronData = useCallback(async () => {
     setLoading(true);
@@ -654,6 +677,26 @@ function CronJobsTab() {
       toast({ title: "ত্রুটি", description: err.message || "রান করতে সমস্যা হয়েছে", variant: "destructive" });
     } finally {
       setTriggering(null);
+    }
+  };
+
+  const updateSchedule = async (jobName: string) => {
+    if (!editSchedule.trim()) return;
+    setSaving(true);
+    try {
+      const { data, error } = await supabase.rpc("update_cron_schedule" as any, { 
+        _jobname: jobName, 
+        _schedule: editSchedule.trim() 
+      });
+      if (error) throw error;
+      toast({ title: "সফল!", description: "শিডিউল আপডেট হয়েছে" });
+      setEditingJob(null);
+      setEditSchedule("");
+      fetchCronData();
+    } catch (err: any) {
+      toast({ title: "ত্রুটি", description: err.message || "আপডেট করতে সমস্যা হয়েছে", variant: "destructive" });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -705,28 +748,113 @@ function CronJobsTab() {
           ) : (
             jobs.map((job) => {
               const meta = CRON_JOB_LABELS[job.jobname] || { label: job.jobname, description: "" };
+              const isEditing = editingJob === job.jobname;
+              const currentPreset = SCHEDULE_PRESETS.find(p => p.value === job.schedule);
               return (
-                <div key={job.jobname} className="p-4 rounded-xl border border-border bg-muted/30 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-foreground">{meta.label}</p>
-                      <Badge variant={job.active ? "default" : "secondary"} className="text-[10px]">
-                        {job.active ? "সক্রিয়" : "নিষ্ক্রিয়"}
-                      </Badge>
+                <div key={job.jobname} className="p-4 rounded-xl border border-border bg-muted/30 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-semibold text-foreground">{meta.label}</p>
+                        <Badge variant={job.active ? "default" : "secondary"} className="text-[10px]">
+                          {job.active ? "সক্রিয়" : "নিষ্ক্রিয়"}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">{meta.description}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{meta.description}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1 font-mono">শিডিউল: {job.schedule}</p>
+                    <div className="flex gap-2 shrink-0">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          if (isEditing) {
+                            setEditingJob(null);
+                          } else {
+                            setEditingJob(job.jobname);
+                            setEditSchedule(job.schedule);
+                          }
+                        }}
+                        className="gap-1.5"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        {isEditing ? "বাতিল" : "শিডিউল"}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => triggerJob(job.jobname)} 
+                        disabled={triggering === job.jobname}
+                        className="gap-1.5"
+                      >
+                        {triggering === job.jobname ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
+                        রান
+                      </Button>
+                    </div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => triggerJob(job.jobname)} 
-                    disabled={triggering === job.jobname}
-                    className="gap-2 shrink-0"
-                  >
-                    {triggering === job.jobname ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
-                    এখনই রান করুন
-                  </Button>
+
+                  {/* Current schedule display */}
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-[11px] text-muted-foreground">
+                      বর্তমান: <span className="font-mono font-medium text-foreground">{job.schedule}</span>
+                      {currentPreset && <span className="ml-1">({currentPreset.label})</span>}
+                    </span>
+                  </div>
+
+                  {/* Edit schedule panel */}
+                  {isEditing && (
+                    <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 space-y-3">
+                      <Label className="text-xs font-semibold">শিডিউল পরিবর্তন করুন</Label>
+                      
+                      {/* Preset selector */}
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] text-muted-foreground">প্রিসেট বেছে নিন</Label>
+                        <Select 
+                          value={SCHEDULE_PRESETS.find(p => p.value === editSchedule)?.value || "custom"} 
+                          onValueChange={(v) => { if (v !== "custom") setEditSchedule(v); }}
+                        >
+                          <SelectTrigger className="text-xs h-9">
+                            <SelectValue placeholder="একটি প্রিসেট বেছে নিন" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {SCHEDULE_PRESETS.map(p => (
+                              <SelectItem key={p.value} value={p.value} className="text-xs">
+                                {p.label} <span className="text-muted-foreground ml-1 font-mono">({p.value})</span>
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="custom" className="text-xs">কাস্টম (নিচে লিখুন)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Custom cron input */}
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] text-muted-foreground">কাস্টম Cron Expression</Label>
+                        <Input 
+                          value={editSchedule} 
+                          onChange={(e) => setEditSchedule(e.target.value)}
+                          placeholder="* * * * *"
+                          className="text-xs h-9 font-mono"
+                        />
+                        <p className="text-[10px] text-muted-foreground">ফরম্যাট: মিনিট ঘণ্টা দিন মাস সপ্তাহ</p>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          onClick={() => updateSchedule(job.jobname)} 
+                          disabled={saving || !editSchedule.trim() || editSchedule === job.schedule}
+                          className="gap-1.5 text-xs"
+                        >
+                          {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                          সেভ করুন
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => setEditingJob(null)} className="text-xs">
+                          বাতিল
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })
