@@ -680,6 +680,26 @@ function CronJobsTab() {
     }
   };
 
+  const updateSchedule = async (jobName: string) => {
+    if (!editSchedule.trim()) return;
+    setSaving(true);
+    try {
+      const { data, error } = await supabase.rpc("update_cron_schedule" as any, { 
+        _jobname: jobName, 
+        _schedule: editSchedule.trim() 
+      });
+      if (error) throw error;
+      toast({ title: "সফল!", description: "শিডিউল আপডেট হয়েছে" });
+      setEditingJob(null);
+      setEditSchedule("");
+      fetchCronData();
+    } catch (err: any) {
+      toast({ title: "ত্রুটি", description: err.message || "আপডেট করতে সমস্যা হয়েছে", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     if (status === "succeeded") return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px]"><CheckCircle2 className="w-3 h-3 mr-1" />সফল</Badge>;
     if (status === "failed") return <Badge variant="destructive" className="text-[10px]"><XCircle className="w-3 h-3 mr-1" />ব্যর্থ</Badge>;
