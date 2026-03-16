@@ -748,28 +748,113 @@ function CronJobsTab() {
           ) : (
             jobs.map((job) => {
               const meta = CRON_JOB_LABELS[job.jobname] || { label: job.jobname, description: "" };
+              const isEditing = editingJob === job.jobname;
+              const currentPreset = SCHEDULE_PRESETS.find(p => p.value === job.schedule);
               return (
-                <div key={job.jobname} className="p-4 rounded-xl border border-border bg-muted/30 flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-foreground">{meta.label}</p>
-                      <Badge variant={job.active ? "default" : "secondary"} className="text-[10px]">
-                        {job.active ? "সক্রিয়" : "নিষ্ক্রিয়"}
-                      </Badge>
+                <div key={job.jobname} className="p-4 rounded-xl border border-border bg-muted/30 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-semibold text-foreground">{meta.label}</p>
+                        <Badge variant={job.active ? "default" : "secondary"} className="text-[10px]">
+                          {job.active ? "সক্রিয়" : "নিষ্ক্রিয়"}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">{meta.description}</p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{meta.description}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1 font-mono">শিডিউল: {job.schedule}</p>
+                    <div className="flex gap-2 shrink-0">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          if (isEditing) {
+                            setEditingJob(null);
+                          } else {
+                            setEditingJob(job.jobname);
+                            setEditSchedule(job.schedule);
+                          }
+                        }}
+                        className="gap-1.5"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        {isEditing ? "বাতিল" : "শিডিউল"}
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => triggerJob(job.jobname)} 
+                        disabled={triggering === job.jobname}
+                        className="gap-1.5"
+                      >
+                        {triggering === job.jobname ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
+                        রান
+                      </Button>
+                    </div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => triggerJob(job.jobname)} 
-                    disabled={triggering === job.jobname}
-                    className="gap-2 shrink-0"
-                  >
-                    {triggering === job.jobname ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
-                    এখনই রান করুন
-                  </Button>
+
+                  {/* Current schedule display */}
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-[11px] text-muted-foreground">
+                      বর্তমান: <span className="font-mono font-medium text-foreground">{job.schedule}</span>
+                      {currentPreset && <span className="ml-1">({currentPreset.label})</span>}
+                    </span>
+                  </div>
+
+                  {/* Edit schedule panel */}
+                  {isEditing && (
+                    <div className="p-3 rounded-lg border border-primary/20 bg-primary/5 space-y-3">
+                      <Label className="text-xs font-semibold">শিডিউল পরিবর্তন করুন</Label>
+                      
+                      {/* Preset selector */}
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] text-muted-foreground">প্রিসেট বেছে নিন</Label>
+                        <Select 
+                          value={SCHEDULE_PRESETS.find(p => p.value === editSchedule)?.value || "custom"} 
+                          onValueChange={(v) => { if (v !== "custom") setEditSchedule(v); }}
+                        >
+                          <SelectTrigger className="text-xs h-9">
+                            <SelectValue placeholder="একটি প্রিসেট বেছে নিন" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {SCHEDULE_PRESETS.map(p => (
+                              <SelectItem key={p.value} value={p.value} className="text-xs">
+                                {p.label} <span className="text-muted-foreground ml-1 font-mono">({p.value})</span>
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="custom" className="text-xs">কাস্টম (নিচে লিখুন)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Custom cron input */}
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] text-muted-foreground">কাস্টম Cron Expression</Label>
+                        <Input 
+                          value={editSchedule} 
+                          onChange={(e) => setEditSchedule(e.target.value)}
+                          placeholder="* * * * *"
+                          className="text-xs h-9 font-mono"
+                        />
+                        <p className="text-[10px] text-muted-foreground">ফরম্যাট: মিনিট ঘণ্টা দিন মাস সপ্তাহ</p>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          onClick={() => updateSchedule(job.jobname)} 
+                          disabled={saving || !editSchedule.trim() || editSchedule === job.schedule}
+                          className="gap-1.5 text-xs"
+                        >
+                          {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                          সেভ করুন
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => setEditingJob(null)} className="text-xs">
+                          বাতিল
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })
