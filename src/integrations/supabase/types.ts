@@ -855,6 +855,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_cron_jobs: {
+        Args: never
+        Returns: {
+          active: boolean
+          jobname: string
+          schedule: string
+        }[]
+      }
+      get_cron_run_details: {
+        Args: never
+        Returns: {
+          end_time: string
+          job_pid: number
+          jobid: number
+          return_message: string
+          runid: number
+          start_time: string
+          status: string
+        }[]
+      }
       get_user_emails: {
         Args: never
         Returns: {
