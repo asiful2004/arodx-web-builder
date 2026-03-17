@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import aiRobotAvatar from "@/assets/ai-robot-avatar.png";
+import supportAgentChar from "@/assets/support-agent-character.png";
 
 interface ChatMessage {
   id: string;
@@ -59,8 +60,8 @@ function FloatingCharacter({ onClick }: { onClick: () => void }) {
             transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
             className="relative z-10"
           >
-            <div className="h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center shadow-md">
-              <span className="text-lg">🧑‍💻</span>
+            <div className="h-11 w-11 rounded-full bg-card border-2 border-primary/30 flex items-center justify-center shadow-md overflow-hidden">
+              <img src={supportAgentChar} alt="Support Agent" className="h-10 w-10 object-cover" />
             </div>
           </motion.div>
 
