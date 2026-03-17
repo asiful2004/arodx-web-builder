@@ -30,13 +30,21 @@ const Navbar = ({ logo }: NavbarProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) { setIsStaff(false); return; }
+    if (!user) { setIsStaff(false); setProfileAvatar(null); return; }
     supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .then(({ data }) => {
         if (data) setIsStaff(data.some((r: any) => STAFF_ROLES.includes(r.role)));
+      });
+    supabase
+      .from("profiles")
+      .select("avatar_url")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.avatar_url) setProfileAvatar(data.avatar_url);
       });
   }, [user]);
 
