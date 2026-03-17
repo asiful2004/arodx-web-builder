@@ -196,6 +196,15 @@ export default function LiveChat() {
         session_id: data.id, sender_type: "system",
         message: "আমাদের লাইভ চ্যাটে স্বাগতম! একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন।",
       });
+      // Trigger AI greeting immediately
+      setShowTyping(true);
+      supabase.functions.invoke("chat-ai-reply", {
+        body: { session_id: data.id, greeting_mode: true },
+      }).then(() => {
+        setShowTyping(false);
+      }).catch(() => {
+        setShowTyping(false);
+      });
     }
   };
 
