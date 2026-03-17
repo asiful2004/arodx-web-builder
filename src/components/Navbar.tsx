@@ -110,7 +110,7 @@ const Navbar = ({ logo }: NavbarProps) => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2 rounded-xl px-2">
                   <Avatar className="w-8 h-8">
-                    <AvatarImage src={user.user_metadata?.avatar_url} />
+                    <AvatarImage src={profileAvatar || user.user_metadata?.avatar_url} />
                     <AvatarFallback className="text-xs bg-primary/10 text-primary">
                       {userInitials}
                     </AvatarFallback>
