@@ -142,3 +142,8 @@
   83%  { border-color: #ffff00; }
   100% { border-color: #ff0000; }
 }
+
+@keyframes hero-particle {
+  0%, 100% { transform: translateY(0); opacity: 0.1; }
+  50% { transform: translateY(-30px); opacity: 0.5; }
+}

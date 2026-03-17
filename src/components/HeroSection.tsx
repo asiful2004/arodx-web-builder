@@ -31,13 +31,16 @@ const HeroSection = () => {
       />
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
+        {[...Array(8)].map((_, i) => (
+          <div
             key={i}
-            className="absolute w-1 h-1 rounded-full bg-primary/20"
-            style={{ left: `${5 + (i * 37) % 90}%`, top: `${10 + (i * 53) % 80}%` }}
-            animate={{ y: [0, -30, 0], opacity: [0.1, 0.5, 0.1] }}
-            transition={{ duration: 4 + (i % 3) * 2, repeat: Infinity, delay: i * 0.3, ease: "easeInOut" }}
+            className="absolute w-1 h-1 rounded-full bg-primary/20 animate-[hero-particle_4s_ease-in-out_infinite]"
+            style={{
+              left: `${5 + (i * 37) % 90}%`,
+              top: `${10 + (i * 53) % 80}%`,
+              animationDuration: `${4 + (i % 3) * 2}s`,
+              animationDelay: `${i * 0.3}s`,
+            }}
           />
         ))}
       </div>
