@@ -125,7 +125,7 @@ const HeroSection = () => {
         href="#services"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 0.8 }}
+        transition={{ delay: 0.6, duration: 0.8 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 text-muted-foreground hover:text-primary transition-colors cursor-pointer"
       >
         <div className="w-6 h-10 rounded-full border-2 border-current flex justify-center pt-2">
