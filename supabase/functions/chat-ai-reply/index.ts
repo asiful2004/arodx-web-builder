@@ -157,8 +157,76 @@ serve(async (req) => {
       }
     }
 
+    // === GREETING MODE: send initial AI greeting when chat starts ===
+    const { session_id, greeting_mode } = body;
+
+    if (greeting_mode && session_id) {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      // Get session info for personalization
+      const { data: session } = await supabase
+        .from("chat_sessions")
+        .select("guest_name, guest_phone, user_id")
+        .eq("id", session_id)
+        .single();
+
+      let clientName = session?.guest_name || "ক্লায়েন্ট";
+      if (session?.user_id) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("user_id", session.user_id)
+          .single();
+        if (profile?.full_name) clientName = profile.full_name;
+      }
+
+      const { data: aiSettings } = await supabase
+        .from("chat_ai_settings")
+        .select("*")
+        .limit(1)
+        .single();
+
+      if (!aiSettings || !aiSettings.enabled) {
+        return new Response(JSON.stringify({ skipped: true, reason: "AI disabled" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const basePrompt = aiSettings.system_prompt || DEFAULT_SYSTEM_PROMPT;
+      const websiteContent = await fetchWebsiteContent();
+      const systemPrompt = `${basePrompt}\n\n=== ওয়েবসাইটের সর্বশেষ তথ্য ===\n${websiteContent}\n\nক্লায়েন্টের নাম: ${clientName}${session?.guest_phone ? `\nক্লায়েন্টের ফোন: ${session.guest_phone}` : ""}`;
+
+      const greetingMessages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: "চ্যাট শুরু হয়েছে। ক্লায়েন্টকে সম্ভাষণ করো এবং ধাপ ১ এর প্রশ্ন করো।" },
+      ];
+
+      try {
+        const greetingText = await callLovableAI(greetingMessages);
+        if (greetingText) {
+          await supabase.from("chat_messages").insert({
+            session_id,
+            sender_type: "admin",
+            sender_id: null,
+            message: greetingText,
+            message_type: "text",
+          });
+        }
+        return new Response(JSON.stringify({ success: true, reply: greetingText }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (err: any) {
+        console.error("Greeting AI error:", err);
+        return new Response(JSON.stringify({ error: err?.message || "Greeting failed" }), {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // === NORMAL MODE: auto-reply ===
-    const { session_id } = body;
     if (!session_id) {
       return new Response(JSON.stringify({ error: "session_id required" }), {
         status: 400,
