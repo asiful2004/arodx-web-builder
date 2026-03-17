@@ -25,6 +25,7 @@ const STAFF_ROLES = ["hr", "graphics_designer", "web_developer", "project_manage
 const Navbar = ({ logo }: NavbarProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
+  const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
