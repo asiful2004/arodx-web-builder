@@ -29,21 +29,38 @@ interface SenderProfile {
 const SESSION_KEY = "live_chat_session_id";
 const NOTIF_SOUND_URL = "https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3";
 
+// Preload the character image so it's always ready
+const characterImagePromise = new Promise<void>((resolve) => {
+  const img = new window.Image();
+  img.onload = () => resolve();
+  img.onerror = () => resolve(); // resolve anyway so we don't block forever
+  img.src = supportAgentChar;
+});
+
 // Animated character that pops up with a sign board every 6 seconds, visible for 3 seconds
 function FloatingCharacter({ onClick }: { onClick: () => void }) {
   const [visible, setVisible] = useState(false);
+  const [imageReady, setImageReady] = useState(false);
+
+  // Wait for image to be loaded before starting any animation cycle
+  useEffect(() => {
+    characterImagePromise.then(() => setImageReady(true));
+  }, []);
 
   useEffect(() => {
+    if (!imageReady) return;
     // Show after 2s initially, then cycle: 3s visible + 3s hidden = 6s interval
     const initialTimer = setTimeout(() => setVisible(true), 2000);
     const interval = setInterval(() => {
       setVisible(true);
       setTimeout(() => setVisible(false), 3000);
     }, 6000);
-    // Hide after first 3s too
     const firstHide = setTimeout(() => setVisible(false), 5000);
     return () => { clearTimeout(initialTimer); clearTimeout(firstHide); clearInterval(interval); };
-  }, []);
+  }, [imageReady]);
+
+  // Don't render anything until image is preloaded
+  if (!imageReady) return null;
 
   return (
     <AnimatePresence>
@@ -69,7 +86,7 @@ function FloatingCharacter({ onClick }: { onClick: () => void }) {
           <motion.div
             initial={{ x: -5, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.3 }}
+            transition={{ delay: 0.15, duration: 0.25 }}
             className="relative ml-1 px-3 py-1.5 rounded-xl rounded-bl-sm bg-card border border-border shadow-lg"
           >
             <span className="text-xs font-semibold text-foreground whitespace-nowrap">Need Help? 💬</span>
