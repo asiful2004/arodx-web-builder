@@ -487,54 +487,97 @@ export default function LiveChat() {
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
             className="fixed bottom-5 left-5 z-50 w-[340px] sm:w-[380px] h-[480px] rounded-2xl border border-border bg-card shadow-2xl flex flex-col overflow-hidden"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground">
-              <div className="flex items-center gap-2">
-                <MessageCircle className="h-5 w-5" />
-                <div>
-                  <p className="text-sm font-semibold">লাইভ চ্যাট</p>
-                  <p className="text-[10px] opacity-80">সাধারণত কয়েক মিনিটে উত্তর দিই</p>
+            {/* Header - Enhanced */}
+            <div className="relative overflow-hidden px-4 py-3" style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))" }}>
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <MessageCircle className="h-5 w-5 text-primary-foreground" />
+                    </div>
+                    <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 border-2 border-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-primary-foreground">Arodx Support</p>
+                    <div className="flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <p className="text-[10px] text-primary-foreground/80">Online — সাধারণত কয়েক মিনিটে উত্তর</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-1">
-                <button onClick={() => setOpen(false)} className="p-1 rounded hover:bg-white/20 transition-colors">
-                  <Minimize2 className="h-4 w-4" />
-                </button>
-                {started && (
-                  <button onClick={endChat} className="p-1 rounded hover:bg-white/20 transition-colors">
-                    <X className="h-4 w-4" />
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg hover:bg-white/20 transition-colors">
+                    <Minimize2 className="h-4 w-4 text-primary-foreground" />
                   </button>
-                )}
+                  {started && (
+                    <button onClick={endChat} className="p-1.5 rounded-lg hover:bg-white/20 transition-colors">
+                      <X className="h-4 w-4 text-primary-foreground" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
             {/* Body */}
             {!started ? (
-              <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4">
-                <div className="text-center">
-                  <MessageCircle className="h-12 w-12 text-primary/30 mx-auto mb-3" />
-                  <h3 className="text-base font-semibold text-foreground">আমাদের সাথে চ্যাট করুন</h3>
-                  <p className="text-xs text-muted-foreground mt-1">আমরা সাহায্য করতে এখানে আছি</p>
+              <div className="flex-1 flex flex-col p-5 gap-4 overflow-auto">
+                {/* Welcome */}
+                <div className="text-center space-y-2">
+                  <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                    <img src={aiRobotAvatar} alt="Support" className="h-12 w-12 object-contain" />
+                  </div>
+                  <h3 className="text-base font-bold text-foreground">আমাদের সাথে চ্যাট করুন 👋</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    যেকোনো প্রশ্ন বা সাহায্যের জন্য আমরা আছি
+                  </p>
                 </div>
+
+                {/* Support info cards */}
+                <div className="space-y-2">
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                    <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Bot className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">🤖 AI Agent — 24/7</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">তাৎক্ষণিক উত্তর, যেকোনো সময়</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Headphones className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground">👨‍💼 Human Agent</p>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <Clock className="h-3 w-3 text-muted-foreground" />
+                        <p className="text-[10px] text-muted-foreground">সকাল ১০টা — রাত ১০টা (বাংলাদেশ সময়)</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Guest form */}
                 {!user && (
-                  <div className="w-full space-y-2">
+                  <div className="space-y-2">
                     <Input
                       placeholder="আপনার নাম"
                       value={guestName}
                       onChange={(e) => setGuestName(e.target.value)}
-                      className="text-sm"
+                      className="text-sm h-9"
                     />
                     <Input
                       placeholder="ফোন নম্বর (যেমন: 01XXXXXXXXX)"
                       value={guestPhone}
                       onChange={(e) => setGuestPhone(e.target.value)}
-                      className="text-sm"
+                      className="text-sm h-9"
                       type="tel"
                     />
                   </div>
                 )}
-                <Button onClick={startChat} className="w-full" disabled={!user && (!guestName.trim() || !guestPhone.trim())}>
-                  চ্যাট শুরু করুন
+                <Button onClick={startChat} className="w-full font-semibold" disabled={!user && (!guestName.trim() || !guestPhone.trim())}>
+                  💬 চ্যাট শুরু করুন
                 </Button>
               </div>
             ) : (
