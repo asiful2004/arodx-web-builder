@@ -56,15 +56,13 @@ function FloatingCharacter({ onClick }: { onClick: () => void }) {
           onClick={onClick}
           className="cursor-pointer mb-2 flex items-end gap-0"
         >
-          {/* Character */}
+          {/* Character - animated like waving */}
           <motion.div
-            animate={{ y: [0, -4, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+            animate={{ y: [0, -6, 0], rotate: [0, -3, 3, 0] }}
+            transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
             className="relative z-10"
           >
-            <div className="h-11 w-11 rounded-full bg-card border-2 border-primary/30 flex items-center justify-center shadow-md overflow-hidden">
-              <img src={supportAgentChar} alt="Support Agent" className="h-10 w-10 object-cover" />
-            </div>
+            <img src={supportAgentChar} alt="Support Agent" className="h-12 w-12 object-contain drop-shadow-md" />
           </motion.div>
 
           {/* Sign Board */}
@@ -75,7 +73,6 @@ function FloatingCharacter({ onClick }: { onClick: () => void }) {
             className="relative ml-1 px-3 py-1.5 rounded-xl rounded-bl-sm bg-card border border-border shadow-lg"
           >
             <span className="text-xs font-semibold text-foreground whitespace-nowrap">Need Help? 💬</span>
-            {/* Arrow pointer */}
             <div className="absolute -left-1.5 bottom-1.5 w-3 h-3 rotate-45 bg-card border-l border-b border-border" />
           </motion.div>
         </motion.div>
