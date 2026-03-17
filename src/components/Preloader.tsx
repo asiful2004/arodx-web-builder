@@ -5,9 +5,9 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
   const [phase, setPhase] = useState<"letters" | "glow" | "exit">("letters");
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("glow"), 1200);
-    const t2 = setTimeout(() => setPhase("exit"), 2000);
-    const t3 = setTimeout(onComplete, 2600);
+    const t1 = setTimeout(() => setPhase("glow"), 600);
+    const t2 = setTimeout(() => setPhase("exit"), 900);
+    const t3 = setTimeout(onComplete, 1200);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
