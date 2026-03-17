@@ -29,18 +29,20 @@ interface SenderProfile {
 const SESSION_KEY = "live_chat_session_id";
 const NOTIF_SOUND_URL = "https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3";
 
-// Animated character that pops up with a sign board every 5 seconds
+// Animated character that pops up with a sign board every 6 seconds, visible for 3 seconds
 function FloatingCharacter({ onClick }: { onClick: () => void }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Show after 2s initially, then cycle every 5s
+    // Show after 2s initially, then cycle: 3s visible + 3s hidden = 6s interval
     const initialTimer = setTimeout(() => setVisible(true), 2000);
     const interval = setInterval(() => {
-      setVisible(false);
-      setTimeout(() => setVisible(true), 800);
-    }, 5000);
-    return () => { clearTimeout(initialTimer); clearInterval(interval); };
+      setVisible(true);
+      setTimeout(() => setVisible(false), 3000);
+    }, 6000);
+    // Hide after first 3s too
+    const firstHide = setTimeout(() => setVisible(false), 5000);
+    return () => { clearTimeout(initialTimer); clearTimeout(firstHide); clearInterval(interval); };
   }, []);
 
   return (
