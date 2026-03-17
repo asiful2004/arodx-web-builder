@@ -28,6 +28,59 @@ interface SenderProfile {
 const SESSION_KEY = "live_chat_session_id";
 const NOTIF_SOUND_URL = "https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3";
 
+// Animated character that pops up with a sign board every 5 seconds
+function FloatingCharacter({ onClick }: { onClick: () => void }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    // Show after 2s initially, then cycle every 5s
+    const initialTimer = setTimeout(() => setVisible(true), 2000);
+    const interval = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => setVisible(true), 800);
+    }, 5000);
+    return () => { clearTimeout(initialTimer); clearInterval(interval); };
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={{ y: 20, opacity: 0, scale: 0.5 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: 10, opacity: 0, scale: 0.8 }}
+          transition={{ type: "spring", stiffness: 400, damping: 15 }}
+          onClick={onClick}
+          className="cursor-pointer mb-2 flex items-end gap-0"
+        >
+          {/* Character */}
+          <motion.div
+            animate={{ y: [0, -4, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+            className="relative z-10"
+          >
+            <div className="h-10 w-10 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center shadow-md">
+              <span className="text-lg">🧑‍💻</span>
+            </div>
+          </motion.div>
+
+          {/* Sign Board */}
+          <motion.div
+            initial={{ x: -5, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+            className="relative ml-1 px-3 py-1.5 rounded-xl rounded-bl-sm bg-card border border-border shadow-lg"
+          >
+            <span className="text-xs font-semibold text-foreground whitespace-nowrap">Need Help? 💬</span>
+            {/* Arrow pointer */}
+            <div className="absolute -left-1.5 bottom-1.5 w-3 h-3 rotate-45 bg-card border-l border-b border-border" />
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 export default function LiveChat() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
