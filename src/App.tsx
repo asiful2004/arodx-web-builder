@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { useState, useCallback, lazy, Suspense } from "react";
 import Preloader from "@/components/Preloader";
 import Index from "./pages/Index";
-import LiveChat from "./components/LiveChat";
+const LiveChat = lazy(() => import("./components/LiveChat"));
 import { usePageTracker } from "@/hooks/usePageTracker";
 
 // Lazy load non-critical routes for performance
