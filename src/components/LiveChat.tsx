@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import aiRobotAvatar from "@/assets/ai-robot-avatar.png";
+import supportAgentChar from "@/assets/support-agent-character.png";
 
 interface ChatMessage {
   id: string;
