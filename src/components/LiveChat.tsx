@@ -470,8 +470,6 @@ export default function LiveChat() {
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.5 }}
             className="fixed bottom-5 left-5 z-50 flex flex-col items-start"
           >
-            {/* Animated Admin Character - appears every 5s */}
-            <FloatingCharacter onClick={() => setOpen(true)} />
 
             {/* Classic round chat button */}
             <motion.button
