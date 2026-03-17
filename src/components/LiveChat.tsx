@@ -394,23 +394,54 @@ export default function LiveChat() {
       {/* Floating Button */}
       <AnimatePresence>
         {!open && (
-          <motion.button
+          <motion.div
             initial={{ scale: 0, x: -40, opacity: 0 }}
             animate={{ scale: 1, x: 0, opacity: 1 }}
             exit={{ scale: 0, x: -40, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.5 }}
-            onClick={() => setOpen(true)}
-            className="fixed bottom-5 left-5 z-50 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl flex items-center justify-center hover:opacity-90 transition-opacity group"
+            className="fixed bottom-5 left-5 z-50 flex items-end gap-3"
           >
-            <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping" style={{ animationDuration: "2s" }} />
-            <span className="absolute -inset-1 rounded-full bg-primary/20 animate-pulse" style={{ animationDuration: "3s" }} />
-            <MessageCircle className="h-6 w-6 relative z-10" />
-            {unread > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center z-20">
-                {unread}
-              </span>
-            )}
-          </motion.button>
+            {/* Tooltip bubble */}
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.5, duration: 0.4 }}
+              className="hidden sm:flex items-center gap-2 bg-card border border-border rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-lg max-w-[180px]"
+            >
+              <span className="text-xs font-medium text-foreground leading-tight">💬 কিছু জানতে চান? চ্যাট করুন!</span>
+            </motion.div>
+
+            <motion.button
+              onClick={() => setOpen(true)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative h-16 w-16 rounded-full shadow-2xl flex items-center justify-center overflow-visible"
+              style={{
+                background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))",
+              }}
+            >
+              {/* Ripple rings */}
+              <span className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))", animationDuration: "2s" }} />
+              <span className="absolute -inset-1.5 rounded-full animate-pulse opacity-20" style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))", animationDuration: "3s" }} />
+              
+              {/* Glow effect */}
+              <span className="absolute inset-0 rounded-full" style={{ boxShadow: "0 0 20px 4px hsl(var(--primary) / 0.4), 0 0 40px 8px hsl(var(--primary) / 0.2)" }} />
+
+              {/* Icon */}
+              <MessageCircle className="h-7 w-7 text-primary-foreground relative z-10 drop-shadow-md" />
+
+              {/* Unread badge */}
+              {unread > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-destructive text-destructive-foreground text-[11px] font-bold flex items-center justify-center z-20 shadow-lg ring-2 ring-background"
+                >
+                  {unread}
+                </motion.span>
+              )}
+            </motion.button>
+          </motion.div>
         )}
       </AnimatePresence>
 
