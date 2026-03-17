@@ -25,17 +25,26 @@ const STAFF_ROLES = ["hr", "graphics_designer", "web_developer", "project_manage
 const Navbar = ({ logo }: NavbarProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
+  const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) { setIsStaff(false); return; }
+    if (!user) { setIsStaff(false); setProfileAvatar(null); return; }
     supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .then(({ data }) => {
         if (data) setIsStaff(data.some((r: any) => STAFF_ROLES.includes(r.role)));
+      });
+    supabase
+      .from("profiles")
+      .select("avatar_url")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.avatar_url) setProfileAvatar(data.avatar_url);
       });
   }, [user]);
 
@@ -101,7 +110,7 @@ const Navbar = ({ logo }: NavbarProps) => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2 rounded-xl px-2">
                   <Avatar className="w-8 h-8">
-                    <AvatarImage src={user.user_metadata?.avatar_url} />
+                    <AvatarImage src={profileAvatar || user.user_metadata?.avatar_url} />
                     <AvatarFallback className="text-xs bg-primary/10 text-primary">
                       {userInitials}
                     </AvatarFallback>
@@ -172,7 +181,7 @@ const Navbar = ({ logo }: NavbarProps) => {
                     <>
                       <div className="flex items-center gap-3 mb-2">
                         <Avatar className="w-10 h-10">
-                          <AvatarImage src={user.user_metadata?.avatar_url} />
+                          <AvatarImage src={profileAvatar || user.user_metadata?.avatar_url} />
                           <AvatarFallback className="text-sm bg-primary/10 text-primary">
                             {userInitials}
                           </AvatarFallback>
