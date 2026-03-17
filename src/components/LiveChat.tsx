@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import aiRobotAvatar from "@/assets/ai-robot-avatar.png";
-import supportAgentChar from "@/assets/support-agent-character.png";
 
 interface ChatMessage {
   id: string;
@@ -29,74 +28,6 @@ interface SenderProfile {
 const SESSION_KEY = "live_chat_session_id";
 const NOTIF_SOUND_URL = "https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3";
 
-// Preload the character image so it's always ready
-const characterImagePromise = new Promise<void>((resolve) => {
-  const img = new window.Image();
-  img.onload = () => resolve();
-  img.onerror = () => resolve(); // resolve anyway so we don't block forever
-  img.src = supportAgentChar;
-});
-
-// Animated character that pops up with a sign board every 6 seconds, visible for 3 seconds
-function FloatingCharacter({ onClick }: { onClick: () => void }) {
-  const [visible, setVisible] = useState(false);
-  const [imageReady, setImageReady] = useState(false);
-
-  // Wait for image to be loaded before starting any animation cycle
-  useEffect(() => {
-    characterImagePromise.then(() => setImageReady(true));
-  }, []);
-
-  useEffect(() => {
-    if (!imageReady) return;
-    // Show after 2s initially, then cycle: 3s visible + 3s hidden = 6s interval
-    const initialTimer = setTimeout(() => setVisible(true), 2000);
-    const interval = setInterval(() => {
-      setVisible(true);
-      setTimeout(() => setVisible(false), 3000);
-    }, 6000);
-    const firstHide = setTimeout(() => setVisible(false), 5000);
-    return () => { clearTimeout(initialTimer); clearTimeout(firstHide); clearInterval(interval); };
-  }, [imageReady]);
-
-  // Don't render anything until image is preloaded
-  if (!imageReady) return null;
-
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ y: 20, opacity: 0, scale: 0.5 }}
-          animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: 10, opacity: 0, scale: 0.8 }}
-          transition={{ type: "spring", stiffness: 400, damping: 15 }}
-          onClick={onClick}
-          className="cursor-pointer mb-2 flex items-end gap-0"
-        >
-          {/* Character - animated like waving */}
-          <motion.div
-            animate={{ y: [0, -6, 0], rotate: [0, -3, 3, 0] }}
-            transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
-            className="relative z-10"
-          >
-            <img src={supportAgentChar} alt="Support Agent" className="h-12 w-12 object-contain drop-shadow-md" />
-          </motion.div>
-
-          {/* Sign Board */}
-          <motion.div
-            initial={{ x: -5, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.15, duration: 0.25 }}
-            className="relative ml-1 px-3 py-1.5 rounded-xl rounded-bl-sm bg-card border border-border shadow-lg"
-          >
-            <span className="text-xs font-semibold text-foreground whitespace-nowrap">Need Help? 💬</span>
-            <div className="absolute -left-1.5 bottom-1.5 w-3 h-3 rotate-45 bg-card border-l border-b border-border" />
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
 
 export default function LiveChat() {
   const { user } = useAuth();
@@ -471,8 +402,6 @@ export default function LiveChat() {
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.5 }}
             className="fixed bottom-5 left-5 z-50 flex flex-col items-start"
           >
-            {/* Animated Admin Character - appears every 5s */}
-            <FloatingCharacter onClick={() => setOpen(true)} />
 
             {/* Classic round chat button */}
             <motion.button
