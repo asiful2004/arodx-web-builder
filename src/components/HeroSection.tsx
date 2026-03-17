@@ -52,15 +52,12 @@ const HeroSection = () => {
           </span>
         </motion.div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring" as const, stiffness: 80, damping: 15, delay: 0.1 }}
+        <h1
           className="text-5xl md:text-7xl lg:text-8xl font-bold font-display tracking-tight mb-6"
         >
-          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.5 }}>
+          <span>
             {titlePrefix}{" "}
-          </motion.span>
+          </span>
           <span className="inline-flex relative">
             {titleBrand.split("").map((letter, i) => (
               <motion.span
@@ -68,7 +65,7 @@ const HeroSection = () => {
                 className="text-gradient inline-block cursor-default relative"
                 initial={{ opacity: 0, y: 80, rotateX: 90 }}
                 animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                transition={{ type: "spring" as const, stiffness: 150, damping: 12, delay: 0.5 + i * 0.08 }}
+                transition={{ type: "spring" as const, stiffness: 150, damping: 12, delay: 0.1 + i * 0.06 }}
                 whileHover={{ y: -12, scale: 1.2, transition: { type: "spring" as const, stiffness: 400, damping: 10 } }}
                 style={{ display: "inline-block" }}
               >
@@ -79,25 +76,22 @@ const HeroSection = () => {
               className="absolute -bottom-2 left-0 right-0 h-[3px] bg-gradient-primary rounded-full origin-left"
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ delay: 1.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ delay: 0.5, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             />
             <motion.div
               className="absolute inset-0 blur-2xl bg-primary/20 -z-10 rounded-full"
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: [0, 0.6, 0.3], scale: [0.5, 1.2, 1] }}
-              transition={{ delay: 0.8, duration: 1.5 }}
+              transition={{ delay: 0.4, duration: 1.5 }}
             />
           </span>
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring" as const, stiffness: 80, damping: 15, delay: 0.4 }}
+        <p
           className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3"
         >
           {subtitle}
-        </motion.p>
+        </p>
 
         <p
           className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto mb-10"
@@ -106,9 +100,9 @@ const HeroSection = () => {
         </p>
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring" as const, stiffness: 80, damping: 15, delay: 0.6 }}
+          transition={{ type: "spring" as const, stiffness: 80, damping: 15, delay: 0.3 }}
           className="flex flex-col sm:flex-row gap-4 justify-center"
         >
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
