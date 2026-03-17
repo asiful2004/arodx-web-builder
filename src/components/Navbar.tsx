@@ -181,7 +181,7 @@ const Navbar = ({ logo }: NavbarProps) => {
                     <>
                       <div className="flex items-center gap-3 mb-2">
                         <Avatar className="w-10 h-10">
-                          <AvatarImage src={user.user_metadata?.avatar_url} />
+                          <AvatarImage src={profileAvatar || user.user_metadata?.avatar_url} />
                           <AvatarFallback className="text-sm bg-primary/10 text-primary">
                             {userInitials}
                           </AvatarFallback>
