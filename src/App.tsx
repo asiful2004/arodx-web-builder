@@ -8,7 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { useState, useCallback, lazy, Suspense } from "react";
 import Preloader from "@/components/Preloader";
 import Index from "./pages/Index";
-import LiveChat from "./components/LiveChat";
+const LiveChat = lazy(() => import("./components/LiveChat"));
 import { usePageTracker } from "@/hooks/usePageTracker";
 
 // Lazy load non-critical routes for performance
@@ -86,7 +86,7 @@ const App = () => {
             <PageTracker />
             <Suspense fallback={<LazyFallback />}>
               <Routes>
-                <Route path="/" element={<><Index /><LiveChat /></>} />
+                <Route path="/" element={<><Index /><Suspense fallback={null}><LiveChat /></Suspense></>} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
