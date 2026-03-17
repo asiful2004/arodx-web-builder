@@ -86,7 +86,7 @@ const App = () => {
             <PageTracker />
             <Suspense fallback={<LazyFallback />}>
               <Routes>
-                <Route path="/" element={<><Index /><LiveChat /></>} />
+                <Route path="/" element={<><Index /><Suspense fallback={null}><LiveChat /></Suspense></>} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
