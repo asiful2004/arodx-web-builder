@@ -109,6 +109,7 @@ Deno.serve(async (req) => {
     });
 
     if (linkError || !linkData) {
+      console.error("generateLink error:", linkError);
       return new Response(JSON.stringify({ error: "Failed to generate auth token" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -116,9 +117,11 @@ Deno.serve(async (req) => {
     }
 
     // Extract the token_hash from the generated link
+    // The action_link format: .../verify?token=TOKEN_HASH&type=magiclink&redirect_to=...
     const actionLink = linkData.properties?.action_link || "";
+    console.log("Action link generated:", actionLink);
     const url = new URL(actionLink);
-    const tokenHash = url.searchParams.get("token_hash") || url.hash?.split("token_hash=")[1]?.split("&")[0] || "";
+    const tokenHash = url.searchParams.get("token_hash") || url.searchParams.get("token") || url.hash?.split("token_hash=")[1]?.split("&")[0] || "";
 
     // Approve the request and store the auth token
     const { error: updateError } = await supabaseAdmin
