@@ -109,16 +109,33 @@ Deno.serve(async (req) => {
     });
 
     if (linkError || !linkData) {
+      console.error("generateLink error:", linkError);
       return new Response(JSON.stringify({ error: "Failed to generate auth token" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Extract the token_hash from the generated link
+    // Extract the token_hash - use hashed_token from properties (most reliable)
+    // or fall back to parsing from the action_link URL
+    const hashedToken = (linkData.properties as any)?.hashed_token;
     const actionLink = linkData.properties?.action_link || "";
-    const url = new URL(actionLink);
-    const tokenHash = url.searchParams.get("token_hash") || url.hash?.split("token_hash=")[1]?.split("&")[0] || "";
+    console.log("Action link:", actionLink);
+    console.log("Hashed token from properties:", hashedToken);
+    
+    let tokenHash = hashedToken || "";
+    if (!tokenHash && actionLink) {
+      const url = new URL(actionLink);
+      tokenHash = url.searchParams.get("token_hash") || url.searchParams.get("token") || "";
+    }
+    console.log("Final tokenHash:", tokenHash);
+    
+    if (!tokenHash) {
+      return new Response(JSON.stringify({ error: "Failed to extract auth token" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     // Approve the request and store the auth token
     const { error: updateError } = await supabaseAdmin
