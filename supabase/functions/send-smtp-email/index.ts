@@ -99,10 +99,17 @@ Deno.serve(async (req) => {
       },
     });
 
+    // Build a valid "from" field
+    let fromField: string;
+    const senderEmail = smtp.from_email?.trim() || smtp.username;
+    if (smtp.from_name?.trim()) {
+      fromField = `${smtp.from_name.trim()} <${senderEmail}>`;
+    } else {
+      fromField = senderEmail;
+    }
+
     await client.send({
-      from: smtp.from_email
-        ? `${smtp.from_name || ""} <${smtp.from_email}>`
-        : smtp.username,
+      from: fromField,
       to,
       subject,
       content: text || "Email sent via SMTP",
