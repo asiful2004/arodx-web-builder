@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Settings, Loader2, Save, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil, FileText, Bot, Mail, Eye, EyeOff, Send } from "lucide-react";
+import { toast as sonnerToast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -35,8 +36,8 @@ function RateLimitSection() {
     updateMutation.mutate(
       { key: "rate_limit", value: localData },
       {
-        onSuccess: () => toast({ title: "রেট লিমিট আপডেট হয়েছে!" }),
-        onError: () => toast({ title: "Error", description: "আপডেট করতে সমস্যা হয়েছে", variant: "destructive" }),
+        onSuccess: () => sonnerToast.success("রেট লিমিট আপডেট হয়েছে!"),
+        onError: () => sonnerToast.error("আপডেট করতে সমস্যা হয়েছে"),
       }
     );
   };
@@ -333,15 +334,15 @@ function SmtpConfigSection() {
     updateMutation.mutate(
       { key: "smtp", value: localData },
       {
-        onSuccess: () => toast({ title: "SMTP সেটিংস সেভ হয়েছে!" }),
-        onError: () => toast({ title: "ত্রুটি", description: "সেভ করতে সমস্যা হয়েছে", variant: "destructive" }),
+        onSuccess: () => sonnerToast.success("SMTP সেটিংস সেভ হয়েছে!"),
+        onError: () => sonnerToast.error("সেভ করতে সমস্যা হয়েছে"),
       }
     );
   };
 
   const handleTestEmail = async () => {
     if (!testEmail.trim()) {
-      toast({ title: "ইমেইল দিন", description: "টেস্ট ইমেইল পাঠানোর জন্য একটি ইমেইল এড্রেস দিন", variant: "destructive" });
+      sonnerToast.error("টেস্ট ইমেইল পাঠানোর জন্য একটি ইমেইল এড্রেস দিন");
       return;
     }
     setTesting(true);
@@ -355,9 +356,10 @@ function SmtpConfigSection() {
         },
       });
       if (error) throw error;
-      toast({ title: "টেস্ট ইমেইল পাঠানো হয়েছে!", description: `${testEmail} এ ইমেইল চেক করুন` });
+      if (data?.error) throw new Error(data.error);
+      sonnerToast.success(`টেস্ট ইমেইল পাঠানো হয়েছে! ${testEmail} চেক করুন`);
     } catch (err: any) {
-      toast({ title: "ত্রুটি", description: err.message || "ইমেইল পাঠাতে সমস্যা হয়েছে", variant: "destructive" });
+      sonnerToast.error(err.message || "ইমেইল পাঠাতে সমস্যা হয়েছে");
     } finally {
       setTesting(false);
     }
