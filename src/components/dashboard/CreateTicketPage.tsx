@@ -150,7 +150,7 @@ export default function CreateTicketPage() {
         <h1 className="text-lg font-bold font-display text-foreground">নতুন টিকেট তৈরি করুন</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-6 space-y-5 max-w-2xl">
+      <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-6 space-y-5 max-w-3xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>ক্যাটাগরি</Label>

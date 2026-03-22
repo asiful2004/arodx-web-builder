@@ -318,7 +318,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-5xl mx-auto w-full">
       {/* Profile Header Card */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

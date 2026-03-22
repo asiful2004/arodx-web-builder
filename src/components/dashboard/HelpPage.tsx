@@ -121,7 +121,7 @@ export default function HelpPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="space-y-8 max-w-3xl">
+    <div className="space-y-8 max-w-5xl mx-auto w-full">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center gap-3 mb-1">
