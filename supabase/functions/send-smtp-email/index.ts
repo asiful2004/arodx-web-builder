@@ -99,8 +99,11 @@ Deno.serve(async (req) => {
       },
     });
 
-    // denomailer requires plain email address for "from"
-    const senderEmail = smtp.from_email?.trim() || smtp.username;
+    // denomailer requires a valid plain email address for "from"
+    const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+    const rawFrom = smtp.from_email?.trim();
+    const senderEmail = (rawFrom && isValidEmail(rawFrom)) ? rawFrom : smtp.username;
+    console.log("Sending from:", senderEmail, "to:", to);
 
     await client.send({
       from: senderEmail,
