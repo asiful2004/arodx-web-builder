@@ -120,23 +120,23 @@ export default function NotificationBell({ userId }: NotificationBellProps) {
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[85vw] max-w-96 flex flex-col p-0">
-        <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-border">
+        <SheetHeader className="px-4 pt-4 pb-3 border-b border-border">
           <SheetTitle className="text-base font-semibold">নোটিফিকেশন</SheetTitle>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5 pt-1">
             {unreadCount > 0 && (
-              <Button variant="outline" size="sm" className="text-[11px] h-7 px-2 gap-1" onClick={markAllRead}>
+              <Button variant="outline" size="sm" className="text-[11px] h-7 px-2.5 gap-1" onClick={markAllRead}>
                 <CheckCheck className="h-3 w-3" />
-                পঠিত
+                সব পঠিত
               </Button>
             )}
             {notifications.length > 0 && (
-              <Button variant="outline" size="sm" className="text-[11px] h-7 px-2 gap-1 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive" onClick={clearAll}>
+              <Button variant="outline" size="sm" className="text-[11px] h-7 px-2.5 gap-1 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive" onClick={clearAll}>
                 <Trash2 className="h-3 w-3" />
-                মুছুন
+                সব মুছুন
               </Button>
             )}
           </div>
-        </div>
+        </SheetHeader>
 
         <div className="flex-1 overflow-y-auto">
           {notifications.length === 0 ? (
