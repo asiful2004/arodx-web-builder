@@ -120,7 +120,7 @@ export default function CreateTicketPage() {
           </Button>
           <h1 className="text-lg font-bold font-display text-foreground">নতুন টিকেট তৈরি করুন</h1>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-8 max-w-2xl text-center space-y-4">
+        <div className="rounded-2xl border border-border bg-card p-8 max-w-3xl mx-auto text-center space-y-4">
           <div className="h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
             <Send className="w-6 h-6 text-destructive" />
           </div>
