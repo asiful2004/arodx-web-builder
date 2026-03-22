@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+import { Globe } from "lucide-react";
+
 const mainItems = [
   { title: "ওভারভিউ", url: "/admin", icon: LayoutDashboard },
   { title: "অর্ডার ম্যানেজমেন্ট", url: "/admin/orders", icon: ShoppingBag },
@@ -25,6 +27,10 @@ const mainItems = [
 
 const staffItems = [
   { title: "স্টাফ প্যানেল", url: "/staff", icon: UserCog },
+];
+
+const websiteItems = [
+  { title: "ওয়েবসাইট কনটেন্ট", url: "/admin/website", icon: Globe },
 ];
 
 const settingsItems = [
