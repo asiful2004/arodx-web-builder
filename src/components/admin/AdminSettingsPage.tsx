@@ -342,7 +342,7 @@ function SmtpConfigSection() {
 
   const handleTestEmail = async () => {
     if (!testEmail.trim()) {
-      toast({ title: "ইমেইল দিন", description: "টেস্ট ইমেইল পাঠানোর জন্য একটি ইমেইল এড্রেস দিন", variant: "destructive" });
+      sonnerToast.error("টেস্ট ইমেইল পাঠানোর জন্য একটি ইমেইল এড্রেস দিন");
       return;
     }
     setTesting(true);
@@ -356,9 +356,10 @@ function SmtpConfigSection() {
         },
       });
       if (error) throw error;
-      toast({ title: "টেস্ট ইমেইল পাঠানো হয়েছে!", description: `${testEmail} এ ইমেইল চেক করুন` });
+      if (data?.error) throw new Error(data.error);
+      sonnerToast.success(`টেস্ট ইমেইল পাঠানো হয়েছে! ${testEmail} চেক করুন`);
     } catch (err: any) {
-      toast({ title: "ত্রুটি", description: err.message || "ইমেইল পাঠাতে সমস্যা হয়েছে", variant: "destructive" });
+      sonnerToast.error(err.message || "ইমেইল পাঠাতে সমস্যা হয়েছে");
     } finally {
       setTesting(false);
     }
