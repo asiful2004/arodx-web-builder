@@ -855,6 +855,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_cron_runs: { Args: never; Returns: undefined }
       get_cron_jobs: {
         Args: never
         Returns: {
