@@ -104,7 +104,7 @@ export default function NotificationsPage() {
   if (olderItems.length > 0) groups.push({ label: "আগের", items: olderItems });
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-5xl mx-auto w-full">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
