@@ -76,7 +76,7 @@ const ContactSection = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
-    if (getIsOpen()) {
+    if (getIsOpenFromSchedule(schedule)) {
       toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।" });
     } else {
       toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "বর্তমানে অফিস বন্ধ আছে। অফিস চালু হলে আপনাকে রেসপন্স করা হবে।" });
