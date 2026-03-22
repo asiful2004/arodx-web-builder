@@ -338,8 +338,20 @@ const DAYS_OF_WEEK = [
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
   const h = Math.floor(i / 2);
   const m = i % 2 === 0 ? "00" : "30";
-  return `${String(h).padStart(2, "0")}:${m}`;
+  const value24 = `${String(h).padStart(2, "0")}:${m}`;
+  const period = h < 12 ? "AM" : "PM";
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  const label12 = `${h12}:${m} ${period}`;
+  return { value: value24, label: label12 };
 });
+
+function to12h(time24: string) {
+  const [hStr, mStr] = time24.split(":");
+  const h = parseInt(hStr, 10);
+  const period = h < 12 ? "AM" : "PM";
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${h12}:${mStr} ${period}`;
+}
 
 function TimeSelect({ value, onChange, label }: { value: string; onChange: (v: string) => void; label: string }) {
   return (
@@ -351,7 +363,7 @@ function TimeSelect({ value, onChange, label }: { value: string; onChange: (v: s
         className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
       >
         {TIME_OPTIONS.map((t) => (
-          <option key={t} value={t}>{t}</option>
+          <option key={t.value} value={t.value}>{t.label}</option>
         ))}
       </select>
     </div>

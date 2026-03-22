@@ -166,13 +166,20 @@ const ContactSection = () => {
                         groups.push({ days: [entry.day], open: entry.open, close: entry.close, enabled: entry.enabled });
                       }
                     });
+                    const fmt12 = (t: string) => {
+                      const [hStr, mStr] = t.split(":");
+                      const h = parseInt(hStr, 10);
+                      const period = h < 12 ? "AM" : "PM";
+                      const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+                      return `${h12}:${mStr} ${period}`;
+                    };
                     return groups.map((g, i) => (
                       <div key={i} className="flex justify-between">
                         <span className="text-muted-foreground">
                           {g.days.length > 1 ? `${g.days[0]} – ${g.days[g.days.length - 1]}` : g.days[0]}
                         </span>
                         {g.enabled ? (
-                          <span className="text-foreground">{g.open} – {g.close === "00:00" ? "12:00 AM" : g.close}</span>
+                          <span className="text-foreground">{fmt12(g.open)} – {fmt12(g.close)}</span>
                         ) : (
                           <span className="text-destructive">বন্ধ</span>
                         )}
