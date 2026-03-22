@@ -151,21 +151,50 @@ const ContactSection = () => {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold font-display">অফিস কর্মসূচি</h3>
-                <ServiceStatus />
+                <ServiceStatus schedule={schedule} />
               </div>
               <div className="space-y-2.5 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">শনি – বুধবার</span>
-                  <span className="text-foreground">{officeHours.sat_to_wed}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">বৃহস্পতিবার</span>
-                  <span className="text-foreground">{officeHours.thursday}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">শুক্রবার</span>
-                  <span className="text-destructive">{officeHours.friday}</span>
-                </div>
+                {schedule && schedule.length > 0 ? (
+                  // Group consecutive days with same hours for cleaner display
+                  (() => {
+                    const groups: { days: string[]; open: string; close: string; enabled: boolean }[] = [];
+                    schedule.forEach((entry: any) => {
+                      const last = groups[groups.length - 1];
+                      if (last && last.enabled === entry.enabled && last.open === entry.open && last.close === entry.close) {
+                        last.days.push(entry.day);
+                      } else {
+                        groups.push({ days: [entry.day], open: entry.open, close: entry.close, enabled: entry.enabled });
+                      }
+                    });
+                    return groups.map((g, i) => (
+                      <div key={i} className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          {g.days.length > 1 ? `${g.days[0]} – ${g.days[g.days.length - 1]}` : g.days[0]}
+                        </span>
+                        {g.enabled ? (
+                          <span className="text-foreground">{g.open} – {g.close === "00:00" ? "12:00 AM" : g.close}</span>
+                        ) : (
+                          <span className="text-destructive">বন্ধ</span>
+                        )}
+                      </div>
+                    ));
+                  })()
+                ) : (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">শনি – বুধবার</span>
+                      <span className="text-foreground">{officeHours.sat_to_wed || "8:00 AM – 12:00 AM"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">বৃহস্পতিবার</span>
+                      <span className="text-foreground">{officeHours.thursday || "8:00 AM – 5:00 PM"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">শুক্রবার</span>
+                      <span className="text-destructive">{officeHours.friday || "বন্ধ"}</span>
+                    </div>
+                  </>
+                )}
               </div>
             </motion.div>
           </motion.div>
