@@ -119,6 +119,31 @@ async function callLovableAI(messages: any[]): Promise<string> {
   return data.choices?.[0]?.message?.content?.trim() || "";
 }
 
+async function fetchContactInfo(supabaseClient: any): Promise<string> {
+  try {
+    const { data } = await supabaseClient
+      .from("site_settings")
+      .select("key, value")
+      .in("key", ["contact"]);
+    if (!data || data.length === 0) return "";
+    const contact = data[0]?.value || {};
+    const lines: string[] = [];
+    if (contact.email) lines.push(`অফিসিয়াল ইমেইল: ${contact.email}`);
+    if (contact.phone) lines.push(`অফিসিয়াল ফোন নম্বর: ${contact.phone}`);
+    if (contact.address) lines.push(`ঠিকানা: ${contact.address}`);
+    if (contact.office_hours) {
+      const oh = contact.office_hours;
+      lines.push(`অফিস আওয়ার্স: শনি-বুধ ${oh.sat_to_wed || "N/A"}, বৃহস্পতি ${oh.thursday || "N/A"}, শুক্র ${oh.friday || "বন্ধ"}`);
+    }
+    return lines.length > 0
+      ? `\n\n=== অফিসিয়াল যোগাযোগ তথ্য (এই তথ্যগুলো ডাটাবেস থেকে নেওয়া, সবসময় এগুলোই ব্যবহার করো। ওয়েবসাইট থেকে পার্স করা কোনো নম্বর/ইমেইল ব্যবহার করবে না) ===\n${lines.join("\n")}`
+      : "";
+  } catch (err) {
+    console.error("Failed to fetch contact info:", err);
+    return "";
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -128,8 +153,15 @@ serve(async (req) => {
     const body = await req.json();
     const { test_mode } = body;
 
-    // Fetch website content for AI context
-    const websiteContent = await fetchWebsiteContent();
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const sbAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Fetch website content + official contact info
+    const [websiteContent, contactInfo] = await Promise.all([
+      fetchWebsiteContent(),
+      fetchContactInfo(sbAdmin),
+    ]);
 
     // === TEST MODE: chat ===
     if (test_mode === "chat") {
