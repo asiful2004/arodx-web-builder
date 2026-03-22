@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
   LayoutDashboard, User, ShoppingBag, Settings, LogOut, Shield,
-  HelpCircle, BadgeCheck, Ticket, Briefcase,
+  HelpCircle, BadgeCheck, Ticket, Briefcase, Bell,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -14,17 +14,26 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const mainItems = [
+const dashboardItems = [
   { title: "ওভারভিউ", url: "/dashboard", icon: LayoutDashboard },
+];
+
+const serviceItems = [
   { title: "অর্ডার", url: "/dashboard/orders", icon: ShoppingBag },
   { title: "সাপোর্ট টিকেট", url: "/dashboard/tickets", icon: Ticket },
 ];
 
 const accountItems = [
   { title: "প্রোফাইল", url: "/dashboard/profile", icon: User },
+  { title: "নোটিফিকেশন", url: "/dashboard/notifications", icon: Bell },
   { title: "সেটিংস", url: "/dashboard/settings", icon: Settings },
+];
+
+const supportItems = [
   { title: "সাহায্য", url: "/dashboard/help", icon: HelpCircle },
 ];
+
+const STAFF_ROLES = ["hr", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
 
 interface DashboardSidebarProps {
   profile: { full_name: string | null; avatar_url: string | null };
@@ -32,8 +41,6 @@ interface DashboardSidebarProps {
   userRole?: string;
   userRoles?: string[];
 }
-
-const STAFF_ROLES = ["hr", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
 
 export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }: DashboardSidebarProps) {
   const isStaff = userRoles.some((r) => STAFF_ROLES.includes(r));
@@ -64,6 +71,24 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
     await signOut();
     navigate("/");
   };
+
+  const renderMenuItems = (items: typeof dashboardItems) =>
+    items.map((item) => (
+      <SidebarMenuItem key={item.title}>
+        <SidebarMenuButton asChild isActive={isActive(item.url)}>
+          <NavLink
+            to={item.url}
+            end={item.url === "/dashboard"}
+            className="hover:bg-sidebar-accent/50"
+            activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+            onClick={closeMobileMenu}
+          >
+            <item.icon className="mr-2 h-4 w-4" />
+            {!collapsed && <span>{item.title}</span>}
+          </NavLink>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    ));
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -96,93 +121,72 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>মেইন মেনু</SidebarGroupLabel>
+          <SidebarGroupLabel>ড্যাশবোর্ড</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {mainItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.url)}
-                  >
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/dashboard"}
-                      className="hover:bg-sidebar-accent/50"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
-                      onClick={closeMobileMenu}
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SidebarMenu>{renderMenuItems(dashboardItems)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>সার্ভিস ও অর্ডার</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>{renderMenuItems(serviceItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
           <SidebarGroupLabel>অ্যাকাউন্ট</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {accountItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.url)}
-                  >
-                    <NavLink
-                      to={item.url}
-                      className="hover:bg-sidebar-accent/50"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
-                      onClick={closeMobileMenu}
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-              {isAdmin && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === "/admin"}
-                  >
-                    <NavLink
-                      to="/admin"
-                      className="hover:bg-sidebar-accent/50"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
-                      onClick={closeMobileMenu}
-                    >
-                      <Shield className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>অ্যাডমিন প্যানেল</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-              {isStaff && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname.startsWith("/staff")}
-                  >
-                    <NavLink
-                      to="/staff"
-                      className="hover:bg-sidebar-accent/50"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
-                      onClick={closeMobileMenu}
-                    >
-                      <Briefcase className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>স্টাফ প্যানেল</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-            </SidebarMenu>
+            <SidebarMenu>{renderMenuItems(accountItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>সাপোর্ট</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>{renderMenuItems(supportItems)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {(isAdmin || isStaff) && (
+          <SidebarGroup>
+            <SidebarGroupLabel>কুইক অ্যাক্সেস</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {isAdmin && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === "/admin"}>
+                      <NavLink
+                        to="/admin"
+                        className="hover:bg-sidebar-accent/50"
+                        activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                        onClick={closeMobileMenu}
+                      >
+                        <Shield className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>অ্যাডমিন প্যানেল</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+                {isStaff && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname.startsWith("/staff")}>
+                      <NavLink
+                        to="/staff"
+                        className="hover:bg-sidebar-accent/50"
+                        activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                        onClick={closeMobileMenu}
+                      >
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>স্টাফ প্যানেল</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-3 border-t border-sidebar-border">
