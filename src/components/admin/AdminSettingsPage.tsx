@@ -136,10 +136,13 @@ function CronJobsSection() {
   const fetchCronData = useCallback(async () => {
     setLoading(true);
     try {
+      // Cleanup old entries (3+ days)
+      await supabase.rpc("cleanup_old_cron_runs" as any);
       const { data: jobsData } = await supabase.rpc("get_cron_jobs" as any);
       const { data: runsData } = await supabase.rpc("get_cron_run_details" as any);
       setJobs((jobsData as any[]) || []);
       setRunDetails((runsData as any[]) || []);
+      setHistoryPage(1);
     } catch (err) {
       console.error("Error fetching cron data:", err);
     } finally {
