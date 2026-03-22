@@ -64,7 +64,8 @@ const ContactSection = () => {
   const email = contact?.email || "arodxofficial@gmail.com";
   const phone = contact?.phone || "+880 1XXX-XXXXXX";
   const address = contact?.address || "ঢাকা, বাংলাদেশ";
-  const officeHours = contact?.office_hours || { sat_to_wed: "8:00 AM – 12:00 AM", thursday: "8:00 AM – 5:00 PM", friday: "বন্ধ" };
+  const officeHours = contact?.office_hours || {};
+  const schedule = officeHours?.schedule as any[] | undefined;
 
   const contactItems = [
     { icon: Mail, title: "ইমেইল", value: email },
