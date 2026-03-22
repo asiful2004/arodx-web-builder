@@ -227,8 +227,7 @@ serve(async (req) => {
       }
 
       const basePrompt = aiSettings.system_prompt || DEFAULT_SYSTEM_PROMPT;
-      const websiteContent = await fetchWebsiteContent();
-      const systemPrompt = `${basePrompt}\n\n=== ওয়েবসাইটের সর্বশেষ তথ্য ===\n${websiteContent}\n\nক্লায়েন্টের নাম: ${clientName}${session?.guest_phone ? `\nক্লায়েন্টের ফোন: ${session.guest_phone}` : ""}`;
+      const systemPrompt = `${basePrompt}${contactInfo}\n\n=== ওয়েবসাইটের সর্বশেষ তথ্য ===\n${websiteContent}\n\nক্লায়েন্টের নাম: ${clientName}${session?.guest_phone ? `\nক্লায়েন্টের ফোন: ${session.guest_phone}` : ""}`;
 
       const greetingMessages = [
         { role: "system", content: systemPrompt },
