@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { LogOut, User, Briefcase } from "lucide-react";
 
 interface NavbarProps {
@@ -24,29 +23,11 @@ const STAFF_ROLES = ["hr", "graphics_designer", "web_developer", "project_manage
 
 const Navbar = ({ logo }: NavbarProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isStaff, setIsStaff] = useState(false);
-  const [profileAvatar, setProfileAvatar] = useState<string | null>(null);
-  const { user, signOut } = useAuth();
+  const { user, signOut, profile, userRoles } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!user) { setIsStaff(false); setProfileAvatar(null); return; }
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .then(({ data }) => {
-        if (data) setIsStaff(data.some((r: any) => STAFF_ROLES.includes(r.role)));
-      });
-    supabase
-      .from("profiles")
-      .select("avatar_url")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
-        if (data?.avatar_url) setProfileAvatar(data.avatar_url);
-      });
-  }, [user]);
+  const isStaff = userRoles.some(r => STAFF_ROLES.includes(r));
+  const profileAvatar = profile.avatar_url;
 
   const navLinks = [
     { label: "Home", href: "#" },
@@ -80,7 +61,6 @@ const Navbar = ({ logo }: NavbarProps) => {
       className="fixed top-0 left-0 right-0 z-50 px-4 py-4"
     >
       <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-3 rounded-2xl bg-card/60 backdrop-blur-xl border border-border">
-        {/* Logo + Brand */}
         <a href="#" className="flex items-center gap-2">
           {logo && (
             <img src={logo} alt="Arodx Logo" className="h-8 w-8 object-contain" />
@@ -90,7 +70,6 @@ const Navbar = ({ logo }: NavbarProps) => {
           </span>
         </a>
 
-        {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-6">
           {navLinks.map((link) => (
             <a
@@ -103,7 +82,6 @@ const Navbar = ({ logo }: NavbarProps) => {
           ))}
         </div>
 
-        {/* Desktop Auth */}
         <div className="hidden md:flex items-center gap-3">
           {user ? (
             <DropdownMenu>
@@ -116,7 +94,7 @@ const Navbar = ({ logo }: NavbarProps) => {
                     </AvatarFallback>
                   </Avatar>
                   <span className="text-sm text-foreground max-w-[120px] truncate">
-                    {user.user_metadata?.full_name || user.email}
+                    {profile.full_name || user.user_metadata?.full_name || user.email}
                   </span>
                 </Button>
               </DropdownMenuTrigger>
@@ -156,7 +134,6 @@ const Navbar = ({ logo }: NavbarProps) => {
           )}
         </div>
 
-        {/* Mobile Menu */}
         <div className="md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
@@ -188,7 +165,7 @@ const Navbar = ({ logo }: NavbarProps) => {
                         </Avatar>
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">
-                            {user.user_metadata?.full_name || "User"}
+                            {profile.full_name || user.user_metadata?.full_name || "User"}
                           </p>
                           <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                         </div>

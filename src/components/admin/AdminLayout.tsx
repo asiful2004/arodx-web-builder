@@ -13,11 +13,6 @@ import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
 import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
 
-interface Profile {
-  full_name: string | null;
-  avatar_url: string | null;
-}
-
 interface Notification {
   id: string;
   title: string;
@@ -29,9 +24,7 @@ interface Notification {
 }
 
 export default function AdminLayout() {
-  const { user, loading: authLoading } = useAuth();
-  const [profile, setProfile] = useState<Profile>({ full_name: null, avatar_url: null });
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const { user, loading: authLoading, profile, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -51,28 +44,13 @@ export default function AdminLayout() {
     }
   }, [user, authLoading, navigate]);
 
+  // Redirect non-admin once roles are loaded
   useEffect(() => {
-    if (!user) return;
-    
-    supabase
-      .from("profiles")
-      .select("full_name, avatar_url")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
-        if (data) setProfile(data);
-      });
-
-    // Check admin role
-    supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
-      if (!data) {
-        navigate("/dashboard");
-        toast({ title: "অ্যাক্সেস নেই", description: "আপনার এই প্যানেলে অ্যাক্সেস নেই।", variant: "destructive" });
-        return;
-      }
-      setIsAdmin(true);
-    });
-  }, [user]);
+    if (!authLoading && user && isAdmin === false) {
+      navigate("/dashboard");
+      toast({ title: "অ্যাক্সেস নেই", description: "আপনার এই প্যানেলে অ্যাক্সেস নেই।", variant: "destructive" });
+    }
+  }, [authLoading, user, isAdmin, navigate, toast]);
 
   const playNotifSound = useCallback(() => {
     if (!audioRef.current) {
@@ -126,7 +104,6 @@ export default function AdminLayout() {
   }, [user, isAdmin, playNotifSound]);
 
   // === Persistent Chat Notification System ===
-  // Listen for ALL new chat messages from clients
   useEffect(() => {
     if (!user || !isAdmin) return;
 
@@ -139,15 +116,12 @@ export default function AdminLayout() {
           const msg = payload.new as { id: string; session_id: string; sender_type: string; sender_id: string | null };
           
           if (msg.sender_type === "client") {
-            // Client sent a message - add to unanswered set
             setUnansweredSessions(prev => {
               const next = new Set(prev);
               next.add(msg.session_id);
               return next;
             });
-            // Play immediately
             playChatNotifSound();
-            // Show toast
             toast({
               title: "💬 নতুন চ্যাট মেসেজ!",
               description: "একজন ক্লায়েন্ট সাপোর্ট চ্যাটে মেসেজ পাঠিয়েছে",
@@ -166,7 +140,6 @@ export default function AdminLayout() {
           }
           
           if (msg.sender_type === "admin" && msg.sender_id) {
-            // Admin replied - remove from unanswered
             setUnansweredSessions(prev => {
               const next = new Set(prev);
               next.delete(msg.session_id);
@@ -184,9 +157,7 @@ export default function AdminLayout() {
   useEffect(() => {
     if (unansweredSessions.size > 0) {
       const isOnChatPage = location.pathname.includes("/admin/chat");
-      
       if (persistentTimerRef.current) clearInterval(persistentTimerRef.current);
-      
       if (!isOnChatPage) {
         persistentTimerRef.current = setInterval(() => {
           playChatNotifSound();
@@ -198,7 +169,6 @@ export default function AdminLayout() {
         persistentTimerRef.current = null;
       }
     }
-
     return () => {
       if (persistentTimerRef.current) {
         clearInterval(persistentTimerRef.current);
@@ -207,7 +177,6 @@ export default function AdminLayout() {
     };
   }, [unansweredSessions, location.pathname, playChatNotifSound]);
 
-  // When admin navigates to chat page, stop persistent sound (they'll handle it there)
   useEffect(() => {
     if (location.pathname.includes("/admin/chat") && persistentTimerRef.current) {
       clearInterval(persistentTimerRef.current);
@@ -239,15 +208,13 @@ export default function AdminLayout() {
     }
   };
 
-  if (authLoading || !user || isAdmin === null) {
+  if (authLoading || !user || !isAdmin) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
-
-
 
   return (
     <OnlinePresenceContext.Provider value={presenceValue}>
@@ -271,7 +238,6 @@ export default function AdminLayout() {
             <div className="flex items-center gap-2">
               <OnlineMembersTrigger />
               <SendNotificationDialog />
-              {/* Persistent chat alert */}
               {unansweredSessions.size > 0 && !location.pathname.includes("/admin/chat") && (
                 <Button
                   variant="destructive"

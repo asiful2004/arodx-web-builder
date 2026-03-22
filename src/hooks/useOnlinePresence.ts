@@ -47,41 +47,13 @@ export const OnlinePresenceContext = createContext<OnlinePresenceContextType>({
 });
 
 export function useOnlinePresenceProvider() {
-  const { user } = useAuth();
+  const { user, profile, userRoles } = useAuth();
   const [onlineMembers, setOnlineMembers] = useState<OnlineMember[]>([]);
-  const [myProfile, setMyProfile] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
-  const [myRoles, setMyRoles] = useState<string[] | null>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
 
-  // Fetch own profile & roles
+  // Realtime Presence — uses cached profile+roles from AuthContext
   useEffect(() => {
-    if (!user) {
-      setMyProfile(null);
-      setMyRoles(null);
-      return;
-    }
-
-    supabase
-      .from("profiles")
-      .select("full_name, avatar_url")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
-        setMyProfile(data ?? { full_name: null, avatar_url: null });
-      });
-
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .then(({ data }) => {
-        setMyRoles(data ? data.map((r: any) => r.role) : []);
-      });
-  }, [user]);
-
-  // Realtime Presence — only start after profile+roles are loaded
-  useEffect(() => {
-    if (!user || myProfile === null || myRoles === null) return;
+    if (!user || !profile.full_name && !profile.avatar_url) return;
 
     const channel = supabase.channel("online-users", {
       config: { presence: { key: user.id } },
@@ -92,7 +64,6 @@ export function useOnlinePresenceProvider() {
     channel
       .on("presence", { event: "sync" }, () => {
         const state = channel.presenceState<OnlineMember>();
-
         const members: OnlineMember[] = [];
         for (const key of Object.keys(state)) {
           const presences = state[key];
@@ -107,9 +78,9 @@ export function useOnlinePresenceProvider() {
           const deviceInfo = detectDeviceType();
           await channel.track({
             user_id: user.id,
-            full_name: myProfile.full_name,
-            avatar_url: myProfile.avatar_url,
-            roles: myRoles,
+            full_name: profile.full_name,
+            avatar_url: profile.avatar_url,
+            roles: userRoles,
             online_at: new Date().toISOString(),
             ...deviceInfo,
           });
@@ -121,7 +92,7 @@ export function useOnlinePresenceProvider() {
       supabase.removeChannel(channel);
       channelRef.current = null;
     };
-  }, [user, myProfile, myRoles]);
+  }, [user, profile, userRoles]);
 
   return { onlineMembers };
 }

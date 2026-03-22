@@ -3,7 +3,6 @@ import { useNavigate, Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { StaffSidebar } from "./StaffSidebar";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -12,21 +11,17 @@ import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
 import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
 
-interface Profile {
-  full_name: string | null;
-  avatar_url: string | null;
-}
-
+const STAFF_ROLES = ["admin", "hr", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
 const SEND_NOTIF_ROLES = ["admin", "hr", "project_manager"];
 
 export default function StaffLayout() {
-  const { user, loading: authLoading } = useAuth();
-  const [profile, setProfile] = useState<Profile>({ full_name: null, avatar_url: null });
+  const { user, loading: authLoading, profile, userRoles } = useAuth();
   const [authorized, setAuthorized] = useState<boolean | null>(null);
-  const [canSendNotif, setCanSendNotif] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const presenceValue = useOnlinePresenceProvider();
+
+  const canSendNotif = userRoles.some(r => SEND_NOTIF_ROLES.includes(r));
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -34,35 +29,19 @@ export default function StaffLayout() {
     }
   }, [user, authLoading, navigate]);
 
+  // Check staff authorization using cached roles
   useEffect(() => {
-    if (!user) return;
+    if (!user || authLoading) return;
+    if (userRoles.length === 0) return; // Roles not loaded yet
 
-    supabase
-      .from("profiles")
-      .select("full_name, avatar_url")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
-        if (data) setProfile(data);
-      });
-
-    const subRoles = ['graphics_designer', 'web_developer', 'project_manager', 'digital_marketer'];
-    Promise.all([
-      supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
-      supabase.rpc("has_role", { _user_id: user.id, _role: "hr" as any }),
-      supabase.from("user_roles").select("role").eq("user_id", user.id),
-    ]).then(([adminRes, hrRes, rolesRes]) => {
-      const userRoles = (rolesRes.data || []).map((r: any) => r.role);
-      const hasSubRole = userRoles.some((r: string) => subRoles.includes(r));
-      if (!adminRes.data && !hrRes.data && !hasSubRole) {
-        navigate("/dashboard");
-        toast({ title: "অ্যাক্সেস নেই", description: "আপনার স্টাফ প্যানেলে অ্যাক্সেস নেই।", variant: "destructive" });
-        return;
-      }
-      setAuthorized(true);
-      setCanSendNotif(userRoles.some((r: string) => SEND_NOTIF_ROLES.includes(r)));
-    });
-  }, [user]);
+    const hasStaffAccess = userRoles.some(r => STAFF_ROLES.includes(r));
+    if (!hasStaffAccess) {
+      navigate("/dashboard");
+      toast({ title: "অ্যাক্সেস নেই", description: "আপনার স্টাফ প্যানেলে অ্যাক্সেস নেই।", variant: "destructive" });
+      return;
+    }
+    setAuthorized(true);
+  }, [user, authLoading, userRoles, navigate, toast]);
 
   if (authLoading || !user || authorized === null) {
     return (
@@ -71,9 +50,6 @@ export default function StaffLayout() {
       </div>
     );
   }
-
-
-
 
   return (
     <OnlinePresenceContext.Provider value={presenceValue}>
