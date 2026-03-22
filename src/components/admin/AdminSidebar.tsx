@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+import { Globe } from "lucide-react";
+
 const mainItems = [
   { title: "ওভারভিউ", url: "/admin", icon: LayoutDashboard },
   { title: "অর্ডার ম্যানেজমেন্ট", url: "/admin/orders", icon: ShoppingBag },
@@ -25,6 +27,10 @@ const mainItems = [
 
 const staffItems = [
   { title: "স্টাফ প্যানেল", url: "/staff", icon: UserCog },
+];
+
+const websiteItems = [
+  { title: "ওয়েবসাইট কনটেন্ট", url: "/admin/website", icon: Globe },
 ];
 
 const settingsItems = [
@@ -118,6 +124,31 @@ export function AdminSidebar({ profile, isAdmin = true }: AdminSidebarProps) {
             <SidebarGroupContent>
               <SidebarMenu>
                 {staffItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink
+                        to={item.url}
+                        className="hover:bg-sidebar-accent/50"
+                        activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                        onClick={closeMobileMenu}
+                      >
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>ওয়েবসাইট</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {websiteItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive(item.url)}>
                       <NavLink

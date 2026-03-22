@@ -37,6 +37,7 @@ const AdminUsersPage = lazy(() => import("./components/admin/AdminUsersPage"));
 const AdminTicketsPage = lazy(() => import("./components/admin/AdminTicketsPage"));
 const AdminTicketDetailPage = lazy(() => import("./components/admin/AdminTicketDetailPage"));
 const AdminSettingsPage = lazy(() => import("./components/admin/AdminSettingsPage"));
+const AdminWebsiteContentPage = lazy(() => import("./components/admin/AdminWebsiteContentPage"));
 const AdminChatPage = lazy(() => import("./components/admin/AdminChatPage"));
 const AdminAnalyticsPage = lazy(() => import("./components/admin/AdminAnalyticsPage"));
 const StaffPanelPage = lazy(() => import("./components/admin/StaffPanelPage"));
@@ -113,6 +114,7 @@ const App = () => {
                   <Route path="tickets" element={<AdminTicketsPage />} />
                   <Route path="tickets/:ticketId" element={<AdminTicketDetailPage />} />
                   <Route path="settings" element={<AdminSettingsPage />} />
+                  <Route path="website" element={<AdminWebsiteContentPage />} />
                   <Route path="chat" element={<AdminChatPage />} />
                   <Route path="analytics" element={<AdminAnalyticsPage />} />
                   <Route path="staff" element={<StaffPanelPage />} />
