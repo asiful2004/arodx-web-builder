@@ -36,8 +36,8 @@ function RateLimitSection() {
     updateMutation.mutate(
       { key: "rate_limit", value: localData },
       {
-        onSuccess: () => toast({ title: "রেট লিমিট আপডেট হয়েছে!" }),
-        onError: () => toast({ title: "Error", description: "আপডেট করতে সমস্যা হয়েছে", variant: "destructive" }),
+        onSuccess: () => sonnerToast.success("রেট লিমিট আপডেট হয়েছে!"),
+        onError: () => sonnerToast.error("আপডেট করতে সমস্যা হয়েছে"),
       }
     );
   };
