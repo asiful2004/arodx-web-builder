@@ -5,22 +5,41 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
-const getIsOpen = () => {
+// Check if office is currently open based on schedule data
+const getIsOpenFromSchedule = (schedule?: any[]) => {
   const now = new Date();
   const bdTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
-  const day = bdTime.getDay();
-  const hour = bdTime.getHours();
-  if (day === 5) return false;
-  if (day === 4) return hour >= 8 && hour < 17;
-  return hour >= 8;
+  const jsDay = bdTime.getDay(); // 0=Sun
+  const currentMinutes = bdTime.getHours() * 60 + bdTime.getMinutes();
+
+  if (!schedule || schedule.length === 0) {
+    // Fallback: old hardcoded logic
+    if (jsDay === 5) return false;
+    if (jsDay === 4) return bdTime.getHours() >= 8 && bdTime.getHours() < 17;
+    return bdTime.getHours() >= 8;
+  }
+
+  const todayEntry = schedule.find((s: any) => s.dayIndex === jsDay);
+  if (!todayEntry || !todayEntry.enabled) return false;
+
+  const [openH, openM] = (todayEntry.open || "08:00").split(":").map(Number);
+  const [closeH, closeM] = (todayEntry.close || "00:00").split(":").map(Number);
+  const openMin = openH * 60 + openM;
+  let closeMin = closeH * 60 + closeM;
+
+  // If close is midnight (00:00) or close <= open, treat as next day (e.g. 8AM-12AM)
+  if (closeMin <= openMin) closeMin += 24 * 60;
+
+  return currentMinutes >= openMin && currentMinutes < closeMin;
 };
 
-const ServiceStatus = () => {
-  const [isOpen, setIsOpen] = useState(getIsOpen);
+const ServiceStatus = ({ schedule }: { schedule?: any[] }) => {
+  const [isOpen, setIsOpen] = useState(() => getIsOpenFromSchedule(schedule));
   useEffect(() => {
-    const interval = setInterval(() => setIsOpen(getIsOpen()), 30000);
+    setIsOpen(getIsOpenFromSchedule(schedule));
+    const interval = setInterval(() => setIsOpen(getIsOpenFromSchedule(schedule)), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [schedule]);
 
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${isOpen ? "bg-green-500/10 text-green-500" : "bg-destructive/10 text-destructive"}`}>
@@ -45,7 +64,8 @@ const ContactSection = () => {
   const email = contact?.email || "arodxofficial@gmail.com";
   const phone = contact?.phone || "+880 1XXX-XXXXXX";
   const address = contact?.address || "ঢাকা, বাংলাদেশ";
-  const officeHours = contact?.office_hours || { sat_to_wed: "8:00 AM – 12:00 AM", thursday: "8:00 AM – 5:00 PM", friday: "বন্ধ" };
+  const officeHours = contact?.office_hours || {};
+  const schedule = officeHours?.schedule as any[] | undefined;
 
   const contactItems = [
     { icon: Mail, title: "ইমেইল", value: email },
@@ -56,7 +76,7 @@ const ContactSection = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
-    if (getIsOpen()) {
+    if (getIsOpenFromSchedule(schedule)) {
       toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।" });
     } else {
       toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "বর্তমানে অফিস বন্ধ আছে। অফিস চালু হলে আপনাকে রেসপন্স করা হবে।" });
@@ -131,21 +151,50 @@ const ContactSection = () => {
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold font-display">অফিস কর্মসূচি</h3>
-                <ServiceStatus />
+                <ServiceStatus schedule={schedule} />
               </div>
               <div className="space-y-2.5 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">শনি – বুধবার</span>
-                  <span className="text-foreground">{officeHours.sat_to_wed}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">বৃহস্পতিবার</span>
-                  <span className="text-foreground">{officeHours.thursday}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">শুক্রবার</span>
-                  <span className="text-destructive">{officeHours.friday}</span>
-                </div>
+                {schedule && schedule.length > 0 ? (
+                  // Group consecutive days with same hours for cleaner display
+                  (() => {
+                    const groups: { days: string[]; open: string; close: string; enabled: boolean }[] = [];
+                    schedule.forEach((entry: any) => {
+                      const last = groups[groups.length - 1];
+                      if (last && last.enabled === entry.enabled && last.open === entry.open && last.close === entry.close) {
+                        last.days.push(entry.day);
+                      } else {
+                        groups.push({ days: [entry.day], open: entry.open, close: entry.close, enabled: entry.enabled });
+                      }
+                    });
+                    return groups.map((g, i) => (
+                      <div key={i} className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          {g.days.length > 1 ? `${g.days[0]} – ${g.days[g.days.length - 1]}` : g.days[0]}
+                        </span>
+                        {g.enabled ? (
+                          <span className="text-foreground">{g.open} – {g.close === "00:00" ? "12:00 AM" : g.close}</span>
+                        ) : (
+                          <span className="text-destructive">বন্ধ</span>
+                        )}
+                      </div>
+                    ));
+                  })()
+                ) : (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">শনি – বুধবার</span>
+                      <span className="text-foreground">{officeHours.sat_to_wed || "8:00 AM – 12:00 AM"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">বৃহস্পতিবার</span>
+                      <span className="text-foreground">{officeHours.thursday || "8:00 AM – 5:00 PM"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">শুক্রবার</span>
+                      <span className="text-destructive">{officeHours.friday || "বন্ধ"}</span>
+                    </div>
+                  </>
+                )}
               </div>
             </motion.div>
           </motion.div>

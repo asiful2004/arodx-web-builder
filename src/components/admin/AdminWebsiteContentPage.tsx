@@ -325,6 +325,97 @@ function PortfolioTab() {
   );
 }
 
+const DAYS_OF_WEEK = [
+  { day: "শনিবার", dayIndex: 6 },
+  { day: "রবিবার", dayIndex: 0 },
+  { day: "সোমবার", dayIndex: 1 },
+  { day: "মঙ্গলবার", dayIndex: 2 },
+  { day: "বুধবার", dayIndex: 3 },
+  { day: "বৃহস্পতিবার", dayIndex: 4 },
+  { day: "শুক্রবার", dayIndex: 5 },
+];
+
+const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
+  const h = Math.floor(i / 2);
+  const m = i % 2 === 0 ? "00" : "30";
+  return `${String(h).padStart(2, "0")}:${m}`;
+});
+
+function TimeSelect({ value, onChange, label }: { value: string; onChange: (v: string) => void; label: string }) {
+  return (
+    <div className="space-y-1">
+      <Label className="text-[10px] text-muted-foreground">{label}</Label>
+      <select
+        value={value || "08:00"}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full h-8 rounded-md border border-input bg-background px-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+      >
+        {TIME_OPTIONS.map((t) => (
+          <option key={t} value={t}>{t}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function OfficeHoursEditor({ data, setData }: { data: any; setData: (d: any) => void }) {
+  // Migrate old format to new schedule format
+  const getSchedule = () => {
+    if (data.office_hours?.schedule) return data.office_hours.schedule;
+    // Default schedule
+    return DAYS_OF_WEEK.map((d) => ({
+      day: d.day,
+      dayIndex: d.dayIndex,
+      enabled: d.dayIndex !== 5, // Friday off by default
+      open: d.dayIndex === 4 ? "08:00" : "08:00",
+      close: d.dayIndex === 4 ? "17:00" : "00:00",
+    }));
+  };
+
+  const schedule = getSchedule();
+
+  const updateDay = (idx: number, field: string, value: any) => {
+    const updated = [...schedule];
+    updated[idx] = { ...updated[idx], [field]: value };
+    setData({
+      ...data,
+      office_hours: { ...data.office_hours, schedule: updated },
+    });
+  };
+
+  return (
+    <div className="space-y-3">
+      <Label className="text-sm font-semibold block">অফিস সময়সূচি</Label>
+      <p className="text-xs text-muted-foreground">প্রতিটি দিনের জন্য অন/অফ করুন এবং সময় সিলেক্ট করুন</p>
+      <div className="space-y-2">
+        {schedule.map((entry: any, idx: number) => (
+          <div
+            key={entry.day}
+            className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+              entry.enabled ? "border-primary/20 bg-primary/5" : "border-border bg-muted/30 opacity-60"
+            }`}
+          >
+            <Switch
+              checked={entry.enabled}
+              onCheckedChange={(v) => updateDay(idx, "enabled", v)}
+            />
+            <span className="text-sm font-medium w-24 shrink-0">{entry.day}</span>
+            {entry.enabled ? (
+              <div className="flex items-center gap-2 flex-1">
+                <TimeSelect label="খোলা" value={entry.open} onChange={(v) => updateDay(idx, "open", v)} />
+                <span className="text-muted-foreground text-xs mt-4">—</span>
+                <TimeSelect label="বন্ধ" value={entry.close} onChange={(v) => updateDay(idx, "close", v)} />
+              </div>
+            ) : (
+              <span className="text-xs text-destructive font-medium">বন্ধ</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ContactTab() {
   return (
     <SectionEditor sectionKey="contact" title="Contact Section" icon={Mail}>
@@ -337,14 +428,7 @@ function ContactTab() {
           <FieldInput label="ইমেইল" value={data.email} onChange={(v) => setData({ ...data, email: v })} />
           <FieldInput label="ফোন" value={data.phone} onChange={(v) => setData({ ...data, phone: v })} />
           <FieldInput label="ঠিকানা" value={data.address} onChange={(v) => setData({ ...data, address: v })} />
-          <div>
-            <Label className="text-sm font-semibold mb-3 block">অফিস সময়সূচি</Label>
-            <div className="space-y-3 p-4 rounded-xl border border-border bg-muted/30">
-              <FieldInput label="শনি – বুধবার" value={data.office_hours?.sat_to_wed} onChange={(v) => setData({ ...data, office_hours: { ...data.office_hours, sat_to_wed: v } })} />
-              <FieldInput label="বৃহস্পতিবার" value={data.office_hours?.thursday} onChange={(v) => setData({ ...data, office_hours: { ...data.office_hours, thursday: v } })} />
-              <FieldInput label="শুক্রবার" value={data.office_hours?.friday} onChange={(v) => setData({ ...data, office_hours: { ...data.office_hours, friday: v } })} />
-            </div>
-          </div>
+          <OfficeHoursEditor data={data} setData={setData} />
         </div>
       )}
     </SectionEditor>
