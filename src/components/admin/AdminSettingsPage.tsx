@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Settings, Loader2, Save, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil, FileText, Bot } from "lucide-react";
+import { Settings, Loader2, Save, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil, FileText, Bot, Mail, Eye, EyeOff, Send } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -302,6 +302,248 @@ function CronJobsSection() {
   );
 }
 
+// ===== SMTP Config Section =====
+const DEFAULT_SMTP = {
+  enabled: false,
+  host: "",
+  port: 587,
+  secure: true,
+  username: "",
+  password: "",
+  from_name: "",
+  from_email: "",
+};
+
+function SmtpConfigSection() {
+  const { data: settings, isLoading } = useSiteSettings();
+  const updateMutation = useUpdateSiteSetting();
+  const { toast } = useToast();
+  const [localData, setLocalData] = useState<any>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [testEmail, setTestEmail] = useState("");
+  const [testing, setTesting] = useState(false);
+
+  useEffect(() => {
+    if (settings) {
+      setLocalData({ ...DEFAULT_SMTP, ...(settings.smtp || {}) });
+    }
+  }, [settings]);
+
+  const handleSave = () => {
+    updateMutation.mutate(
+      { key: "smtp", value: localData },
+      {
+        onSuccess: () => toast({ title: "SMTP সেটিংস সেভ হয়েছে!" }),
+        onError: () => toast({ title: "ত্রুটি", description: "সেভ করতে সমস্যা হয়েছে", variant: "destructive" }),
+      }
+    );
+  };
+
+  const handleTestEmail = async () => {
+    if (!testEmail.trim()) {
+      toast({ title: "ইমেইল দিন", description: "টেস্ট ইমেইল পাঠানোর জন্য একটি ইমেইল এড্রেস দিন", variant: "destructive" });
+      return;
+    }
+    setTesting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-smtp-email", {
+        body: {
+          to: testEmail.trim(),
+          subject: "SMTP টেস্ট ইমেইল",
+          html: `<div style="font-family:Arial,sans-serif;padding:20px;"><h2>✅ SMTP কনফিগারেশন সফল!</h2><p>আপনার SMTP সেটিংস সঠিকভাবে কাজ করছে।</p><p style="color:#888;font-size:12px;">এই ইমেইলটি টেস্ট হিসেবে পাঠানো হয়েছে।</p></div>`,
+          text: "SMTP কনফিগারেশন সফল! আপনার SMTP সেটিংস সঠিকভাবে কাজ করছে।",
+        },
+      });
+      if (error) throw error;
+      toast({ title: "টেস্ট ইমেইল পাঠানো হয়েছে!", description: `${testEmail} এ ইমেইল চেক করুন` });
+    } catch (err: any) {
+      toast({ title: "ত্রুটি", description: err.message || "ইমেইল পাঠাতে সমস্যা হয়েছে", variant: "destructive" });
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  if (isLoading || !localData) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const update = (key: string, value: any) => setLocalData({ ...localData, [key]: value });
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Mail className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <CardTitle className="text-lg">SMTP কনফিগারেশন</CardTitle>
+            <CardDescription>কাস্টম SMTP সার্ভার দিয়ে ইমেইল পাঠান</CardDescription>
+          </div>
+        </div>
+        <Button onClick={handleSave} disabled={updateMutation.isPending} size="sm" className="gap-2">
+          {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          সেভ
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Enable/Disable */}
+        <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/30">
+          <div>
+            <Label className="text-sm font-semibold">SMTP সক্রিয়</Label>
+            <p className="text-xs text-muted-foreground mt-1">SMTP দিয়ে ইমেইল পাঠানো সক্রিয় করুন</p>
+          </div>
+          <Switch checked={localData.enabled} onCheckedChange={(v) => update("enabled", v)} />
+        </div>
+
+        {/* Server Settings */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold text-foreground">সার্ভার সেটিংস</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">SMTP হোস্ট</Label>
+              <Input
+                placeholder="smtp.gmail.com"
+                value={localData.host}
+                onChange={(e) => update("host", e.target.value)}
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">পোর্ট</Label>
+              <Select value={String(localData.port)} onValueChange={(v) => update("port", parseInt(v))}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="25">25 (SMTP)</SelectItem>
+                  <SelectItem value="465">465 (SSL)</SelectItem>
+                  <SelectItem value="587">587 (TLS — recommended)</SelectItem>
+                  <SelectItem value="2525">2525 (Alternative)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/20">
+            <div>
+              <Label className="text-xs font-semibold">SSL/TLS সিকিউর কানেকশন</Label>
+              <p className="text-[10px] text-muted-foreground mt-0.5">পোর্ট 465 এর জন্য SSL, 587 এর জন্য STARTTLS</p>
+            </div>
+            <Switch checked={localData.secure} onCheckedChange={(v) => update("secure", v)} />
+          </div>
+        </div>
+
+        {/* Auth */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold text-foreground">অথেনটিকেশন</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">ইউজারনেম / ইমেইল</Label>
+              <Input
+                placeholder="your@email.com"
+                value={localData.username}
+                onChange={(e) => update("username", e.target.value)}
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">পাসওয়ার্ড / App Password</Label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••••••"
+                  value={localData.password}
+                  onChange={(e) => update("password", e.target.value)}
+                  className="text-sm pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-3.5 w-3.5 text-muted-foreground" /> : <Eye className="h-3.5 w-3.5 text-muted-foreground" />}
+                </Button>
+              </div>
+              <p className="text-[10px] text-muted-foreground">Gmail হলে App Password ব্যবহার করুন</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Sender Info */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold text-foreground">প্রেরকের তথ্য</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">প্রেরকের নাম</Label>
+              <Input
+                placeholder="ArodX"
+                value={localData.from_name}
+                onChange={(e) => update("from_name", e.target.value)}
+                className="text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground">প্রেরকের ইমেইল</Label>
+              <Input
+                type="email"
+                placeholder="noreply@yourdomain.com"
+                value={localData.from_email}
+                onChange={(e) => update("from_email", e.target.value)}
+                className="text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Test Email */}
+        <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 space-y-3">
+          <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Send className="h-4 w-4 text-primary" />
+            টেস্ট ইমেইল পাঠান
+          </h4>
+          <p className="text-xs text-muted-foreground">SMTP সেটিংস সঠিক আছে কিনা যাচাই করতে একটি টেস্ট ইমেইল পাঠান</p>
+          <div className="flex gap-2">
+            <Input
+              type="email"
+              placeholder="test@example.com"
+              value={testEmail}
+              onChange={(e) => setTestEmail(e.target.value)}
+              className="text-sm flex-1"
+            />
+            <Button onClick={handleTestEmail} disabled={testing || !localData.enabled} size="sm" className="gap-2 shrink-0">
+              {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              পাঠান
+            </Button>
+          </div>
+          {!localData.enabled && (
+            <p className="text-[10px] text-destructive">টেস্ট করতে প্রথমে SMTP সক্রিয় করুন</p>
+          )}
+        </div>
+
+        {/* Gmail Guide */}
+        <div className="p-3 rounded-lg bg-muted/50 border border-border space-y-1.5">
+          <p className="text-xs font-semibold text-foreground">📧 Gmail SMTP সেটআপ গাইড:</p>
+          <ul className="text-[11px] text-muted-foreground space-y-1 list-disc list-inside">
+            <li>হোস্ট: <code className="bg-muted px-1 rounded">smtp.gmail.com</code>, পোর্ট: <code className="bg-muted px-1 rounded">587</code></li>
+            <li>Google Account → Security → 2-Step Verification চালু করুন</li>
+            <li>App Passwords → Generate করে পাসওয়ার্ড ফিল্ডে দিন</li>
+            <li>ইউজারনেম হবে আপনার Gmail address</li>
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function AdminSettingsPage() {
   return (
     <div className="space-y-8">
@@ -310,12 +552,15 @@ export default function AdminSettingsPage() {
           <Settings className="h-5 w-5 text-primary" />
           সিস্টেম সেটিংস
         </h1>
-        <p className="text-sm text-muted-foreground">সিকিউরিটি, AI চ্যাট এবং অটোমেশন সেটিংস</p>
+        <p className="text-sm text-muted-foreground">সিকিউরিটি, ইমেইল, AI চ্যাট এবং অটোমেশন সেটিংস</p>
       </div>
 
       <div className="grid gap-6">
         {/* Security */}
         <RateLimitSection />
+
+        {/* SMTP Config */}
+        <SmtpConfigSection />
 
         {/* AI Chat Config */}
         <Card>
