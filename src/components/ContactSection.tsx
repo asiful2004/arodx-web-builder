@@ -33,12 +33,13 @@ const getIsOpenFromSchedule = (schedule?: any[]) => {
   return currentMinutes >= openMin && currentMinutes < closeMin;
 };
 
-const ServiceStatus = () => {
-  const [isOpen, setIsOpen] = useState(getIsOpen);
+const ServiceStatus = ({ schedule }: { schedule?: any[] }) => {
+  const [isOpen, setIsOpen] = useState(() => getIsOpenFromSchedule(schedule));
   useEffect(() => {
-    const interval = setInterval(() => setIsOpen(getIsOpen()), 30000);
+    setIsOpen(getIsOpenFromSchedule(schedule));
+    const interval = setInterval(() => setIsOpen(getIsOpenFromSchedule(schedule)), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [schedule]);
 
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${isOpen ? "bg-green-500/10 text-green-500" : "bg-destructive/10 text-destructive"}`}>
