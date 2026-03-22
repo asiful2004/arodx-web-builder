@@ -99,17 +99,11 @@ Deno.serve(async (req) => {
       },
     });
 
-    // Build a valid "from" field
-    let fromField: string;
+    // denomailer requires plain email address for "from"
     const senderEmail = smtp.from_email?.trim() || smtp.username;
-    if (smtp.from_name?.trim()) {
-      fromField = `${smtp.from_name.trim()} <${senderEmail}>`;
-    } else {
-      fromField = senderEmail;
-    }
 
     await client.send({
-      from: fromField,
+      from: senderEmail,
       to,
       subject,
       content: text || "Email sent via SMTP",
