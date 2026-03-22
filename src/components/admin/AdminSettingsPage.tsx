@@ -285,21 +285,42 @@ function CronJobsSection() {
           {runDetails.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-6">এখনো কোনো রান রেকর্ড নেই</p>
           ) : (
-            <div className="space-y-2">
-              {runDetails.map((run, idx) => (
-                <div key={`${run.runid}-${idx}`} className="p-3 rounded-lg border border-border bg-muted/20 space-y-2">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <div className="flex items-center gap-2">
-                      {getStatusBadge(run.status)}
-                      <span className="text-xs text-muted-foreground">Job #{run.jobid}</span>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                {runDetails.slice((historyPage - 1) * HISTORY_PER_PAGE, historyPage * HISTORY_PER_PAGE).map((run, idx) => (
+                  <div key={`${run.runid}-${idx}`} className="p-3 rounded-lg border border-border bg-muted/20 space-y-2">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(run.status)}
+                        <span className="text-xs text-muted-foreground">Job #{run.jobid}</span>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground font-mono">{formatTime(run.start_time)}</span>
                     </div>
-                    <span className="text-[10px] text-muted-foreground font-mono">{formatTime(run.start_time)}</span>
+                    {run.return_message && (
+                      <p className="text-[11px] text-muted-foreground bg-background rounded p-2 font-mono break-all">{run.return_message}</p>
+                    )}
                   </div>
-                  {run.return_message && (
-                    <p className="text-[11px] text-muted-foreground bg-background rounded p-2 font-mono break-all">{run.return_message}</p>
-                  )}
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {runDetails.length > HISTORY_PER_PAGE && (
+                <div className="flex items-center justify-center gap-1 pt-2">
+                  {Array.from({ length: Math.ceil(runDetails.length / HISTORY_PER_PAGE) }, (_, i) => i + 1).map((page) => (
+                    <Button
+                      key={page}
+                      variant={historyPage === page ? "default" : "outline"}
+                      size="sm"
+                      className="h-7 w-7 p-0 text-xs"
+                      onClick={() => setHistoryPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  ))}
                 </div>
-              ))}
+              )}
+
+              <p className="text-[10px] text-muted-foreground text-center">সর্বোচ্চ ৩ দিনের হিস্ট্রি রাখা হয়, পুরনো রেকর্ড স্বয়ংক্রিয়ভাবে মুছে যায়</p>
             </div>
           )}
         </CardContent>
