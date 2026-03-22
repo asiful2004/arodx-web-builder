@@ -172,7 +172,7 @@ serve(async (req) => {
         });
       }
       const basePrompt = system_prompt || DEFAULT_SYSTEM_PROMPT;
-      const fullPrompt = `${basePrompt}\n\n=== ওয়েবসাইটের সর্বশেষ তথ্য ===\n${websiteContent}`;
+      const fullPrompt = `${basePrompt}${contactInfo}\n\n=== ওয়েবসাইটের সর্বশেষ তথ্য ===\n${websiteContent}`;
       const msgs = [
         { role: "system", content: fullPrompt },
         { role: "user", content: test_message },
