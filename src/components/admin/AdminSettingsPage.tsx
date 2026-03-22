@@ -350,9 +350,8 @@ function SmtpConfigSection() {
       const { data, error } = await supabase.functions.invoke("send-smtp-email", {
         body: {
           to: testEmail.trim(),
-          subject: "SMTP টেস্ট ইমেইল",
-          html: `<div style="font-family:Arial,sans-serif;padding:20px;"><h2>✅ SMTP কনফিগারেশন সফল!</h2><p>আপনার SMTP সেটিংস সঠিকভাবে কাজ করছে।</p><p style="color:#888;font-size:12px;">এই ইমেইলটি টেস্ট হিসেবে পাঠানো হয়েছে।</p></div>`,
-          text: "SMTP কনফিগারেশন সফল! আপনার SMTP সেটিংস সঠিকভাবে কাজ করছে।",
+          subject: "SMTP Test Email - Success",
+          text: "SMTP configuration is working correctly. This is a plain-text test email from your admin panel.",
         },
       });
       if (error) throw error;
