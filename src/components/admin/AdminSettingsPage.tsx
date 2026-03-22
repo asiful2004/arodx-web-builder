@@ -130,6 +130,8 @@ function CronJobsSection() {
   const [editingJob, setEditingJob] = useState<string | null>(null);
   const [editSchedule, setEditSchedule] = useState("");
   const [saving, setSaving] = useState(false);
+  const [historyPage, setHistoryPage] = useState(1);
+  const HISTORY_PER_PAGE = 5;
 
   const fetchCronData = useCallback(async () => {
     setLoading(true);
