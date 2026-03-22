@@ -334,8 +334,8 @@ function SmtpConfigSection() {
     updateMutation.mutate(
       { key: "smtp", value: localData },
       {
-        onSuccess: () => toast({ title: "SMTP সেটিংস সেভ হয়েছে!" }),
-        onError: () => toast({ title: "ত্রুটি", description: "সেভ করতে সমস্যা হয়েছে", variant: "destructive" }),
+        onSuccess: () => sonnerToast.success("SMTP সেটিংস সেভ হয়েছে!"),
+        onError: () => sonnerToast.error("সেভ করতে সমস্যা হয়েছে"),
       }
     );
   };
