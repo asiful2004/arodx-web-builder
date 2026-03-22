@@ -347,11 +347,82 @@ function SmtpConfigSection() {
     }
     setTesting(true);
     try {
+      const brandedHtml = `
+<!DOCTYPE html>
+<html lang="bn">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0ea5e9,#06b6d4);padding:32px 40px;text-align:center;">
+            <h1 style="margin:0;font-size:28px;font-weight:800;color:#ffffff;letter-spacing:2px;">ARODX</h1>
+            <p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.85);letter-spacing:0.5px;">Web Development Agency</p>
+          </td>
+        </tr>
+        <!-- Body -->
+        <tr>
+          <td style="padding:40px;">
+            <div style="text-align:center;margin-bottom:24px;">
+              <div style="display:inline-block;width:56px;height:56px;background:#ecfdf5;border-radius:50%;line-height:56px;font-size:28px;">&#9989;</div>
+            </div>
+            <h2 style="margin:0 0 12px;font-size:20px;color:#18181b;text-align:center;">SMTP Configuration Successful!</h2>
+            <p style="margin:0 0 24px;font-size:14px;color:#71717a;text-align:center;line-height:1.6;">
+              Your SMTP settings are working correctly. Emails can now be sent from your admin panel using your configured SMTP server.
+            </p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border-radius:8px;border:1px solid #e4e4e7;">
+              <tr>
+                <td style="padding:16px 20px;">
+                  <p style="margin:0 0 8px;font-size:12px;color:#a1a1aa;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Configuration Details</p>
+                  <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="padding:4px 0;font-size:13px;color:#71717a;">SMTP Host</td>
+                      <td style="padding:4px 0;font-size:13px;color:#18181b;text-align:right;font-weight:500;">${localData.host || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:4px 0;font-size:13px;color:#71717a;">Port</td>
+                      <td style="padding:4px 0;font-size:13px;color:#18181b;text-align:right;font-weight:500;">${localData.port || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:4px 0;font-size:13px;color:#71717a;">Encryption</td>
+                      <td style="padding:4px 0;font-size:13px;color:#18181b;text-align:right;font-weight:500;">${localData.port === 465 ? 'SSL' : 'STARTTLS'}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:4px 0;font-size:13px;color:#71717a;">Sender</td>
+                      <td style="padding:4px 0;font-size:13px;color:#18181b;text-align:right;font-weight:500;">${localData.from_email || localData.username || 'N/A'}</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:24px 0 0;font-size:12px;color:#a1a1aa;text-align:center;">
+              This is an automated test email. No action is required.
+            </p>
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td style="background:#fafafa;padding:24px 40px;border-top:1px solid #e4e4e7;text-align:center;">
+            <p style="margin:0 0 4px;font-size:13px;color:#18181b;font-weight:600;">Arodx</p>
+            <p style="margin:0 0 8px;font-size:11px;color:#a1a1aa;">Creative design, development & marketing - all under one roof.</p>
+            <p style="margin:0;font-size:11px;color:#a1a1aa;">
+              <a href="mailto:arodxofficial@gmail.com" style="color:#0ea5e9;text-decoration:none;">arodxofficial@gmail.com</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
       const { data, error } = await supabase.functions.invoke("send-smtp-email", {
         body: {
           to: testEmail.trim(),
-          subject: "SMTP Test Email - Success",
-          text: "SMTP configuration is working correctly. This is a plain-text test email from your admin panel.",
+          subject: "SMTP Test Email - Arodx",
+          html: brandedHtml,
+          text: "SMTP configuration is working correctly. Your SMTP settings are properly configured. - Arodx",
         },
       });
       if (error) throw error;
