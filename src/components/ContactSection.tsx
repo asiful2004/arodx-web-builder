@@ -5,14 +5,32 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
-const getIsOpen = () => {
+// Check if office is currently open based on schedule data
+const getIsOpenFromSchedule = (schedule?: any[]) => {
   const now = new Date();
   const bdTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Dhaka" }));
-  const day = bdTime.getDay();
-  const hour = bdTime.getHours();
-  if (day === 5) return false;
-  if (day === 4) return hour >= 8 && hour < 17;
-  return hour >= 8;
+  const jsDay = bdTime.getDay(); // 0=Sun
+  const currentMinutes = bdTime.getHours() * 60 + bdTime.getMinutes();
+
+  if (!schedule || schedule.length === 0) {
+    // Fallback: old hardcoded logic
+    if (jsDay === 5) return false;
+    if (jsDay === 4) return bdTime.getHours() >= 8 && bdTime.getHours() < 17;
+    return bdTime.getHours() >= 8;
+  }
+
+  const todayEntry = schedule.find((s: any) => s.dayIndex === jsDay);
+  if (!todayEntry || !todayEntry.enabled) return false;
+
+  const [openH, openM] = (todayEntry.open || "08:00").split(":").map(Number);
+  const [closeH, closeM] = (todayEntry.close || "00:00").split(":").map(Number);
+  const openMin = openH * 60 + openM;
+  let closeMin = closeH * 60 + closeM;
+
+  // If close is midnight (00:00) or close <= open, treat as next day (e.g. 8AM-12AM)
+  if (closeMin <= openMin) closeMin += 24 * 60;
+
+  return currentMinutes >= openMin && currentMinutes < closeMin;
 };
 
 const ServiceStatus = () => {
