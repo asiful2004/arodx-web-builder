@@ -67,12 +67,8 @@ const LazyFallback = () => (
 const PageTracker = () => { usePageTracker(); return null; };
 
 const App = () => {
-  const [loading, setLoading] = useState(() => {
-    if (sessionStorage.getItem("preloaded")) return false;
-    return true;
-  });
+  const [loading, setLoading] = useState(true);
   const handleComplete = useCallback(() => {
-    sessionStorage.setItem("preloaded", "1");
     setLoading(false);
   }, []);
 
