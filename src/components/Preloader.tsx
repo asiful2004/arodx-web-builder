@@ -5,10 +5,10 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
   const [phase, setPhase] = useState<"face" | "wink" | "text" | "exit">("face");
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("wink"), 600);
-    const t2 = setTimeout(() => setPhase("text"), 1000);
-    const t3 = setTimeout(() => setPhase("exit"), 1800);
-    const t4 = setTimeout(onComplete, 2300);
+    const t1 = setTimeout(() => setPhase("wink"), 1000);
+    const t2 = setTimeout(() => setPhase("text"), 1800);
+    const t3 = setTimeout(() => setPhase("exit"), 3200);
+    const t4 = setTimeout(onComplete, 3800);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [onComplete]);
 
