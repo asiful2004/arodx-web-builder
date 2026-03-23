@@ -2,29 +2,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 
 const Preloader = ({ onComplete }: { onComplete: () => void }) => {
-  const [phase, setPhase] = useState<"build" | "reveal" | "exit">("build");
-  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState<"morph" | "logo" | "exit">("morph");
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 100) { clearInterval(interval); return 100; }
-        const jump = Math.random() * 12 + 3;
-        return Math.min(p + jump, 100);
-      });
-    }, 80);
-    const t1 = setTimeout(() => setPhase("reveal"), 2200);
+    const t1 = setTimeout(() => setPhase("logo"), 2000);
     const t2 = setTimeout(() => setPhase("exit"), 3200);
     const t3 = setTimeout(onComplete, 3800);
-    return () => { clearInterval(interval); clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [onComplete]);
-
-  const codeLines = [
-    { text: "const arodx = new Agency();", delay: 0 },
-    { text: "arodx.init({ mode: 'creative' });", delay: 0.3 },
-    { text: "await arodx.buildDreams();", delay: 0.6 },
-    { text: "// ✨ Ready to launch!", delay: 1.0 },
-  ];
 
   return (
     <AnimatePresence>
@@ -34,140 +19,136 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
         animate={phase === "exit" ? { opacity: 0 } : { opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeInOut" }}
       >
-        {/* Grid pattern background */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
-          backgroundSize: '40px 40px'
-        }} />
-
-        {/* Scanning line */}
+        {/* Radial gradient pulse */}
         <motion.div
-          className="absolute left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary to-transparent"
-          initial={{ top: "0%" }}
-          animate={{ top: ["0%", "100%", "0%"] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+          className="absolute w-[600px] h-[600px] rounded-full"
+          style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.08) 0%, transparent 70%)" }}
+          animate={{ scale: [0.3, 1.5, 1], opacity: [0, 0.6, 0.3] }}
+          transition={{ duration: 2.5, ease: "easeOut" }}
+        />
+        <motion.div
+          className="absolute w-[400px] h-[400px] rounded-full"
+          style={{ background: "radial-gradient(circle, hsl(var(--accent) / 0.06) 0%, transparent 70%)" }}
+          animate={{ scale: [0.5, 1.3, 0.9], opacity: [0, 0.4, 0.2], x: [0, 60, 30] }}
+          transition={{ duration: 2.5, ease: "easeOut", delay: 0.3 }}
         />
 
-        {/* Orbiting dots */}
-        {[0, 1, 2].map((i) => (
-          <motion.div
-            key={`orbit-${i}`}
-            className="absolute w-1.5 h-1.5 rounded-full bg-primary"
-            style={{ top: "50%", left: "50%" }}
-            animate={{
-              x: [0, Math.cos(i * 2.1) * 120, Math.cos(i * 2.1 + 2) * 80, 0],
-              y: [0, Math.sin(i * 2.1) * 120, Math.sin(i * 2.1 + 2) * 80, 0],
-              opacity: [0, 0.8, 0.4, 0],
-              scale: [0, 1, 0.6, 0],
-            }}
-            transition={{ duration: 3, delay: i * 0.4, ease: "easeInOut" }}
-          />
-        ))}
+        <div className="relative flex flex-col items-center">
+          {/* Morphing shape — the star of the show */}
+          <motion.div className="relative w-40 h-40 md:w-52 md:h-52 flex items-center justify-center">
+            {/* Ring 1 — outer rotating ring */}
+            <motion.div
+              className="absolute inset-0 rounded-full border-2 border-primary/20"
+              animate={{ rotate: 360, scale: [1, 1.1, 1] }}
+              transition={{ rotate: { duration: 4, repeat: Infinity, ease: "linear" }, scale: { duration: 2, repeat: Infinity, ease: "easeInOut" } }}
+            />
+            {/* Ring 2 — counter-rotating */}
+            <motion.div
+              className="absolute inset-3 rounded-full border border-accent/15"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+            />
 
-        <div className="relative flex flex-col items-center gap-8 px-6">
-          {/* Terminal-style code block */}
-          <motion.div
-            className="w-full max-w-md rounded-xl border border-border bg-card/80 backdrop-blur-sm overflow-hidden shadow-card"
-            initial={{ opacity: 0, y: 30, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ type: "spring", stiffness: 100, damping: 15 }}
-          >
-            {/* Terminal header */}
-            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/50">
-              <div className="w-3 h-3 rounded-full bg-destructive/60" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-              <div className="w-3 h-3 rounded-full bg-green-500/60" />
-              <span className="ml-2 text-[10px] text-muted-foreground font-mono tracking-wider">arodx.terminal</span>
-            </div>
+            {/* Morphing blob */}
+            <motion.div
+              className="absolute w-20 h-20 md:w-28 md:h-28"
+              animate={{
+                borderRadius: [
+                  "40% 60% 60% 40% / 60% 40% 60% 40%",
+                  "60% 40% 40% 60% / 40% 60% 40% 60%",
+                  "50% 50% 40% 60% / 60% 40% 50% 50%",
+                  "40% 60% 60% 40% / 60% 40% 60% 40%",
+                ],
+                rotate: [0, 90, 180, 360],
+                scale: [1, 1.15, 0.95, 1],
+              }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              style={{ background: "var(--gradient-primary)" }}
+            />
 
-            {/* Code lines */}
-            <div className="p-4 font-mono text-xs md:text-sm space-y-2">
-              {codeLines.map((line, i) => (
-                <motion.div
-                  key={i}
-                  className="flex items-start gap-2"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: line.delay + 0.3, duration: 0.4, ease: "easeOut" }}
-                >
-                  <span className="text-primary/50 select-none">{`>`}</span>
-                  <motion.span
-                    className={i === 3 ? "text-primary" : "text-foreground/80"}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: line.delay + 0.5, duration: 0.3 }}
-                  >
-                    {line.text}
-                  </motion.span>
-                </motion.div>
-              ))}
+            {/* Inner glow */}
+            <motion.div
+              className="absolute w-12 h-12 md:w-16 md:h-16 rounded-full bg-background"
+              animate={{ scale: [1, 0.85, 1], opacity: [1, 0.8, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            />
 
-              {/* Blinking cursor */}
+            {/* Center "A" letter */}
+            <motion.span
+              className="relative text-2xl md:text-3xl font-bold font-display text-gradient z-10"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5, type: "spring", stiffness: 200, damping: 15 }}
+            >
+              A
+            </motion.span>
+
+            {/* Orbiting particles */}
+            {[0, 1, 2, 3].map((i) => (
               <motion.div
-                className="flex items-center gap-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.5 }}
-              >
-                <span className="text-primary/50 select-none">{`>`}</span>
-                <motion.span
-                  className="inline-block w-2 h-4 bg-primary"
-                  animate={{ opacity: [1, 0] }}
-                  transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
-                />
-              </motion.div>
-            </div>
-          </motion.div>
-
-          {/* Progress bar */}
-          <motion.div
-            className="w-full max-w-md"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[10px] font-mono text-muted-foreground tracking-widest uppercase">Initializing</span>
-              <span className="text-[10px] font-mono text-primary">{Math.round(progress)}%</span>
-            </div>
-            <div className="h-1 rounded-full bg-muted overflow-hidden">
-              <motion.div
-                className="h-full rounded-full bg-gradient-primary"
-                style={{ width: `${progress}%` }}
-                transition={{ duration: 0.1 }}
+                key={i}
+                className="absolute w-1.5 h-1.5 rounded-full bg-primary"
+                animate={{
+                  x: [0, Math.cos((i * Math.PI) / 2) * 70, Math.cos((i * Math.PI) / 2 + 1) * 50, 0],
+                  y: [0, Math.sin((i * Math.PI) / 2) * 70, Math.sin((i * Math.PI) / 2 + 1) * 50, 0],
+                  opacity: [0, 1, 0.5, 0],
+                  scale: [0, 1.5, 0.8, 0],
+                }}
+                transition={{ duration: 2.5, delay: 0.2 + i * 0.25, repeat: Infinity, ease: "easeInOut" }}
               />
-            </div>
+            ))}
           </motion.div>
 
-          {/* Logo reveal */}
+          {/* Logo text reveal */}
           <motion.div
-            className="flex flex-col items-center gap-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={phase !== "build" ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center gap-3 mt-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={phase !== "morph" ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="flex items-center gap-0.5">
+            <div className="flex items-center">
               {["A", "r", "o", "d", "x"].map((letter, i) => (
                 <motion.span
                   key={i}
-                  className="text-4xl md:text-5xl font-bold font-display text-gradient inline-block"
-                  initial={{ opacity: 0, y: 30, rotateX: -90 }}
-                  animate={phase !== "build" ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-                  transition={{ delay: i * 0.08, type: "spring", stiffness: 150, damping: 12 }}
+                  className="text-4xl md:text-6xl font-bold font-display text-gradient inline-block"
+                  initial={{ opacity: 0, y: 40, filter: "blur(8px)" }}
+                  animate={phase !== "morph" ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
+                  transition={{ delay: i * 0.08, duration: 0.5, ease: "easeOut" }}
                 >
                   {letter}
                 </motion.span>
               ))}
             </div>
+
+            {/* Expanding line */}
+            <motion.div
+              className="h-[2px] bg-gradient-primary rounded-full"
+              initial={{ width: 0 }}
+              animate={phase !== "morph" ? { width: "100%" } : {}}
+              transition={{ delay: 0.4, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            />
+
             <motion.p
-              className="text-muted-foreground text-xs font-mono tracking-[0.3em] uppercase"
+              className="text-muted-foreground text-xs md:text-sm font-medium tracking-[0.25em] uppercase"
               initial={{ opacity: 0 }}
-              animate={phase !== "build" ? { opacity: 1 } : {}}
-              transition={{ delay: 0.4, duration: 0.4 }}
+              animate={phase !== "morph" ? { opacity: 1 } : {}}
+              transition={{ delay: 0.6, duration: 0.4 }}
             >
-              Digital Growth Partner
+              Your Digital Growth Partner
             </motion.p>
           </motion.div>
+
+          {/* Wave dots loader */}
+          <div className="flex gap-1.5 mt-8">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <motion.div
+                key={i}
+                className="w-1.5 h-1.5 rounded-full bg-primary/60"
+                animate={{ y: [0, -8, 0], opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }}
+              />
+            ))}
+          </div>
         </div>
       </motion.div>
     </AnimatePresence>
