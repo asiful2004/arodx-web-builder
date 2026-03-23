@@ -113,7 +113,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
                 <motion.span
                   className="inline-block w-2 h-4 bg-primary"
                   animate={{ opacity: [1, 0] }}
-                  transition={{ duration: 0.8, repeat: Infinity, ease: "steps(1)" }}
+                  transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
                 />
               </motion.div>
             </div>
