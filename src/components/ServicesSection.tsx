@@ -74,9 +74,9 @@ const ServicesSection = () => {
   const { t } = useLanguage();
   const svc = settings?.services;
 
-  const badge = svc?.badge || t("services.badge");
-  const title = svc?.title || t("services.title");
-  const titleHighlight = svc?.title_highlight || t("services.titleHighlight");
+  const badge = t("services.badge", svc?.badge);
+  const title = t("services.title", svc?.title);
+  const titleHighlight = t("services.titleHighlight", svc?.title_highlight);
   const items = svc?.items || defaultServices;
 
   return (

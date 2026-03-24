@@ -9,14 +9,14 @@ const HeroSection = () => {
   const { t } = useLanguage();
   const hero = settings?.hero;
 
-  const badge = hero?.badge || t("hero.badge");
-  const titlePrefix = hero?.title_prefix || t("hero.titlePrefix");
+  const badge = t("hero.badge", hero?.badge);
+  const titlePrefix = t("hero.titlePrefix", hero?.title_prefix);
   const titleBrand = hero?.title_brand || "Arodx";
-  const subtitle = hero?.subtitle || t("hero.subtitle");
-  const description = hero?.description || t("hero.description");
-  const ctaPrimaryText = hero?.cta_primary_text || t("hero.ctaPrimary");
+  const subtitle = t("hero.subtitle", hero?.subtitle);
+  const description = t("hero.description", hero?.description);
+  const ctaPrimaryText = t("hero.ctaPrimary", hero?.cta_primary_text);
   const ctaPrimaryLink = hero?.cta_primary_link || "#pricing";
-  const ctaSecondaryText = hero?.cta_secondary_text || t("hero.ctaSecondary");
+  const ctaSecondaryText = t("hero.ctaSecondary", hero?.cta_secondary_text);
   const ctaSecondaryLink = hero?.cta_secondary_link || "#portfolio";
 
   return (

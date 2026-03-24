@@ -11,7 +11,7 @@ const ComparisonSection = () => {
   const { t } = useLanguage();
   const cmp = settings?.comparison;
 
-  const badge = cmp?.badge || t("comparison.badge");
+  const badge = t("comparison.badge", cmp?.badge);
   const titlePrefix = cmp?.title_prefix || "লোক নিয়োগ vs";
   const titleHighlight = cmp?.title_highlight || "Arodx টিম";
   const subtitle = cmp?.subtitle || "";

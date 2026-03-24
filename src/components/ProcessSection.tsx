@@ -17,9 +17,9 @@ const ProcessSection = () => {
   const { t } = useLanguage();
   const proc = settings?.process;
 
-  const badge = proc?.badge || t("process.badge");
-  const title = proc?.title || t("process.title");
-  const titleHighlight = proc?.title_highlight || t("process.titleHighlight");
+  const badge = t("process.badge", proc?.badge);
+  const title = t("process.title", proc?.title);
+  const titleHighlight = t("process.titleHighlight", proc?.title_highlight);
   const subtitle = proc?.subtitle || "প্রতিটি প্রজেক্টে ৪ জন ডেডিকেটেড বিশেষজ্ঞ কাজ করেন, তাই সবকিছু হয় নিখুঁত, সময়মতো এবং ঝামেলামুক্ত।";
   const bottomCta = proc?.bottom_cta || "সবকিছু এক টিমে। আপনি শুধু ব্যবসায় ফোকাস করুন, বাকিটা আমাদের দায়িত্ব।";
   const steps = proc?.steps || defaultSteps;

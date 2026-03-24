@@ -61,10 +61,10 @@ const ContactSection = () => {
   const { data: settings } = useSiteSettings();
   const contact = settings?.contact;
 
-  const badge = contact?.badge || t("contact.badge");
-  const title = contact?.title || t("contact.title");
-  const titleHighlight = contact?.title_highlight || t("contact.titleHighlight");
-  const subtitle = contact?.subtitle || t("contact.subtitle");
+  const badge = t("contact.badge", contact?.badge);
+  const title = t("contact.title", contact?.title);
+  const titleHighlight = t("contact.titleHighlight", contact?.title_highlight);
+  const subtitle = t("contact.subtitle", contact?.subtitle);
   const email = contact?.email || "arodxofficial@gmail.com";
   const phone = contact?.phone || "+880 1XXX-XXXXXX";
   const address = contact?.address || "ঢাকা, বাংলাদেশ";
