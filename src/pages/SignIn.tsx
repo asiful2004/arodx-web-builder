@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
 
 import { useToast } from "@/hooks/use-toast";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
@@ -371,21 +372,14 @@ const SignIn = () => {
                 </div>
               ) : null}
 
-              <div className="relative pt-2">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card/60 px-2 text-muted-foreground">অথবা</span>
-                </div>
-              </div>
-
+              <GoogleSignInButton loading={loading} label="Sign in with Google" />
             </div>
           )}
 
           {/* Email Login Mode */}
           {loginMode === "email" && (
             <>
+              <GoogleSignInButton loading={loading} label="Sign in with Google" />
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">Email</label>

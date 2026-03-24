@@ -57,6 +57,7 @@ const JoinTeam = lazy(() => import("./pages/JoinTeam"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const RenewalPage = lazy(() => import("./pages/Renewal"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const GoogleCallback = lazy(() => import("./pages/GoogleCallback"));
 
 const queryClient = new QueryClient();
 
@@ -137,6 +138,7 @@ const App = () => {
                 <Route path="/join" element={<JoinTeam />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/renewal" element={<RenewalPage />} />
+                <Route path="/auth/google/callback" element={<GoogleCallback />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
