@@ -46,7 +46,7 @@ const ServiceStatus = ({ schedule }: { schedule?: any[] }) => {
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${isOpen ? "bg-green-500/10 text-green-500" : "bg-destructive/10 text-destructive"}`}>
       <span className={`w-2 h-2 rounded-full ${isOpen ? "bg-green-500 animate-pulse" : "bg-destructive"}`} />
-      {isOpen ? "চালু আছে" : "বন্ধ আছে"}
+      {isOpen ? t("contact.open") : t("contact.closed")}
     </span>
   );
 };
