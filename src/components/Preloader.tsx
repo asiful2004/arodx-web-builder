@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-
+import arodxLogoAnim from "@/assets/arodx-logo-anim.gif";
 const Preloader = ({ onComplete }: { onComplete: () => void }) => {
   const [phase, setPhase] = useState<"morph" | "logo" | "exit">("morph");
 
@@ -49,39 +49,15 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
               transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
             />
 
-            {/* Morphing blob */}
-            <motion.div
-              className="absolute w-20 h-20 md:w-28 md:h-28"
-              animate={{
-                borderRadius: [
-                  "40% 60% 60% 40% / 60% 40% 60% 40%",
-                  "60% 40% 40% 60% / 40% 60% 40% 60%",
-                  "50% 50% 40% 60% / 60% 40% 50% 50%",
-                  "40% 60% 60% 40% / 60% 40% 60% 40%",
-                ],
-                rotate: [0, 90, 180, 360],
-                scale: [1, 1.15, 0.95, 1],
-              }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              style={{ background: "var(--gradient-primary)" }}
-            />
-
-            {/* Inner glow */}
-            <motion.div
-              className="absolute w-12 h-12 md:w-16 md:h-16 rounded-full bg-background"
-              animate={{ scale: [1, 0.85, 1], opacity: [1, 0.8, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            />
-
-            {/* Center "A" letter */}
-            <motion.span
-              className="relative text-2xl md:text-3xl font-bold font-display text-gradient z-10"
+            {/* Animated logo GIF */}
+            <motion.img
+              src={arodxLogoAnim}
+              alt="Arodx"
+              className="relative w-24 h-24 md:w-32 md:h-32 object-contain z-10"
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5, type: "spring", stiffness: 200, damping: 15 }}
-            >
-              A
-            </motion.span>
+              transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 15 }}
+            />
 
             {/* Orbiting particles */}
             {[0, 1, 2, 3].map((i) => (
