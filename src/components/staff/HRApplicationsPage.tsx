@@ -117,7 +117,7 @@ export default function HRApplicationsPage() {
       // Send notification
       await supabase.from("notifications").insert({
         user_id: app.user_id,
-        title: "আবেদন অ্যাপ্রুভড! 🎉",
+        title: "আবেদন অ্যাপ্রুভড!",
         body: roleKey
           ? `আপনার ${JOB_CATEGORIES[app.job_category]} পদের আবেদন অনুমোদিত হয়েছে। স্টাফ প্যানেলে প্রবেশ করুন।`
           : `আপনার "${app.other_category}" পদের আবেদন অনুমোদিত হয়েছে।`,
