@@ -138,6 +138,7 @@ const App = () => {
                 <Route path="/join" element={<JoinTeam />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/renewal" element={<RenewalPage />} />
+                <Route path="/auth/google/callback" element={<GoogleCallback />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

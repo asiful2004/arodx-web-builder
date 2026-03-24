@@ -57,6 +57,7 @@ const SignUp = () => {
             <p className="text-muted-foreground mt-2">Sign up to get started</p>
           </div>
 
+          <GoogleSignInButton loading={loading} label="Sign up with Google" />
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="text-sm text-muted-foreground mb-1 block">Full Name</label>
