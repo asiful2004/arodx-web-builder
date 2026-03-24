@@ -163,7 +163,7 @@ const ContactSection = () => {
               className="p-5 rounded-xl border border-border bg-card/50"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold font-display">অফিস কর্মসূচি</h3>
+                <h3 className="font-semibold font-display">{t("contact.officeHours")}</h3>
                 <ServiceStatus schedule={schedule} />
               </div>
               <div className="space-y-2.5 text-sm">
