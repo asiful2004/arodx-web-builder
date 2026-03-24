@@ -270,7 +270,7 @@ const ContactSection = () => {
                 ))}
                 <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
                   <textarea
-                    placeholder="আপনার মেসেজ"
+                    placeholder={t("contact.messagePlaceholder")}
                     required
                     rows={5}
                     value={formData.message}
