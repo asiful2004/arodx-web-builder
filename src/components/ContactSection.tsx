@@ -252,8 +252,8 @@ const ContactSection = () => {
                 className="space-y-5"
               >
                 {[
-                  { name: "name", type: "text", placeholder: "আপনার নাম" },
-                  { name: "email", type: "email", placeholder: "আপনার ইমেইল" },
+                  { name: "name", type: "text", placeholder: t("contact.namePlaceholder") },
+                  { name: "email", type: "email", placeholder: t("contact.emailPlaceholder") },
                 ].map((field, i) => (
                   <motion.div key={field.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                     <input
