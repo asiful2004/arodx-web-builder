@@ -236,9 +236,9 @@ const ContactSection = () => {
                 >
                   <CheckCircle2 className="h-16 w-16 text-primary mb-4" />
                 </motion.div>
-                <h3 className="text-lg font-bold text-foreground mb-2">মেসেজ পাঠানো হয়েছে!</h3>
+                <h3 className="text-lg font-bold text-foreground mb-2">{t("contact.sent")}</h3>
                 <p className="text-muted-foreground text-sm max-w-xs">
-                  আপনার মেসেজটি আমরা পেয়েছি। অনুগ্রহ করে অপেক্ষা করুন, আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।
+                  {t("contact.sentMessage")}
                 </p>
               </motion.div>
             ) : (
