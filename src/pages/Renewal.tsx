@@ -254,7 +254,7 @@ export default function RenewalPage() {
                 {isSwitching && (
                   <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
                     <p className="text-xs text-primary font-medium">
-                      ✨ আপনি {currentBilling === "monthly" ? "মাসিক" : "বার্ষিক"} থেকে{" "}
+                      আপনি {currentBilling === "monthly" ? "মাসিক" : "বার্ষিক"} থেকে{" "}
                       {selectedBilling === "monthly" ? "মাসিক" : "বার্ষিক"} প্ল্যানে সুইচ করছেন
                     </p>
                   </div>
