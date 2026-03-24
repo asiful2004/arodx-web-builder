@@ -482,7 +482,7 @@ export default function LiveChat() {
                   <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
                     <img src={aiRobotAvatar} alt="Support" className="h-12 w-12 object-contain" />
                   </div>
-                  <h3 className="text-base font-bold text-foreground">আমাদের সাথে চ্যাট করুন 👋</h3>
+                  <h3 className="text-base font-bold text-foreground">আমাদের সাথে চ্যাট করুন</h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     যেকোনো প্রশ্ন বা সাহায্যের জন্য আমরা আছি
                   </p>
@@ -504,7 +504,7 @@ export default function LiveChat() {
                       <Headphones className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-foreground">👨‍💼 Human Agent</p>
+                      <p className="text-xs font-semibold text-foreground">Human Agent</p>
                       <div className="flex items-center gap-1 mt-0.5">
                         <Clock className="h-3 w-3 text-muted-foreground" />
                         <p className="text-[10px] text-muted-foreground">সকাল ১০টা — রাত ১০টা (বাংলাদেশ সময়)</p>

@@ -254,10 +254,10 @@ export default function JoinTeam() {
           {/* Facilities */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
             {[
-              { icon: "💰", title: "প্রতিযোগী বেতন", desc: "দক্ষতা অনুযায়ী আকর্ষণীয় পারিশ্রমিক" },
-              { icon: "🏠", title: "রিমোট ওয়ার্ক", desc: "ঘরে বসেই কাজ করার সুবিধা" },
-              { icon: "📈", title: "ক্যারিয়ার গ্রোথ", desc: "স্কিল ডেভেলপমেন্ট ও প্রমোশন" },
-              { icon: "🤝", title: "টিম সাপোর্ট", desc: "দক্ষ ও সহযোগী টিম এনভায়রনমেন্ট" },
+              { title: "প্রতিযোগী বেতন", desc: "দক্ষতা অনুযায়ী আকর্ষণীয় পারিশ্রমিক" },
+              { title: "রিমোট ওয়ার্ক", desc: "ঘরে বসেই কাজ করার সুবিধা" },
+              { title: "ক্যারিয়ার গ্রোথ", desc: "স্কিল ডেভেলপমেন্ট ও প্রমোশন" },
+              { title: "টিম সাপোর্ট", desc: "দক্ষ ও সহযোগী টিম এনভায়রনমেন্ট" },
             ].map((f, i) => (
               <motion.div
                 key={i}
@@ -266,7 +266,6 @@ export default function JoinTeam() {
                 transition={{ delay: 0.1 + i * 0.05 }}
                 className="rounded-xl border border-border bg-card p-3 text-center space-y-1"
               >
-                <span className="text-2xl">{f.icon}</span>
                 <p className="text-xs font-semibold text-foreground">{f.title}</p>
                 <p className="text-[10px] text-muted-foreground leading-snug">{f.desc}</p>
               </motion.div>
@@ -375,7 +374,7 @@ export default function JoinTeam() {
                       />
                     </div>
                     <p className="text-[10px] text-muted-foreground bg-muted/50 rounded-lg p-3">
-                      ⚠️ NID এর ছবি পরিষ্কার ও পড়ার উপযোগী হতে হবে। ফেস ফটোতে আপনার মুখ স্পষ্ট দেখা যেতে হবে।
+                      NID এর ছবি পরিষ্কার ও পড়ার উপযোগী হতে হবে। ফেস ফটোতে আপনার মুখ স্পষ্ট দেখা যেতে হবে।
                     </p>
                   </>
                 )}

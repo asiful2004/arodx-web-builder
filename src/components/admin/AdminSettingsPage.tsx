@@ -629,7 +629,7 @@ function SmtpConfigSection() {
 
         {/* Gmail Guide */}
         <div className="p-3 rounded-lg bg-muted/50 border border-border space-y-1.5">
-          <p className="text-xs font-semibold text-foreground">📧 Gmail SMTP সেটআপ গাইড:</p>
+          <p className="text-xs font-semibold text-foreground">Gmail SMTP সেটআপ গাইড:</p>
           <ul className="text-[11px] text-muted-foreground space-y-1 list-disc list-inside">
             <li>হোস্ট: <code className="bg-muted px-1 rounded">smtp.gmail.com</code>, পোর্ট: <code className="bg-muted px-1 rounded">587</code></li>
             <li>Google Account → Security → 2-Step Verification চালু করুন</li>

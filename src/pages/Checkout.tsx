@@ -631,7 +631,7 @@ export default function Checkout() {
                                   <>
                                     <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
                                     <span className="text-green-500 font-medium">
-                                      {domainCheck.result.domain} — available! ✨
+                                      {domainCheck.result.domain} — available!
                                     </span>
                                   </>
                                 ) : (
@@ -815,7 +815,7 @@ export default function Checkout() {
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <h2 className="text-3xl font-bold font-display">অর্ডার সফলভাবে জমা হয়েছে! 🎉</h2>
+                <h2 className="text-3xl font-bold font-display">অর্ডার সফলভাবে জমা হয়েছে!</h2>
                 <p className="text-muted-foreground mt-3 max-w-md mx-auto">
                   আমরা আপনার পেমেন্ট ভেরিফাই করে শীঘ্রই যোগাযোগ করবো। ধন্যবাদ আমাদের উপর আস্থা রাখার জন্য।
                 </p>

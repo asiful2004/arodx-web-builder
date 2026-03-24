@@ -314,7 +314,7 @@ const SignIn = () => {
           {rateLimitConfig.enabled && !isLocked && rateLimitState.attempts > 0 && attemptsLeft <= 3 && (
             <div className="mb-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
               <p className="text-xs text-amber-600 dark:text-amber-400">
-                ⚠️ আর {attemptsLeft}টি চেষ্টা বাকি আছে। এরপর অ্যাকাউন্ট {rateLimitConfig.lockoutMinutes} মিনিটের জন্য লক হয়ে যাবে।
+                আর {attemptsLeft}টি চেষ্টা বাকি আছে। এরপর অ্যাকাউন্ট {rateLimitConfig.lockoutMinutes} মিনিটের জন্য লক হয়ে যাবে।
               </p>
             </div>
           )}

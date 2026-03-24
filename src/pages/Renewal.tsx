@@ -254,7 +254,7 @@ export default function RenewalPage() {
                 {isSwitching && (
                   <div className="p-3 rounded-xl bg-primary/5 border border-primary/10">
                     <p className="text-xs text-primary font-medium">
-                      ✨ আপনি {currentBilling === "monthly" ? "মাসিক" : "বার্ষিক"} থেকে{" "}
+                      আপনি {currentBilling === "monthly" ? "মাসিক" : "বার্ষিক"} থেকে{" "}
                       {selectedBilling === "monthly" ? "মাসিক" : "বার্ষিক"} প্ল্যানে সুইচ করছেন
                     </p>
                   </div>
@@ -372,7 +372,7 @@ export default function RenewalPage() {
                 <CheckCircle className="w-10 h-10 text-primary" />
               </motion.div>
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <h2 className="text-3xl font-bold font-display">রিনিউয়াল সফল! 🎉</h2>
+                <h2 className="text-3xl font-bold font-display">রিনিউয়াল সফল!</h2>
                 <p className="text-muted-foreground mt-3 max-w-md mx-auto">আপনার প্যাকেজের মেয়াদ বাড়ানো হয়েছে। ধন্যবাদ!</p>
               </motion.div>
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
