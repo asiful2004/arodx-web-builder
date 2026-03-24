@@ -61,13 +61,13 @@ const PricingSection = () => {
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               />
             </button>
-            <span className={`text-sm font-medium transition-colors ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>Yearly</span>
+            <span className={`text-sm font-medium transition-colors ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>{t("pricing.yearly")}</span>
             <motion.span
               className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary"
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              2 মাস ফ্রি!
+              {t("pricing.freeMonths")}
             </motion.span>
           </div>
         </motion.div>
