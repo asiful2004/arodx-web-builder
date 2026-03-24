@@ -2,6 +2,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Globe, TrendingUp, Video, Megaphone, Settings, PenTool, LucideIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const iconMap: Record<string, LucideIcon> = {
   Globe, TrendingUp, Video, Megaphone, Settings, PenTool,
@@ -70,11 +71,12 @@ const ServiceCard = ({ service, index }: { service: { icon: string; title: strin
 
 const ServicesSection = () => {
   const { data: settings } = useSiteSettings();
+  const { t } = useLanguage();
   const svc = settings?.services;
 
-  const badge = svc?.badge || "Our Services";
-  const title = svc?.title || "আমরা যা";
-  const titleHighlight = svc?.title_highlight || "করি";
+  const badge = svc?.badge || t("services.badge");
+  const title = svc?.title || t("services.title");
+  const titleHighlight = svc?.title_highlight || t("services.titleHighlight");
   const items = svc?.items || defaultServices;
 
   return (

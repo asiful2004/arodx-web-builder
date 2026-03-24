@@ -1,12 +1,14 @@
 import { motion } from "framer-motion";
-import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, ArrowUpRight, Heart } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, Heart, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const socialIconMap: Record<string, any> = { Facebook, Instagram, Twitter, Youtube };
 
 const Footer = () => {
   const { data: settings } = useSiteSettings();
+  const { t, language, setLanguage } = useLanguage();
   const footer = settings?.footer;
 
   const brandName = footer?.brand_name || "Arodx";
@@ -28,15 +30,11 @@ const Footer = () => {
       transition={{ duration: 0.6 }}
       className="relative overflow-hidden"
     >
-      {/* Top gradient line */}
       <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-
-      {/* Background glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/[0.03] rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          {/* Main footer grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8 mb-12">
             {/* Brand column */}
             <div className="lg:col-span-1">
@@ -47,8 +45,6 @@ const Footer = () => {
               {description && (
                 <p className="text-sm text-muted-foreground leading-relaxed mb-5">{description}</p>
               )}
-
-              {/* Social links */}
               {socialLinks.length > 0 && (
                 <div className="flex gap-2">
                   {socialLinks.map((link: any, i: number) => {
@@ -75,14 +71,11 @@ const Footer = () => {
             {quickLinks.length > 0 && (
               <div>
                 <h4 className="text-sm font-bold font-display text-foreground mb-4 uppercase tracking-wider">
-                  দ্রুত লিংক
+                  {t("footer.quickLinks")}
                 </h4>
                 <ul className="space-y-2.5">
                   {quickLinks.map((link: any, i: number) => {
                     const isInternal = link.url?.startsWith("/");
-                    const linkProps = isInternal
-                      ? {}
-                      : { target: undefined as any };
                     const Comp = isInternal ? Link : "a";
                     const hrefProp = isInternal ? { to: link.url } : { href: link.url };
                     return (
@@ -107,7 +100,7 @@ const Footer = () => {
             {serviceLinks.length > 0 && (
               <div>
                 <h4 className="text-sm font-bold font-display text-foreground mb-4 uppercase tracking-wider">
-                  সার্ভিস
+                  {t("footer.services")}
                 </h4>
                 <ul className="space-y-2.5">
                   {serviceLinks.map((link: any, i: number) => (
@@ -129,7 +122,7 @@ const Footer = () => {
             {/* Contact Info */}
             <div>
               <h4 className="text-sm font-bold font-display text-foreground mb-4 uppercase tracking-wider">
-                যোগাযোগ
+                {t("footer.contact")}
               </h4>
               <ul className="space-y-3">
                 <li>
@@ -152,7 +145,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Divider */}
           <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-6" />
 
           {/* Bottom bar */}
@@ -160,6 +152,18 @@ const Footer = () => {
             <p className="text-xs text-muted-foreground">
               © {new Date().getFullYear()} {copyrightText}
             </p>
+
+            {/* Language Switcher */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setLanguage(language === "bn" ? "en" : "bn")}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors group"
+              >
+                <Globe className="h-3.5 w-3.5 group-hover:text-primary transition-colors" />
+                <span>{language === "bn" ? "English" : "বাংলা"}</span>
+              </button>
+            </div>
+
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               Made with <Heart className="h-3 w-3 text-destructive fill-destructive" /> by{" "}
               <span className="text-primary font-semibold">{brandName}</span> Team

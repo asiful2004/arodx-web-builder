@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PricingCard from "@/components/PricingCard";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const defaultPackages = [
   { name: "Starter", regularPrice: "2,500", firstYearPrice: "1,500", regularYearlyPrice: "25,000", firstYearYearlyPrice: "15,000", currency: "৳", description: "ছোট ব্যবসার জন্য পারফেক্ট শুরু", popular: false, features: ["Website + ১টি Landing Page (Hosting সহ)", "Basic Maintenance & Support", "মাসে ২টি Video Edit", "Basic SEO Setup", "১টি Social Media Management", "Basic Brand Guidelines"] },
@@ -15,15 +16,16 @@ const PricingSection = () => {
   const [isYearly, setIsYearly] = useState(false);
   const navigate = useNavigate();
   const { data: settings } = useSiteSettings();
+  const { t } = useLanguage();
   const pricing = settings?.pricing;
 
-  const badge = pricing?.badge || "Pricing";
-  const title = pricing?.title || "আমাদের";
-  const titleHighlight = pricing?.title_highlight || "প্যাকেজ";
-  const subtitle = pricing?.subtitle || "আপনার বাজেট ও প্রয়োজন অনুযায়ী সেরা প্যাকেজ বেছে নিন";
+  const badge = pricing?.badge || t("pricing.badge");
+  const title = pricing?.title || t("pricing.title");
+  const titleHighlight = pricing?.title_highlight || t("pricing.titleHighlight");
+  const subtitle = pricing?.subtitle || t("pricing.subtitle");
   const packages = pricing?.packages || defaultPackages;
-  const customCtaText = pricing?.custom_cta_text || "আপনার প্রয়োজন অনুযায়ী Custom Package বানাতে চান?";
-  const customCtaDesc = pricing?.custom_cta_description || "আমাদের টিমের সাথে যোগাযোগ করুন এবং আপনার বাজেট ও চাহিদা অনুযায়ী প্যাকেজ তৈরি করুন।";
+  const customCtaText = pricing?.custom_cta_text || t("pricing.customCta");
+  const customCtaDesc = pricing?.custom_cta_description || t("pricing.customCtaDesc");
 
   const handleBuy = (pkg: any) => {
     const amount = isYearly ? pkg.firstYearYearlyPrice : pkg.firstYearPrice;
@@ -47,7 +49,7 @@ const PricingSection = () => {
           <p className="text-muted-foreground mt-4 max-w-lg mx-auto">{subtitle}</p>
 
           <div className="flex items-center justify-center gap-4 mt-8">
-            <span className={`text-sm font-medium transition-colors ${!isYearly ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
+            <span className={`text-sm font-medium transition-colors ${!isYearly ? "text-foreground" : "text-muted-foreground"}`}>{t("pricing.monthly")}</span>
             <button
               onClick={() => setIsYearly(!isYearly)}
               className={`relative w-14 h-7 rounded-full transition-colors duration-300 ${isYearly ? "bg-primary" : "bg-muted"}`}
@@ -59,13 +61,13 @@ const PricingSection = () => {
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               />
             </button>
-            <span className={`text-sm font-medium transition-colors ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>Yearly</span>
+            <span className={`text-sm font-medium transition-colors ${isYearly ? "text-foreground" : "text-muted-foreground"}`}>{t("pricing.yearly")}</span>
             <motion.span
               className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary"
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              2 মাস ফ্রি!
+              {t("pricing.freeMonths")}
             </motion.span>
           </div>
         </motion.div>

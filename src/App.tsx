@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { useState, useCallback, lazy, Suspense } from "react";
 import Preloader from "@/components/Preloader";
 import Index from "./pages/Index";
@@ -75,6 +76,7 @@ const App = () => {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="app-theme">
+      <LanguageProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
         <Sonner />
@@ -142,6 +144,7 @@ const App = () => {
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
+    </LanguageProvider>
   </ThemeProvider>
   );
 };

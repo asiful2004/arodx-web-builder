@@ -1,15 +1,17 @@
 import { motion } from "framer-motion";
 import { X, Check, Users, UserRound, Wallet, Brain, TrendingDown, AlertTriangle, ShieldCheck, Zap } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const hiringIcons = [Wallet, Brain, TrendingDown, AlertTriangle];
 const benefitIcons = [Users, ShieldCheck, Wallet, Zap];
 
 const ComparisonSection = () => {
   const { data: settings } = useSiteSettings();
+  const { t } = useLanguage();
   const cmp = settings?.comparison;
 
-  const badge = cmp?.badge || "কেন আমরা?";
+  const badge = cmp?.badge || t("comparison.badge");
   const titlePrefix = cmp?.title_prefix || "লোক নিয়োগ vs";
   const titleHighlight = cmp?.title_highlight || "Arodx টিম";
   const subtitle = cmp?.subtitle || "";

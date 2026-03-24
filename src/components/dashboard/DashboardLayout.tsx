@@ -8,11 +8,13 @@ import { Link } from "react-router-dom";
 import NotificationBell from "@/components/shared/NotificationBell";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
 import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function DashboardLayout() {
   const { user, loading: authLoading, profile, setProfile, isAdmin, userRoles } = useAuth();
   const navigate = useNavigate();
   const presenceValue = useOnlinePresenceProvider();
+  const { t } = useLanguage();
 
   const userRole = userRoles.length > 0 ? userRoles[0] : "";
 
@@ -45,7 +47,7 @@ export default function DashboardLayout() {
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  হোম
+                  {t("dashboard.home")}
                 </Link>
               </div>
 

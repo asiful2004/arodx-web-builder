@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Users, Target, Award, Heart, LucideIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const valueIcons: LucideIcon[] = [Target, Award, Heart, Users];
 
@@ -32,10 +33,11 @@ const CountUpStat = ({ number, label, index }: { number: string; label: string; 
 
 const AboutSection = () => {
   const { data: settings } = useSiteSettings();
+  const { t } = useLanguage();
   const about = settings?.about;
 
-  const badge = about?.badge || "About Us";
-  const title = about?.title || "আমরা";
+  const badge = about?.badge || t("about.badge");
+  const title = about?.title || t("about.title");
   const titleBrand = about?.title_brand || "Arodx";
   const desc1 = about?.description1 || "";
   const desc2 = about?.description2 || "";

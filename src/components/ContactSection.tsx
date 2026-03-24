@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Check if office is currently open based on schedule data
 const getIsOpenFromSchedule = (schedule?: any[]) => {
@@ -36,6 +37,7 @@ const getIsOpenFromSchedule = (schedule?: any[]) => {
 
 const ServiceStatus = ({ schedule }: { schedule?: any[] }) => {
   const [isOpen, setIsOpen] = useState(() => getIsOpenFromSchedule(schedule));
+  const { t } = useLanguage();
   useEffect(() => {
     setIsOpen(getIsOpenFromSchedule(schedule));
     const interval = setInterval(() => setIsOpen(getIsOpenFromSchedule(schedule)), 30000);
@@ -45,23 +47,24 @@ const ServiceStatus = ({ schedule }: { schedule?: any[] }) => {
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${isOpen ? "bg-green-500/10 text-green-500" : "bg-destructive/10 text-destructive"}`}>
       <span className={`w-2 h-2 rounded-full ${isOpen ? "bg-green-500 animate-pulse" : "bg-destructive"}`} />
-      {isOpen ? "চালু আছে" : "বন্ধ আছে"}
+      {isOpen ? t("contact.open") : t("contact.closed")}
     </span>
   );
 };
 
 const ContactSection = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const { data: settings } = useSiteSettings();
   const contact = settings?.contact;
 
-  const badge = contact?.badge || "Contact";
-  const title = contact?.title || "যোগাযোগ";
-  const titleHighlight = contact?.title_highlight || "করুন";
-  const subtitle = contact?.subtitle || "আপনার প্রজেক্ট নিয়ে কথা বলতে চান? আমাদের মেসেজ করুন!";
+  const badge = contact?.badge || t("contact.badge");
+  const title = contact?.title || t("contact.title");
+  const titleHighlight = contact?.title_highlight || t("contact.titleHighlight");
+  const subtitle = contact?.subtitle || t("contact.subtitle");
   const email = contact?.email || "arodxofficial@gmail.com";
   const phone = contact?.phone || "+880 1XXX-XXXXXX";
   const address = contact?.address || "ঢাকা, বাংলাদেশ";
@@ -69,9 +72,9 @@ const ContactSection = () => {
   const schedule = officeHours?.schedule as any[] | undefined;
 
   const contactItems = [
-    { icon: Mail, title: "ইমেইল", value: email },
-    { icon: Phone, title: "ফোন", value: phone },
-    { icon: MapPin, title: "ঠিকানা", value: address },
+    { icon: Mail, title: t("contact.email"), value: email },
+    { icon: Phone, title: t("contact.phone"), value: phone },
+    { icon: MapPin, title: t("contact.address"), value: address },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -85,14 +88,14 @@ const ContactSection = () => {
       if (error) throw error;
       setSubmitted(true);
       if (getIsOpenFromSchedule(schedule)) {
-        toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।" });
+        toast({ title: t("contact.sent"), description: t("contact.sentDesc") });
       } else {
-        toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "বর্তমানে অফিস বন্ধ আছে। অফিস চালু হলে আপনাকে রেসপন্স করা হবে।" });
+        toast({ title: t("contact.sent"), description: t("contact.sentDescOffline") });
       }
       setFormData({ name: "", email: "", message: "" });
       setTimeout(() => setSubmitted(false), 8000);
     } catch {
-      toast({ title: "ত্রুটি!", description: "মেসেজ পাঠাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।", variant: "destructive" });
+      toast({ title: t("contact.error"), description: t("contact.errorDesc"), variant: "destructive" });
     }
   };
 
@@ -160,7 +163,7 @@ const ContactSection = () => {
               className="p-5 rounded-xl border border-border bg-card/50"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold font-display">অফিস কর্মসূচি</h3>
+                <h3 className="font-semibold font-display">{t("contact.officeHours")}</h3>
                 <ServiceStatus schedule={schedule} />
               </div>
               <div className="space-y-2.5 text-sm">
@@ -176,8 +179,8 @@ const ContactSection = () => {
                         groups.push({ days: [entry.day], open: entry.open, close: entry.close, enabled: entry.enabled });
                       }
                     });
-                    const fmt12 = (t: string) => {
-                      const [hStr, mStr] = t.split(":");
+                    const fmt12 = (timeStr: string) => {
+                      const [hStr, mStr] = timeStr.split(":");
                       const h = parseInt(hStr, 10);
                       const period = h < 12 ? "AM" : "PM";
                       const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
@@ -233,9 +236,9 @@ const ContactSection = () => {
                 >
                   <CheckCircle2 className="h-16 w-16 text-primary mb-4" />
                 </motion.div>
-                <h3 className="text-lg font-bold text-foreground mb-2">মেসেজ পাঠানো হয়েছে!</h3>
+                <h3 className="text-lg font-bold text-foreground mb-2">{t("contact.sent")}</h3>
                 <p className="text-muted-foreground text-sm max-w-xs">
-                  আপনার মেসেজটি আমরা পেয়েছি। অনুগ্রহ করে অপেক্ষা করুন, আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।
+                  {t("contact.sentMessage")}
                 </p>
               </motion.div>
             ) : (
@@ -249,8 +252,8 @@ const ContactSection = () => {
                 className="space-y-5"
               >
                 {[
-                  { name: "name", type: "text", placeholder: "আপনার নাম" },
-                  { name: "email", type: "email", placeholder: "আপনার ইমেইল" },
+                  { name: "name", type: "text", placeholder: t("contact.namePlaceholder") },
+                  { name: "email", type: "email", placeholder: t("contact.emailPlaceholder") },
                 ].map((field, i) => (
                   <motion.div key={field.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                     <input
@@ -267,7 +270,7 @@ const ContactSection = () => {
                 ))}
                 <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }}>
                   <textarea
-                    placeholder="আপনার মেসেজ"
+                    placeholder={t("contact.messagePlaceholder")}
                     required
                     rows={5}
                     value={formData.message}
@@ -280,7 +283,7 @@ const ContactSection = () => {
                 <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
                   <Button type="submit" size="lg" className="w-full bg-gradient-primary text-primary-foreground font-semibold py-6 hover:opacity-90 transition-opacity relative overflow-hidden group">
                     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-                    <span className="relative z-10 flex items-center justify-center">মেসেজ পাঠান <Send className="ml-2 h-4 w-4" /></span>
+                    <span className="relative z-10 flex items-center justify-center">{t("contact.send")} <Send className="ml-2 h-4 w-4" /></span>
                   </Button>
                 </motion.div>
               </motion.form>

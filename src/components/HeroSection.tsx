@@ -2,29 +2,27 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const HeroSection = () => {
   const { data: settings } = useSiteSettings();
+  const { t } = useLanguage();
   const hero = settings?.hero;
 
-  const badge = hero?.badge || "Digital Agency";
-  const titlePrefix = hero?.title_prefix || "We Are";
+  const badge = hero?.badge || t("hero.badge");
+  const titlePrefix = hero?.title_prefix || t("hero.titlePrefix");
   const titleBrand = hero?.title_brand || "Arodx";
-  const subtitle = hero?.subtitle || "স্বপ্ন আপনার, বাস্তবে রূপ দেবো আমরা।";
-  const description = hero?.description || "Creative design, development এবং marketing সবকিছু এক ছাদের নিচে।";
-  const ctaPrimaryText = hero?.cta_primary_text || "Get Started";
+  const subtitle = hero?.subtitle || t("hero.subtitle");
+  const description = hero?.description || t("hero.description");
+  const ctaPrimaryText = hero?.cta_primary_text || t("hero.ctaPrimary");
   const ctaPrimaryLink = hero?.cta_primary_link || "#pricing";
-  const ctaSecondaryText = hero?.cta_secondary_text || "আমাদের কাজ দেখুন";
+  const ctaSecondaryText = hero?.cta_secondary_text || t("hero.ctaSecondary");
   const ctaSecondaryLink = hero?.cta_secondary_link || "#portfolio";
 
   return (
     <section aria-label="Hero - Arodx Digital Agency" className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
-      <div
-        className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-[hero-blob-1_12s_ease-in-out_infinite]"
-      />
-      <div
-        className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-accent/10 rounded-full blur-[100px] animate-[hero-blob-2_15s_ease-in-out_infinite]"
-      />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-[hero-blob-1_12s_ease-in-out_infinite]" />
+      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-accent/10 rounded-full blur-[100px] animate-[hero-blob-2_15s_ease-in-out_infinite]" />
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(8)].map((_, i) => (
@@ -52,12 +50,8 @@ const HeroSection = () => {
           </span>
         </motion.div>
 
-        <h1
-          className="text-5xl md:text-7xl lg:text-8xl font-bold font-display tracking-tight mb-6"
-        >
-          <span>
-            {titlePrefix}{" "}
-          </span>
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold font-display tracking-tight mb-6">
+          <span>{titlePrefix}{" "}</span>
           <span className="inline-flex relative">
             {titleBrand.split("").map((letter, i) => (
               <motion.span
@@ -87,17 +81,8 @@ const HeroSection = () => {
           </span>
         </h1>
 
-        <p
-          className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3"
-        >
-          {subtitle}
-        </p>
-
-        <p
-          className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto mb-10"
-        >
-          {description}
-        </p>
+        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-3">{subtitle}</p>
+        <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto mb-10">{description}</p>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -135,7 +120,7 @@ const HeroSection = () => {
             className="w-1.5 h-1.5 rounded-full bg-current"
           />
         </div>
-        <span className="text-[10px] font-medium tracking-widest uppercase">Scroll Down</span>
+        <span className="text-[10px] font-medium tracking-widest uppercase">{t("hero.scrollDown")}</span>
       </motion.a>
     </section>
   );

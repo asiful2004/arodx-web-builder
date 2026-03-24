@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { PenTool, Code, Megaphone, ClipboardCheck, Sparkles, LucideIcon } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const iconMap: Record<string, LucideIcon> = { ClipboardCheck, PenTool, Code, Megaphone };
 
@@ -13,11 +14,12 @@ const defaultSteps = [
 
 const ProcessSection = () => {
   const { data: settings } = useSiteSettings();
+  const { t } = useLanguage();
   const proc = settings?.process;
 
-  const badge = proc?.badge || "How We Work";
-  const title = proc?.title || "আমাদের কাজের";
-  const titleHighlight = proc?.title_highlight || "ধাপসমূহ";
+  const badge = proc?.badge || t("process.badge");
+  const title = proc?.title || t("process.title");
+  const titleHighlight = proc?.title_highlight || t("process.titleHighlight");
   const subtitle = proc?.subtitle || "প্রতিটি প্রজেক্টে ৪ জন ডেডিকেটেড বিশেষজ্ঞ কাজ করেন, তাই সবকিছু হয় নিখুঁত, সময়মতো এবং ঝামেলামুক্ত।";
   const bottomCta = proc?.bottom_cta || "সবকিছু এক টিমে। আপনি শুধু ব্যবসায় ফোকাস করুন, বাকিটা আমাদের দায়িত্ব।";
   const steps = proc?.steps || defaultSteps;
