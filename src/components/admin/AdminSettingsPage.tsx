@@ -670,9 +670,9 @@ function GoogleOAuthSection() {
           .from("admin_secrets" as any)
           .select("value")
           .eq("key", "google_oauth_client_secret")
-          .single();
+          .single() as any;
         if (data?.value) {
-          setClientSecret(data.value);
+          setClientSecret(data.value as string);
         }
       } catch {}
     };
