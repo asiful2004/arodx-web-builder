@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { X, Check, Users, UserRound, Wallet, Brain, TrendingDown, AlertTriangle, ShieldCheck, Zap } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const hiringIcons = [Wallet, Brain, TrendingDown, AlertTriangle];
 const benefitIcons = [Users, ShieldCheck, Wallet, Zap];
