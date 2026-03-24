@@ -16,15 +16,16 @@ const PricingSection = () => {
   const [isYearly, setIsYearly] = useState(false);
   const navigate = useNavigate();
   const { data: settings } = useSiteSettings();
+  const { t } = useLanguage();
   const pricing = settings?.pricing;
 
-  const badge = pricing?.badge || "Pricing";
-  const title = pricing?.title || "আমাদের";
-  const titleHighlight = pricing?.title_highlight || "প্যাকেজ";
-  const subtitle = pricing?.subtitle || "আপনার বাজেট ও প্রয়োজন অনুযায়ী সেরা প্যাকেজ বেছে নিন";
+  const badge = pricing?.badge || t("pricing.badge");
+  const title = pricing?.title || t("pricing.title");
+  const titleHighlight = pricing?.title_highlight || t("pricing.titleHighlight");
+  const subtitle = pricing?.subtitle || t("pricing.subtitle");
   const packages = pricing?.packages || defaultPackages;
-  const customCtaText = pricing?.custom_cta_text || "আপনার প্রয়োজন অনুযায়ী Custom Package বানাতে চান?";
-  const customCtaDesc = pricing?.custom_cta_description || "আমাদের টিমের সাথে যোগাযোগ করুন এবং আপনার বাজেট ও চাহিদা অনুযায়ী প্যাকেজ তৈরি করুন।";
+  const customCtaText = pricing?.custom_cta_text || t("pricing.customCta");
+  const customCtaDesc = pricing?.custom_cta_description || t("pricing.customCtaDesc");
 
   const handleBuy = (pkg: any) => {
     const amount = isYearly ? pkg.firstYearYearlyPrice : pkg.firstYearPrice;
