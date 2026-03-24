@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-
+import arodxLogoAnim from "@/assets/arodx-logo-anim.gif";
 const Preloader = ({ onComplete }: { onComplete: () => void }) => {
   const [phase, setPhase] = useState<"morph" | "logo" | "exit">("morph");
 
