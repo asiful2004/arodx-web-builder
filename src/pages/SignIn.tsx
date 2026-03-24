@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+
 import { useToast } from "@/hooks/use-toast";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -261,11 +261,14 @@ const SignIn = () => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin,
+        },
       });
-      if (result.error) {
-        toast({ title: "Google লগইন ব্যর্থ", description: String(result.error), variant: "destructive" });
+      if (error) {
+        toast({ title: "Google লগইন ব্যর্থ", description: error.message, variant: "destructive" });
       }
     } catch (error: any) {
       toast({ title: "Google লগইন ব্যর্থ", description: error.message, variant: "destructive" });
