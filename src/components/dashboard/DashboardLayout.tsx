@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import NotificationBell from "@/components/shared/NotificationBell";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
 import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function DashboardLayout() {
   const { user, loading: authLoading, profile, setProfile, isAdmin, userRoles } = useAuth();
