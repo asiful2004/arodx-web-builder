@@ -110,7 +110,7 @@ function PanelContent({ members, onNavigate }: { members: OnlineMember[]; onNavi
       <div className="flex items-center gap-2 px-2">
         <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          অনলাইন — {members.length}
+          অনলাইন ({members.length})
         </span>
       </div>
 
