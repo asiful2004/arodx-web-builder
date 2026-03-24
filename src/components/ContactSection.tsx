@@ -54,16 +54,17 @@ const ServiceStatus = ({ schedule }: { schedule?: any[] }) => {
 
 const ContactSection = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const { data: settings } = useSiteSettings();
   const contact = settings?.contact;
 
-  const badge = contact?.badge || "Contact";
-  const title = contact?.title || "যোগাযোগ";
-  const titleHighlight = contact?.title_highlight || "করুন";
-  const subtitle = contact?.subtitle || "আপনার প্রজেক্ট নিয়ে কথা বলতে চান? আমাদের মেসেজ করুন!";
+  const badge = contact?.badge || t("contact.badge");
+  const title = contact?.title || t("contact.title");
+  const titleHighlight = contact?.title_highlight || t("contact.titleHighlight");
+  const subtitle = contact?.subtitle || t("contact.subtitle");
   const email = contact?.email || "arodxofficial@gmail.com";
   const phone = contact?.phone || "+880 1XXX-XXXXXX";
   const address = contact?.address || "ঢাকা, বাংলাদেশ";
@@ -71,9 +72,9 @@ const ContactSection = () => {
   const schedule = officeHours?.schedule as any[] | undefined;
 
   const contactItems = [
-    { icon: Mail, title: "ইমেইল", value: email },
-    { icon: Phone, title: "ফোন", value: phone },
-    { icon: MapPin, title: "ঠিকানা", value: address },
+    { icon: Mail, title: t("contact.email"), value: email },
+    { icon: Phone, title: t("contact.phone"), value: phone },
+    { icon: MapPin, title: t("contact.address"), value: address },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,14 +88,14 @@ const ContactSection = () => {
       if (error) throw error;
       setSubmitted(true);
       if (getIsOpenFromSchedule(schedule)) {
-        toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।" });
+        toast({ title: t("contact.sent"), description: t("contact.sentDesc") });
       } else {
-        toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "বর্তমানে অফিস বন্ধ আছে। অফিস চালু হলে আপনাকে রেসপন্স করা হবে।" });
+        toast({ title: t("contact.sent"), description: t("contact.sentDescOffline") });
       }
       setFormData({ name: "", email: "", message: "" });
       setTimeout(() => setSubmitted(false), 8000);
     } catch {
-      toast({ title: "ত্রুটি!", description: "মেসেজ পাঠাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।", variant: "destructive" });
+      toast({ title: t("contact.error"), description: t("contact.errorDesc"), variant: "destructive" });
     }
   };
 
