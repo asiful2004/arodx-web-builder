@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_secrets: {
+        Row: {
+          key: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
       businesses: {
         Row: {
           business_address: string | null
