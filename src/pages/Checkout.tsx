@@ -631,7 +631,7 @@ export default function Checkout() {
                                   <>
                                     <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
                                     <span className="text-green-500 font-medium">
-                                      {domainCheck.result.domain} — available!
+                                      {domainCheck.result.domain} available!
                                     </span>
                                   </>
                                 ) : (
