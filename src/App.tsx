@@ -113,6 +113,7 @@ const App = () => {
                   <Route path="settings" element={<AdminSettingsPage />} />
                   <Route path="website" element={<AdminWebsiteContentPage />} />
                   <Route path="chat" element={<AdminChatPage />} />
+                  <Route path="contacts" element={<AdminContactSubmissionsPage />} />
                   <Route path="analytics" element={<AdminAnalyticsPage />} />
                   <Route path="staff" element={<StaffPanelPage />} />
                 </Route>

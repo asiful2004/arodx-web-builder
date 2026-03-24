@@ -74,17 +74,26 @@ const ContactSection = () => {
     { icon: MapPin, title: "ঠিকানা", value: address },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    if (getIsOpenFromSchedule(schedule)) {
-      toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।" });
-    } else {
-      toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "বর্তমানে অফিস বন্ধ আছে। অফিস চালু হলে আপনাকে রেসপন্স করা হবে।" });
+    try {
+      const { error } = await supabase.from("contact_submissions" as any).insert({
+        name: formData.name,
+        email: formData.email,
+        message: formData.message,
+      });
+      if (error) throw error;
+      setSubmitted(true);
+      if (getIsOpenFromSchedule(schedule)) {
+        toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।" });
+      } else {
+        toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "বর্তমানে অফিস বন্ধ আছে। অফিস চালু হলে আপনাকে রেসপন্স করা হবে।" });
+      }
+      setFormData({ name: "", email: "", message: "" });
+      setTimeout(() => setSubmitted(false), 8000);
+    } catch {
+      toast({ title: "ত্রুটি!", description: "মেসেজ পাঠাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।", variant: "destructive" });
     }
-    setFormData({ name: "", email: "", message: "" });
-    // Reset submitted state after 8 seconds
-    setTimeout(() => setSubmitted(false), 8000);
   };
 
   return (
