@@ -504,7 +504,7 @@ export default function LiveChat() {
                       <Headphones className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-foreground">👨‍💼 Human Agent</p>
+                      <p className="text-xs font-semibold text-foreground">Human Agent</p>
                       <div className="flex items-center gap-1 mt-0.5">
                         <Clock className="h-3 w-3 text-muted-foreground" />
                         <p className="text-[10px] text-muted-foreground">সকাল ১০টা — রাত ১০টা (বাংলাদেশ সময়)</p>

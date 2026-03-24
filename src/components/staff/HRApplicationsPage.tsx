@@ -434,7 +434,7 @@ export default function HRApplicationsPage() {
               placeholder="রিজেক্ট করার কারণ লিখুন..."
               rows={3}
             />
-            <p className="text-[10px] text-muted-foreground">⚠️ রিজেক্ট করলে ৭ দিন পর আবেদনটি অটোমেটিক ডিলিট হয়ে যাবে।</p>
+            <p className="text-[10px] text-muted-foreground">রিজেক্ট করলে ৭ দিন পর আবেদনটি অটোমেটিক ডিলিট হয়ে যাবে।</p>
           </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setRejectOpen(false)}>বাতিল</Button>

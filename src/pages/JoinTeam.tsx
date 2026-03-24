@@ -375,7 +375,7 @@ export default function JoinTeam() {
                       />
                     </div>
                     <p className="text-[10px] text-muted-foreground bg-muted/50 rounded-lg p-3">
-                      ⚠️ NID এর ছবি পরিষ্কার ও পড়ার উপযোগী হতে হবে। ফেস ফটোতে আপনার মুখ স্পষ্ট দেখা যেতে হবে।
+                      NID এর ছবি পরিষ্কার ও পড়ার উপযোগী হতে হবে। ফেস ফটোতে আপনার মুখ স্পষ্ট দেখা যেতে হবে।
                     </p>
                   </>
                 )}

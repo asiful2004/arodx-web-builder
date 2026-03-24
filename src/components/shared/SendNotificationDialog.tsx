@@ -98,7 +98,7 @@ export default function SendNotificationDialog() {
     if (error) {
       toast({ title: "নোটিফিকেশন পাঠাতে সমস্যা হয়েছে", variant: "destructive" });
     } else {
-      toast({ title: `${selectedIds.size} জনকে নোটিফিকেশন পাঠানো হয়েছে ✅` });
+      toast({ title: `${selectedIds.size} জনকে নোটিফিকেশন পাঠানো হয়েছে` });
       setOpen(false);
       setTitle("");
       setBody("");
