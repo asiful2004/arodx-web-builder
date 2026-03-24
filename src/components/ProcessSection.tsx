@@ -18,8 +18,8 @@ const ProcessSection = () => {
   const badge = proc?.badge || "How We Work";
   const title = proc?.title || "আমাদের কাজের";
   const titleHighlight = proc?.title_highlight || "ধাপসমূহ";
-  const subtitle = proc?.subtitle || "প্রতিটি প্রজেক্টে ৪ জন ডেডিকেটেড বিশেষজ্ঞ কাজ করেন — তাই সবকিছু হয় নিখুঁত, সময়মতো এবং ঝামেলামুক্ত।";
-  const bottomCta = proc?.bottom_cta || "সবকিছু এক টিমে — আপনি শুধু ব্যবসায় ফোকাস করুন, বাকিটা আমাদের দায়িত্ব।";
+  const subtitle = proc?.subtitle || "প্রতিটি প্রজেক্টে ৪ জন ডেডিকেটেড বিশেষজ্ঞ কাজ করেন, তাই সবকিছু হয় নিখুঁত, সময়মতো এবং ঝামেলামুক্ত।";
+  const bottomCta = proc?.bottom_cta || "সবকিছু এক টিমে। আপনি শুধু ব্যবসায় ফোকাস করুন, বাকিটা আমাদের দায়িত্ব।";
   const steps = proc?.steps || defaultSteps;
 
   return (
