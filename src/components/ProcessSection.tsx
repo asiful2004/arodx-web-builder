@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { PenTool, Code, Megaphone, ClipboardCheck, Sparkles, LucideIcon } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const iconMap: Record<string, LucideIcon> = { ClipboardCheck, PenTool, Code, Megaphone };
 
