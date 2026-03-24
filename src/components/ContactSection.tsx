@@ -37,6 +37,7 @@ const getIsOpenFromSchedule = (schedule?: any[]) => {
 
 const ServiceStatus = ({ schedule }: { schedule?: any[] }) => {
   const [isOpen, setIsOpen] = useState(() => getIsOpenFromSchedule(schedule));
+  const { t } = useLanguage();
   useEffect(() => {
     setIsOpen(getIsOpenFromSchedule(schedule));
     const interval = setInterval(() => setIsOpen(getIsOpenFromSchedule(schedule)), 30000);
