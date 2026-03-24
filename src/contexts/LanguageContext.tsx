@@ -42,9 +42,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("app-language", lang);
   }, []);
 
-  const t = useCallback((key: string): string => {
-    if (!translations) return key;
-    return translations[language]?.[key] || translations["bn"]?.[key] || key;
+  const t = useCallback((key: string, settingsFallback?: string): string => {
+    if (!translations) return settingsFallback || key;
+    // Always use translation file first, fall back to settings value (which is typically Bengali from DB)
+    const translated = translations[language]?.[key];
+    if (translated) return translated;
+    // If no translation found for current language, use settings fallback (DB value) or key
+    return settingsFallback || translations["bn"]?.[key] || key;
   }, [language, translations]);
 
   return (
