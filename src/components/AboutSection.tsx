@@ -33,10 +33,11 @@ const CountUpStat = ({ number, label, index }: { number: string; label: string; 
 
 const AboutSection = () => {
   const { data: settings } = useSiteSettings();
+  const { t } = useLanguage();
   const about = settings?.about;
 
-  const badge = about?.badge || "About Us";
-  const title = about?.title || "আমরা";
+  const badge = about?.badge || t("about.badge");
+  const title = about?.title || t("about.title");
   const titleBrand = about?.title_brand || "Arodx";
   const desc1 = about?.description1 || "";
   const desc2 = about?.description2 || "";
