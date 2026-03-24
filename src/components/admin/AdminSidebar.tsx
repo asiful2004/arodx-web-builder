@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-import { Globe } from "lucide-react";
+import { Globe, Mail } from "lucide-react";
 
 const mainItems = [
   { title: "ওভারভিউ", url: "/admin", icon: LayoutDashboard },
@@ -22,6 +22,7 @@ const mainItems = [
   { title: "ইউজার ম্যানেজমেন্ট", url: "/admin/users", icon: Users },
   { title: "টিকেট ম্যানেজমেন্ট", url: "/admin/tickets", icon: Ticket },
   { title: "লাইভ চ্যাট", url: "/admin/chat", icon: MessageCircle },
+  { title: "কন্টাক্ট সাবমিশন", url: "/admin/contacts", icon: Mail },
   { title: "অ্যানালিটিক্স", url: "/admin/analytics", icon: BarChart3 },
 ];
 
