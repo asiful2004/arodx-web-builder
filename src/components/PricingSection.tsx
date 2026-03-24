@@ -19,13 +19,13 @@ const PricingSection = () => {
   const { t } = useLanguage();
   const pricing = settings?.pricing;
 
-  const badge = pricing?.badge || t("pricing.badge");
-  const title = pricing?.title || t("pricing.title");
-  const titleHighlight = pricing?.title_highlight || t("pricing.titleHighlight");
-  const subtitle = pricing?.subtitle || t("pricing.subtitle");
+  const badge = t("pricing.badge", pricing?.badge);
+  const title = t("pricing.title", pricing?.title);
+  const titleHighlight = t("pricing.titleHighlight", pricing?.title_highlight);
+  const subtitle = t("pricing.subtitle", pricing?.subtitle);
   const packages = pricing?.packages || defaultPackages;
-  const customCtaText = pricing?.custom_cta_text || t("pricing.customCta");
-  const customCtaDesc = pricing?.custom_cta_description || t("pricing.customCtaDesc");
+  const customCtaText = t("pricing.customCta", pricing?.custom_cta_text);
+  const customCtaDesc = t("pricing.customCtaDesc", pricing?.custom_cta_description);
 
   const handleBuy = (pkg: any) => {
     const amount = isYearly ? pkg.firstYearYearlyPrice : pkg.firstYearPrice;

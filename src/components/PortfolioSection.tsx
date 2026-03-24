@@ -14,9 +14,9 @@ const PortfolioSection = () => {
   const { t } = useLanguage();
   const port = settings?.portfolio;
 
-  const badge = port?.badge || t("portfolio.badge");
-  const title = port?.title || t("portfolio.title");
-  const titleHighlight = port?.title_highlight || t("portfolio.titleHighlight");
+  const badge = t("portfolio.badge", port?.badge);
+  const title = t("portfolio.title", port?.title);
+  const titleHighlight = t("portfolio.titleHighlight", port?.title_highlight);
   const subtitle = port?.subtitle || "আমরা এ পর্যন্ত যেসব প্রজেক্ট সফলভাবে সম্পন্ন করেছি তার কিছু নমুনা।";
   const projects = port?.projects || defaultProjects;
 
