@@ -49,7 +49,7 @@ const PricingSection = () => {
           <p className="text-muted-foreground mt-4 max-w-lg mx-auto">{subtitle}</p>
 
           <div className="flex items-center justify-center gap-4 mt-8">
-            <span className={`text-sm font-medium transition-colors ${!isYearly ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
+            <span className={`text-sm font-medium transition-colors ${!isYearly ? "text-foreground" : "text-muted-foreground"}`}>{t("pricing.monthly")}</span>
             <button
               onClick={() => setIsYearly(!isYearly)}
               className={`relative w-14 h-7 rounded-full transition-colors duration-300 ${isYearly ? "bg-primary" : "bg-muted"}`}
