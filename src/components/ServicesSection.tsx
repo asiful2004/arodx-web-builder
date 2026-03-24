@@ -2,6 +2,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Globe, TrendingUp, Video, Megaphone, Settings, PenTool, LucideIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const iconMap: Record<string, LucideIcon> = {
   Globe, TrendingUp, Video, Megaphone, Settings, PenTool,
