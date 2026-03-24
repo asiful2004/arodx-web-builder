@@ -17,7 +17,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>Arodx - বাংলাদেশের সেরা Digital Agency | Web Development, Marketing & Design</title>
-        <meta name="description" content="Arodx হলো বাংলাদেশের অন্যতম সেরা ডিজিটাল এজেন্সি। Web Development, Digital Marketing, Graphics Design, Video Editing, Business Automation — সবকিছু এক ছাদের নিচে।" />
+        <meta name="description" content="Arodx হলো বাংলাদেশের অন্যতম সেরা ডিজিটাল এজেন্সি। Web Development, Digital Marketing, Graphics Design, Video Editing, Business Automation সবকিছু এক ছাদের নিচে।" />
         <link rel="canonical" href="https://arodx-web-builder.lovable.app/" />
       </Helmet>
       <Navbar />

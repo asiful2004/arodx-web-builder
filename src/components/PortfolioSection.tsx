@@ -4,7 +4,7 @@ import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const defaultProjects = [
   { title: "E-Commerce Platform", category: "Web Development", description: "একটি সম্পূর্ণ ই-কমার্স প্ল্যাটফর্ম যেখানে পেমেন্ট ইন্টিগ্রেশন ও ইনভেন্টরি ম্যানেজমেন্ট আছে।", image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop" },
-  { title: "Restaurant Branding", category: "UI/UX Design", description: "একটি রেস্টুরেন্টের জন্য সম্পূর্ণ ব্র্যান্ডিং — লোগো, মেনু ডিজাইন ও ওয়েবসাইট।", image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop" },
+  { title: "Restaurant Branding", category: "UI/UX Design", description: "একটি রেস্টুরেন্টের জন্য সম্পূর্ণ ব্র্যান্ডিং: লোগো, মেনু ডিজাইন ও ওয়েবসাইট।", image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop" },
   { title: "Social Media Campaign", category: "Digital Marketing", description: "সোশ্যাল মিডিয়া ক্যাম্পেইন যা ক্লায়েন্টের সেলস ৩x বাড়িয়েছে।", image: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=400&fit=crop" },
 ];
 

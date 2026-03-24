@@ -158,7 +158,7 @@ export default function BusinessDetailPage() {
     ? new Date(order.renewal_date).toLocaleDateString("bn-BD", {
         year: "numeric", month: "long", day: "numeric",
       })
-    : "—";
+    : "-";
 
   return (
     <div className="space-y-6">

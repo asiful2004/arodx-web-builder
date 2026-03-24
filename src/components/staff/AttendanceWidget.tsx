@@ -21,7 +21,7 @@ export default function AttendanceWidget() {
   const isCheckedOut = !!todayRecord?.check_out;
 
   const formatTime = (iso: string | null) => {
-    if (!iso) return "—";
+    if (!iso) return "-";
     return format(new Date(iso), "hh:mm a", { locale: bn });
   };
 

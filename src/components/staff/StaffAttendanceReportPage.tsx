@@ -182,7 +182,7 @@ export default function StaffAttendanceReportPage() {
                     <div className="flex items-center gap-1 mt-0.5">
                       {m.todayRec ? (
                         <Badge variant="outline" className={`text-[8px] px-1 ${TYPE_CONFIG[m.todayRec.attendance_type]?.color || ""}`}>
-                          আজ: {TYPE_CONFIG[m.todayRec.attendance_type]?.label || "—"}
+                          আজ: {TYPE_CONFIG[m.todayRec.attendance_type]?.label || "-"}
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="text-[8px] px-1 text-muted-foreground">আজ: অনুপস্থিত</Badge>

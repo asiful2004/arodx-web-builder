@@ -638,7 +638,7 @@ export default function Checkout() {
                                   <>
                                     <X className="w-4 h-4 text-destructive shrink-0" />
                                     <span className="text-destructive font-medium">
-                                      {domainCheck.result.domain} — already taken
+                                      {domainCheck.result.domain} already taken
                                     </span>
                                   </>
                                 )}

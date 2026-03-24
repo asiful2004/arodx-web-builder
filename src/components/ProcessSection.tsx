@@ -108,7 +108,7 @@ const ProcessSection = () => {
             <p className="text-sm font-medium text-foreground">
               {bottomCta.includes("এক টিমে") ? (
                 <>
-                  সবকিছু <span className="text-primary font-bold">এক টিমে</span> — {bottomCta.split("এক টিমে")[1]?.replace(" — ", "") || "আপনি শুধু ব্যবসায় ফোকাস করুন, বাকিটা আমাদের দায়িত্ব।"}
+                  সবকিছু <span className="text-primary font-bold">এক টিমে</span>। {bottomCta.split("এক টিমে")[1]?.replace(/^[।. ]+/, "") || "আপনি শুধু ব্যবসায় ফোকাস করুন, বাকিটা আমাদের দায়িত্ব।"}
                 </>
               ) : bottomCta}
             </p>

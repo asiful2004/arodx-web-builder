@@ -117,7 +117,7 @@ function PanelContent({ members, onNavigate }: { members: OnlineMember[]; onNavi
       {grouped.map(([role, roleMembers]) => (
         <div key={role}>
           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 px-2 mb-1.5">
-            {ROLE_LABELS[role] || role} — {roleMembers.length}
+            {ROLE_LABELS[role] || role} ({roleMembers.length})
           </p>
           <div className="space-y-0.5">
             {roleMembers.map((m) => (
