@@ -179,8 +179,8 @@ const ContactSection = () => {
                         groups.push({ days: [entry.day], open: entry.open, close: entry.close, enabled: entry.enabled });
                       }
                     });
-                    const fmt12 = (t: string) => {
-                      const [hStr, mStr] = t.split(":");
+                    const fmt12 = (timeStr: string) => {
+                      const [hStr, mStr] = timeStr.split(":");
                       const h = parseInt(hStr, 10);
                       const period = h < 12 ? "AM" : "PM";
                       const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
