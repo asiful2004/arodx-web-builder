@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import arodxLogo from "@/assets/arodx-logo.png";
 
 const ServicesSection = lazy(() => import("@/components/ServicesSection"));
 const ComparisonSection = lazy(() => import("@/components/ComparisonSection"));
