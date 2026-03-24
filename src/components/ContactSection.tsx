@@ -283,7 +283,7 @@ const ContactSection = () => {
                 <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
                   <Button type="submit" size="lg" className="w-full bg-gradient-primary text-primary-foreground font-semibold py-6 hover:opacity-90 transition-opacity relative overflow-hidden group">
                     <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-                    <span className="relative z-10 flex items-center justify-center">মেসেজ পাঠান <Send className="ml-2 h-4 w-4" /></span>
+                    <span className="relative z-10 flex items-center justify-center">{t("contact.send")} <Send className="ml-2 h-4 w-4" /></span>
                   </Button>
                 </motion.div>
               </motion.form>
