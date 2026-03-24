@@ -39,25 +39,6 @@ const SignUp = () => {
     }
   };
 
-  const handleGoogleSignUp = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: window.location.origin,
-        },
-      });
-      if (error) {
-        toast({ title: "Google সাইন আপ ব্যর্থ", description: error.message, variant: "destructive" });
-      }
-    } catch (error: any) {
-      toast({ title: "Google সাইন আপ ব্যর্থ", description: error.message, variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <motion.div
