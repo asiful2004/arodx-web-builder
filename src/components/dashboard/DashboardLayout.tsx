@@ -47,7 +47,7 @@ export default function DashboardLayout() {
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
-                  হোম
+                  {t("dashboard.home")}
                 </Link>
               </div>
 

@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { LogOut, User, Briefcase } from "lucide-react";
 
 interface NavbarProps {
@@ -24,18 +25,19 @@ const STAFF_ROLES = ["hr", "graphics_designer", "web_developer", "project_manage
 const Navbar = ({ logo }: NavbarProps) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, signOut, profile, userRoles } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const isStaff = userRoles.some(r => STAFF_ROLES.includes(r));
   const profileAvatar = profile.avatar_url;
 
   const navLinks = [
-    { label: "Home", href: "#" },
-    { label: "Services", href: "#services" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "Portfolio", href: "#portfolio" },
-    { label: "About Us", href: "#about" },
-    { label: "Contact", href: "#contact" },
+    { label: t("nav.home"), href: "#" },
+    { label: t("nav.services"), href: "#services" },
+    { label: t("nav.pricing"), href: "#pricing" },
+    { label: t("nav.portfolio"), href: "#portfolio" },
+    { label: t("nav.about"), href: "#about" },
+    { label: t("nav.contact"), href: "#contact" },
   ];
 
   const handleSignOut = async () => {
@@ -101,18 +103,18 @@ const Navbar = ({ logo }: NavbarProps) => {
               <DropdownMenuContent align="end" className="w-48 bg-card border-border">
                 <DropdownMenuItem onClick={() => navigate("/dashboard")} className="gap-2 cursor-pointer">
                   <User className="w-4 h-4" />
-                  Dashboard
+                  {t("nav.dashboard")}
                 </DropdownMenuItem>
                 {isStaff && (
                   <DropdownMenuItem onClick={() => navigate("/staff")} className="gap-2 cursor-pointer">
                     <Briefcase className="w-4 h-4" />
-                    Staff Panel
+                    {t("nav.staffPanel")}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="gap-2 cursor-pointer text-destructive">
                   <LogOut className="w-4 h-4" />
-                  Sign Out
+                  {t("nav.signout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -122,13 +124,13 @@ const Navbar = ({ logo }: NavbarProps) => {
                 to="/signin"
                 className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
               >
-                Sign In
+                {t("nav.signin")}
               </Link>
               <Link
                 to="/signup"
                 className="px-5 py-2 text-sm font-medium rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90 transition-opacity"
               >
-                Sign Up
+                {t("nav.signup")}
               </Link>
             </>
           )}
@@ -175,7 +177,7 @@ const Navbar = ({ logo }: NavbarProps) => {
                         onClick={() => setMobileOpen(false)}
                         className="text-base text-foreground hover:text-primary transition-colors"
                       >
-                        Dashboard
+                        {t("nav.dashboard")}
                       </Link>
                       {isStaff && (
                         <Link
@@ -183,7 +185,7 @@ const Navbar = ({ logo }: NavbarProps) => {
                           onClick={() => setMobileOpen(false)}
                           className="text-base text-foreground hover:text-primary transition-colors"
                         >
-                          Staff Panel
+                          {t("nav.staffPanel")}
                         </Link>
                       )}
                       <button
@@ -193,7 +195,7 @@ const Navbar = ({ logo }: NavbarProps) => {
                         }}
                         className="text-base text-left text-destructive hover:opacity-80 transition-opacity"
                       >
-                        Sign Out
+                        {t("nav.signout")}
                       </button>
                     </>
                   ) : (
@@ -203,14 +205,14 @@ const Navbar = ({ logo }: NavbarProps) => {
                         onClick={() => setMobileOpen(false)}
                         className="text-base text-foreground hover:text-primary transition-colors"
                       >
-                        Sign In
+                        {t("nav.signin")}
                       </Link>
                       <Link
                         to="/signup"
                         onClick={() => setMobileOpen(false)}
                         className="inline-block text-center px-5 py-2 text-sm font-medium rounded-xl bg-gradient-primary text-primary-foreground"
                       >
-                        Sign Up
+                        {t("nav.signup")}
                       </Link>
                     </>
                   )}
