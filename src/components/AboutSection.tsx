@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Users, Target, Award, Heart, LucideIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const valueIcons: LucideIcon[] = [Target, Award, Heart, Users];
 
