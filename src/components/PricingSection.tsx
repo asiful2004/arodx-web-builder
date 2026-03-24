@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PricingCard from "@/components/PricingCard";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const defaultPackages = [
   { name: "Starter", regularPrice: "2,500", firstYearPrice: "1,500", regularYearlyPrice: "25,000", firstYearYearlyPrice: "15,000", currency: "৳", description: "ছোট ব্যবসার জন্য পারফেক্ট শুরু", popular: false, features: ["Website + ১টি Landing Page (Hosting সহ)", "Basic Maintenance & Support", "মাসে ২টি Video Edit", "Basic SEO Setup", "১টি Social Media Management", "Basic Brand Guidelines"] },
