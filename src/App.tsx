@@ -57,6 +57,7 @@ const JoinTeam = lazy(() => import("./pages/JoinTeam"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const RenewalPage = lazy(() => import("./pages/Renewal"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const GoogleCallback = lazy(() => import("./pages/GoogleCallback"));
 
 const queryClient = new QueryClient();
 
