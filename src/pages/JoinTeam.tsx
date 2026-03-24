@@ -266,7 +266,6 @@ export default function JoinTeam() {
                 transition={{ delay: 0.1 + i * 0.05 }}
                 className="rounded-xl border border-border bg-card p-3 text-center space-y-1"
               >
-                <span className="text-2xl">{f.icon}</span>
                 <p className="text-xs font-semibold text-foreground">{f.title}</p>
                 <p className="text-[10px] text-muted-foreground leading-snug">{f.desc}</p>
               </motion.div>
