@@ -143,7 +143,7 @@ export default function StaffAttendanceReportPage() {
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-foreground truncate">{rec.user_name || "অজানা"}</p>
                       <p className="text-[10px] text-muted-foreground">
-                        {format(new Date(rec.date), "dd MMM", { locale: bn })} • {rec.check_in ? format(new Date(rec.check_in), "hh:mm a") : "—"} - {rec.check_out ? format(new Date(rec.check_out), "hh:mm a") : "চলমান"}
+                        {format(new Date(rec.date), "dd MMM", { locale: bn })} • {rec.check_in ? format(new Date(rec.check_in), "hh:mm a") : "-"} - {rec.check_out ? format(new Date(rec.check_out), "hh:mm a") : "চলমান"}
                       </p>
                     </div>
                   </div>
@@ -182,7 +182,7 @@ export default function StaffAttendanceReportPage() {
                     <div className="flex items-center gap-1 mt-0.5">
                       {m.todayRec ? (
                         <Badge variant="outline" className={`text-[8px] px-1 ${TYPE_CONFIG[m.todayRec.attendance_type]?.color || ""}`}>
-                          আজ: {TYPE_CONFIG[m.todayRec.attendance_type]?.label || "—"}
+                          আজ: {TYPE_CONFIG[m.todayRec.attendance_type]?.label || "-"}
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="text-[8px] px-1 text-muted-foreground">আজ: অনুপস্থিত</Badge>

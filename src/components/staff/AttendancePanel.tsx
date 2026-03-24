@@ -105,7 +105,7 @@ export default function AttendancePanel() {
                       </Badge>
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-0.5">
-                      {rec.check_in ? format(new Date(rec.check_in), "hh:mm a") : "—"} → {rec.check_out ? format(new Date(rec.check_out), "hh:mm a") : "—"}
+                      {rec.check_in ? format(new Date(rec.check_in), "hh:mm a") : "-"} → {rec.check_out ? format(new Date(rec.check_out), "hh:mm a") : "-"}
                     </p>
                   </div>
                 </div>
