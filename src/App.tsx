@@ -76,6 +76,7 @@ const App = () => {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="app-theme">
+      <LanguageProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
         <Sonner />
