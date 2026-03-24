@@ -14,6 +14,7 @@ export default function DashboardLayout() {
   const { user, loading: authLoading, profile, setProfile, isAdmin, userRoles } = useAuth();
   const navigate = useNavigate();
   const presenceValue = useOnlinePresenceProvider();
+  const { t } = useLanguage();
 
   const userRole = userRoles.length > 0 ? userRoles[0] : "";
 
