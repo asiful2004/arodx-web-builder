@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
 
 import { useToast } from "@/hooks/use-toast";
 
