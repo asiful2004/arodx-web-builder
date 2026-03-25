@@ -111,7 +111,7 @@ const ComparisonSection = () => {
         >
           <div className="grid grid-cols-[1.2fr_1fr_1fr] bg-muted/60 backdrop-blur-sm">
             <div className="p-3 md:p-5 flex items-center">
-              <span className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wider">তুলনা</span>
+              <span className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wider">{t("comparison.tableHeader")}</span>
             </div>
             <div className="p-3 md:p-5 text-center border-l border-border/50">
               <div className="inline-flex items-center gap-1.5 md:gap-2">
