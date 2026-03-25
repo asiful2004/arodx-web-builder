@@ -107,9 +107,9 @@ export default function LiveChat() {
       .select("value")
       .eq("key", "chat_widget_config")
       .single()
-      .then(({ data }) => {
+      .then(({ data }: any) => {
         if (data?.value) {
-          setConfig({ ...DEFAULT_CONFIG, ...(data.value as any) });
+          setConfig({ ...DEFAULT_CONFIG, ...data.value });
         }
       });
   }, []);

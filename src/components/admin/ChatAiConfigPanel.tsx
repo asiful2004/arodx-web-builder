@@ -66,8 +66,8 @@ export default function ChatAiConfigPanel() {
       .select("value")
       .eq("key", "chat_widget_config")
       .single();
-    if (configData?.value) {
-      setConfig({ ...DEFAULT_CONFIG, ...(configData.value as any) });
+    if ((configData as any)?.value) {
+      setConfig({ ...DEFAULT_CONFIG, ...(configData as any).value });
     }
     setLoading(false);
   };
