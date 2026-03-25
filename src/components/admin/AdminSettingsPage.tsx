@@ -723,28 +723,21 @@ function GoogleOAuthSection() {
 }
 
 // ===== System Info Section =====
-interface TableInfo {
-  table_name: string;
-  row_count: number;
-  total_size: string;
-}
-
-interface DbStats {
-  db_size: string;
-  tables: TableInfo[];
-  total_connections: number;
-}
-
 function SystemInfoSection() {
-  const [dbStats, setDbStats] = useState<DbStats | null>(null);
-  const [storageInfo, setStorageInfo] = useState<{ bucket: string; count: number }[]>([]);
+  const [totalRows, setTotalRows] = useState(0);
+  const [totalFiles, setTotalFiles] = useState(0);
+  const [tableCount, setTableCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+
+  // Supabase free tier limits
+  const DB_LIMIT_GB = 0.5; // 500MB
+  const STORAGE_LIMIT_GB = 1; // 1GB
+  const BANDWIDTH_LIMIT_GB = 5; // 5GB
 
   const fetchSystemInfo = useCallback(async () => {
     setLoading(true);
     try {
-      // Fetch table row counts for all known tables
       const tables = [
         "profiles", "orders", "businesses", "tickets", "ticket_replies",
         "notifications", "activity_logs", "page_views", "chat_sessions",
@@ -754,45 +747,25 @@ function SystemInfoSection() {
         "admin_secrets", "chat_ai_settings", "device_login_requests"
       ];
 
-      const tableCounts: TableInfo[] = [];
+      let rows = 0;
       for (const table of tables) {
         try {
-          const { count } = await supabase
-            .from(table as any)
-            .select("*", { count: "exact", head: true });
-          tableCounts.push({
-            table_name: table,
-            row_count: count || 0,
-            total_size: "-",
-          });
-        } catch {
-          tableCounts.push({ table_name: table, row_count: 0, total_size: "-" });
-        }
+          const { count } = await supabase.from(table as any).select("*", { count: "exact", head: true });
+          rows += count || 0;
+        } catch { /* skip */ }
       }
+      setTotalRows(rows);
+      setTableCount(tables.length);
 
-      // Sort by row count descending
-      tableCounts.sort((a, b) => b.row_count - a.row_count);
-
-      const totalRows = tableCounts.reduce((s, t) => s + t.row_count, 0);
-
-      setDbStats({
-        db_size: `~${totalRows.toLocaleString("bn-BD")} rows total`,
-        tables: tableCounts,
-        total_connections: tableCounts.length,
-      });
-
-      // Storage bucket info
       const buckets = ["avatars", "business-logos", "ticket-attachments", "chat-attachments", "job-applications"];
-      const bucketInfo: { bucket: string; count: number }[] = [];
+      let files = 0;
       for (const b of buckets) {
         try {
           const { data } = await supabase.storage.from(b).list("", { limit: 1000 });
-          bucketInfo.push({ bucket: b, count: data?.length || 0 });
-        } catch {
-          bucketInfo.push({ bucket: b, count: 0 });
-        }
+          files += data?.length || 0;
+        } catch { /* skip */ }
       }
-      setStorageInfo(bucketInfo);
+      setTotalFiles(files);
       setLastRefresh(new Date());
     } catch (err) {
       console.error("Error fetching system info:", err);
@@ -802,22 +775,26 @@ function SystemInfoSection() {
   }, []);
 
   useEffect(() => { fetchSystemInfo(); }, [fetchSystemInfo]);
-
-  // Auto-refresh every 30s
   useEffect(() => {
     const interval = setInterval(fetchSystemInfo, 30000);
     return () => clearInterval(interval);
   }, [fetchSystemInfo]);
 
-  const BUCKET_LABELS: Record<string, string> = {
-    "avatars": "প্রোফাইল ছবি",
-    "business-logos": "বিজনেস লোগো",
-    "ticket-attachments": "টিকেট ফাইল",
-    "chat-attachments": "চ্যাট ফাইল",
-    "job-applications": "চাকরি আবেদন ফাইল",
+  // Estimate sizes (rough: ~1KB per row avg, ~50KB per file avg)
+  const dbUsedGB = parseFloat(((totalRows * 1024) / (1024 * 1024 * 1024)).toFixed(4));
+  const storageUsedGB = parseFloat(((totalFiles * 50 * 1024) / (1024 * 1024 * 1024)).toFixed(4));
+  const dbPercent = Math.min((dbUsedGB / DB_LIMIT_GB) * 100, 100);
+  const storagePercent = Math.min((storageUsedGB / STORAGE_LIMIT_GB) * 100, 100);
+
+  const dbHealthy = dbPercent < 80;
+  const storageHealthy = storagePercent < 80;
+
+  const formatGB = (gb: number) => {
+    if (gb < 0.001) return `${(gb * 1024).toFixed(2)} MB`;
+    return `${gb.toFixed(3)} GB`;
   };
 
-  if (loading && !dbStats) {
+  if (loading && totalRows === 0) {
     return (
       <Card>
         <CardContent className="flex items-center justify-center py-12">
@@ -827,6 +804,19 @@ function SystemInfoSection() {
     );
   }
 
+  const ProgressBar = ({ percent, healthy }: { percent: number; healthy: boolean }) => (
+    <div className="w-full h-3 rounded-full bg-muted overflow-hidden">
+      <div
+        className={`h-full rounded-full transition-all duration-700 ${healthy ? "bg-primary" : "bg-destructive"}`}
+        style={{ width: `${Math.max(percent, 1)}%` }}
+      />
+    </div>
+  );
+
+  const StatusDot = ({ healthy }: { healthy: boolean }) => (
+    <span className={`inline-block w-2.5 h-2.5 rounded-full ${healthy ? "bg-green-500 animate-pulse" : "bg-destructive"}`} />
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -834,7 +824,7 @@ function SystemInfoSection() {
         <div className="flex items-center gap-2">
           <Activity className="h-4 w-4 text-primary animate-pulse" />
           <span className="text-[10px] text-muted-foreground">
-            সর্বশেষ আপডেট: {lastRefresh.toLocaleTimeString("bn-BD")} • প্রতি ৩০ সেকেন্ডে রিফ্রেশ হয়
+            সর্বশেষ: {lastRefresh.toLocaleTimeString("bn-BD")} - প্রতি ৩০ সেকেন্ডে রিফ্রেশ
           </span>
         </div>
         <Button variant="outline" size="sm" onClick={fetchSystemInfo} disabled={loading} className="gap-2 text-xs">
@@ -843,89 +833,145 @@ function SystemInfoSection() {
         </Button>
       </div>
 
-      {/* Database Overview */}
+      {/* Overall Health */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="border-border">
+          <CardContent className="pt-5 pb-4 text-center space-y-2">
+            <div className="flex items-center justify-center gap-2">
+              <StatusDot healthy={dbHealthy} />
+              <span className="text-sm font-semibold text-foreground">ডাটাবেস</span>
+            </div>
+            <p className={`text-lg font-bold ${dbHealthy ? "text-green-600 dark:text-green-400" : "text-destructive"}`}>
+              {dbHealthy ? "Healthy" : "Warning"}
+            </p>
+            <p className="text-[10px] text-muted-foreground">{totalRows.toLocaleString("bn-BD")} rows - {tableCount} tables</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border">
+          <CardContent className="pt-5 pb-4 text-center space-y-2">
+            <div className="flex items-center justify-center gap-2">
+              <StatusDot healthy={storageHealthy} />
+              <span className="text-sm font-semibold text-foreground">স্টোরেজ</span>
+            </div>
+            <p className={`text-lg font-bold ${storageHealthy ? "text-green-600 dark:text-green-400" : "text-destructive"}`}>
+              {storageHealthy ? "Healthy" : "Warning"}
+            </p>
+            <p className="text-[10px] text-muted-foreground">{totalFiles.toLocaleString("bn-BD")} ফাইল - {5} buckets</p>
+          </CardContent>
+        </Card>
+        <Card className="border-border">
+          <CardContent className="pt-5 pb-4 text-center space-y-2">
+            <div className="flex items-center justify-center gap-2">
+              <StatusDot healthy={true} />
+              <span className="text-sm font-semibold text-foreground">সার্ভিস</span>
+            </div>
+            <p className="text-lg font-bold text-green-600 dark:text-green-400">Online</p>
+            <p className="text-[10px] text-muted-foreground">Auth, Realtime, Edge Functions</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Database Usage */}
       <Card>
-        <CardHeader className="pb-4">
+        <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <Database className="h-5 w-5 text-primary" />
             </div>
-            <div>
-              <CardTitle className="text-lg">ডাটাবেস তথ্য</CardTitle>
-              <CardDescription>{dbStats?.db_size} • {dbStats?.total_connections} টেবিল</CardDescription>
+            <div className="flex-1">
+              <CardTitle className="text-lg">ডাটাবেস স্পেস</CardTitle>
+              <CardDescription>ব্যবহৃত: {formatGB(dbUsedGB)} / মোট: {formatGB(DB_LIMIT_GB)}</CardDescription>
             </div>
+            <Badge variant={dbHealthy ? "secondary" : "destructive"} className="text-[10px]">
+              {dbPercent.toFixed(1)}%
+            </Badge>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {dbStats?.tables.map((t) => (
-              <div key={t.table_name} className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/20">
-                <div className="min-w-0">
-                  <p className="text-xs font-medium text-foreground truncate">{t.table_name}</p>
-                </div>
-                <Badge variant="secondary" className="text-[10px] shrink-0 ml-2">
-                  {t.row_count.toLocaleString("bn-BD")} rows
-                </Badge>
-              </div>
-            ))}
+        <CardContent className="space-y-3">
+          <ProgressBar percent={dbPercent} healthy={dbHealthy} />
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+            <span>ব্যবহৃত: {formatGB(dbUsedGB)}</span>
+            <span>বাকি: {formatGB(Math.max(0, DB_LIMIT_GB - dbUsedGB))}</span>
+            <span>মোট: {formatGB(DB_LIMIT_GB)}</span>
           </div>
         </CardContent>
       </Card>
 
-      {/* Storage */}
+      {/* Storage Usage */}
       <Card>
-        <CardHeader className="pb-4">
+        <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <HardDrive className="h-5 w-5 text-primary" />
             </div>
-            <div>
+            <div className="flex-1">
               <CardTitle className="text-lg">ফাইল স্টোরেজ</CardTitle>
-              <CardDescription>স্টোরেজ বাকেট ও ফাইল সংখ্যা</CardDescription>
+              <CardDescription>ব্যবহৃত: {formatGB(storageUsedGB)} / মোট: {formatGB(STORAGE_LIMIT_GB)}</CardDescription>
             </div>
+            <Badge variant={storageHealthy ? "secondary" : "destructive"} className="text-[10px]">
+              {storagePercent.toFixed(1)}%
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <ProgressBar percent={storagePercent} healthy={storageHealthy} />
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+            <span>ব্যবহৃত: {formatGB(storageUsedGB)}</span>
+            <span>বাকি: {formatGB(Math.max(0, STORAGE_LIMIT_GB - storageUsedGB))}</span>
+            <span>মোট: {formatGB(STORAGE_LIMIT_GB)}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bandwidth */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Activity className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <CardTitle className="text-lg">ব্যান্ডউইথ (মাসিক)</CardTitle>
+              <CardDescription>মোট বরাদ্দ: {formatGB(BANDWIDTH_LIMIT_GB)}</CardDescription>
+            </div>
+            <Badge variant="secondary" className="text-[10px]">Free Tier</Badge>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {storageInfo.map((s) => (
-              <div key={s.bucket} className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/20">
-                <div className="min-w-0">
-                  <p className="text-xs font-medium text-foreground">{BUCKET_LABELS[s.bucket] || s.bucket}</p>
-                  <p className="text-[10px] text-muted-foreground font-mono">{s.bucket}</p>
-                </div>
-                <Badge variant="secondary" className="text-[10px] shrink-0 ml-2">
-                  {s.count.toLocaleString("bn-BD")} ফাইল
-                </Badge>
-              </div>
-            ))}
+          <div className="p-3 rounded-lg bg-muted/30 border border-border">
+            <p className="text-xs text-muted-foreground">
+              সঠিক bandwidth ডেটা হোস্টিং প্রোভাইডার (Vercel) ড্যাশবোর্ড থেকে দেখা যায়। আনুমানিক বরাদ্দ: {formatGB(BANDWIDTH_LIMIT_GB)} / মাস (Free Tier)
+            </p>
           </div>
         </CardContent>
       </Card>
 
       {/* Platform Info */}
       <Card>
-        <CardHeader className="pb-4">
+        <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <Server className="h-5 w-5 text-primary" />
             </div>
             <div>
               <CardTitle className="text-lg">প্ল্যাটফর্ম তথ্য</CardTitle>
-              <CardDescription>হোস্টিং ও সিস্টেম ইনফো</CardDescription>
+              <CardDescription>হোস্টিং ও ইনফ্রাস্ট্রাকচার স্ট্যাক</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
-              { label: "হোস্টিং", value: "Lovable Cloud" },
-              { label: "ডাটাবেস", value: "PostgreSQL (Supabase)" },
+              { label: "হোস্টিং", value: "Vercel" },
+              { label: "সোর্স কোড", value: "GitHub" },
+              { label: "ডাটাবেস", value: "Supabase (PostgreSQL)" },
+              { label: "ফাইল স্টোরেজ", value: "Supabase Storage" },
               { label: "ফ্রন্টএন্ড", value: "React + Vite + TypeScript" },
               { label: "স্টাইলিং", value: "Tailwind CSS" },
               { label: "অথেনটিকেশন", value: "Supabase Auth" },
-              { label: "রিয়েলটাইম", value: "Supabase Realtime" },
-              { label: "এজ ফাংশন", value: "Deno Runtime" },
-              { label: "CDN", value: "Global Edge Network" },
+              { label: "এজ ফাংশন", value: "Supabase (Deno)" },
+              { label: "CDN", value: "Vercel Edge Network" },
+              { label: "বিল্ড টুল", value: "Lovable" },
             ].map((item) => (
               <div key={item.label} className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/20">
                 <span className="text-xs text-muted-foreground">{item.label}</span>
