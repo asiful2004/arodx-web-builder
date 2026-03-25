@@ -257,7 +257,7 @@ export default function LiveChat() {
       session_id: sessionId,
       sender_type: "client",
       sender_id: user?.id || null,
-      message: messageText || (msgType === "image" ? "📷 ছবি" : "🎤 ভয়েস মেসেজ"),
+      message: messageText || (msgType === "image" ? t("chat.image") : t("chat.voiceMessage")),
       message_type: msgType,
       attachment_url: attachUrl,
     });
