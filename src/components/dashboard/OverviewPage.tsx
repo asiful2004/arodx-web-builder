@@ -184,10 +184,10 @@ export default function OverviewPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { icon: Calendar, label: "যোগদান", value: joinedDate, color: "text-primary", bg: "bg-primary/10" },
-          { icon: Activity, label: "সদস্যপদ", value: `${daysSinceJoin} দিন`, color: "text-blue-500", bg: "bg-blue-500/10" },
-          { icon: ShoppingBag, label: "মোট অর্ডার", value: `${orderCount}`, color: "text-amber-500", bg: "bg-amber-500/10" },
-          { icon: Package, label: "সক্রিয় প্যাকেজ", value: `${activeOrders.filter(o => o.is_active).length}`, color: "text-green-500", bg: "bg-green-500/10" },
+          { icon: Calendar, label: t("overview.joined"), value: joinedDate, color: "text-primary", bg: "bg-primary/10" },
+          { icon: Activity, label: t("overview.membership"), value: `${daysSinceJoin} ${t("overview.days")}`, color: "text-blue-500", bg: "bg-blue-500/10" },
+          { icon: ShoppingBag, label: t("overview.totalOrders"), value: `${orderCount}`, color: "text-amber-500", bg: "bg-amber-500/10" },
+          { icon: Package, label: t("overview.activePackages"), value: `${activeOrders.filter(o => o.is_active).length}`, color: "text-green-500", bg: "bg-green-500/10" },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
