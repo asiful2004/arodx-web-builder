@@ -240,8 +240,8 @@ export default function OverviewPage() {
               )}
               <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            <p className="text-xs font-semibold text-foreground">সাপোর্ট টিকেট</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{ticketCount > 0 ? `${ticketCount}টি ওপেন` : "কোনো ওপেন টিকেট নেই"}</p>
+             <p className="text-xs font-semibold text-foreground">{t("overview.supportTicket")}</p>
+             <p className="text-[10px] text-muted-foreground mt-0.5">{ticketCount > 0 ? `${ticketCount}${t("overview.openTickets")}` : t("overview.noOpenTickets")}</p>
           </button>
           <button
             onClick={() => navigate("/dashboard/notifications")}
