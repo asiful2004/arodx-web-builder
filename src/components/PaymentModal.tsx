@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const paymentMethods = [
   { id: "bkash", name: "bKash", number: "01XXXXXXXXX", color: "#E2136E" },
@@ -30,6 +31,7 @@ const PaymentModal = ({
   currency,
   billingPeriod,
 }: PaymentModalProps) => {
+  const { t } = useLanguage();
   const [step, setStep] = useState<"method" | "details" | "success">("method");
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -44,12 +46,12 @@ const PaymentModal = ({
 
   const copyNumber = (number: string) => {
     navigator.clipboard.writeText(number);
-    toast.success("নম্বর কপি হয়েছে!");
+    toast.success(t("payment.numberCopied"));
   };
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.phone || !formData.transactionId || !selectedMethod) {
-      toast.error("সব তথ্য পূরণ করুন");
+      toast.error(t("payment.fillAll"));
       return;
     }
 
@@ -70,7 +72,7 @@ const PaymentModal = ({
 
       setStep("success");
     } catch (err) {
-      toast.error("অর্ডার সাবমিট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+      toast.error(t("payment.submitError"));
     } finally {
       setLoading(false);
     }
@@ -105,11 +107,11 @@ const PaymentModal = ({
             <div className="flex items-center justify-between p-5 border-b border-border">
               <div>
                 <h3 className="text-lg font-bold font-display">
-                  {step === "success" ? "অর্ডার সফল!" : `${packageName} প্যাকেজ`}
+                  {step === "success" ? t("payment.orderSuccess") : `${packageName} ${t("payment.package")}`}
                 </h3>
                 {step !== "success" && (
                   <p className="text-sm text-muted-foreground">
-                    {currency}{amount}/{billingPeriod === "yearly" ? "year" : "month"}
+                    {currency}{amount}/{billingPeriod === "yearly" ? t("checkout.year") : t("checkout.month")}
                   </p>
                 )}
               </div>
@@ -133,7 +135,7 @@ const PaymentModal = ({
                     className="space-y-3"
                   >
                     <p className="text-sm text-muted-foreground mb-4">
-                      পেমেন্ট মেথড সিলেক্ট করুন
+                      {t("payment.selectMethod")}
                     </p>
                     {paymentMethods.map((method) => (
                       <button
@@ -168,13 +170,12 @@ const PaymentModal = ({
                     exit={{ opacity: 0, x: 20 }}
                     className="space-y-4"
                   >
-                    {/* Payment instruction */}
                     <div
                       className="p-4 rounded-xl text-white text-center"
                       style={{ backgroundColor: selectedPayment.color }}
                     >
                       <p className="text-sm opacity-90">
-                        {selectedPayment.name} Send Money করুন এই নম্বরে
+                        {selectedPayment.name} {t("payment.sendMoney")}
                       </p>
                       <div className="flex items-center justify-center gap-2 mt-2">
                         <p className="text-2xl font-bold tracking-wider">
@@ -188,14 +189,13 @@ const PaymentModal = ({
                         </button>
                       </div>
                       <p className="text-lg font-bold mt-2">
-                        Amount: {currency}{amount}
+                        {t("payment.amount")}: {currency}{amount}
                       </p>
                     </div>
 
-                    {/* Form */}
                     <div className="space-y-3">
                       <Input
-                        placeholder="আপনার নাম *"
+                        placeholder={t("payment.yourName")}
                         value={formData.name}
                         onChange={(e) =>
                           setFormData({ ...formData, name: e.target.value })
@@ -203,7 +203,7 @@ const PaymentModal = ({
                         className="bg-background border-border"
                       />
                       <Input
-                        placeholder="ফোন নম্বর *"
+                        placeholder={t("payment.phoneNumber")}
                         value={formData.phone}
                         onChange={(e) =>
                           setFormData({ ...formData, phone: e.target.value })
@@ -211,7 +211,7 @@ const PaymentModal = ({
                         className="bg-background border-border"
                       />
                       <Input
-                        placeholder="ইমেইল (ঐচ্ছিক)"
+                        placeholder={t("payment.emailOptional")}
                         type="email"
                         value={formData.email}
                         onChange={(e) =>
@@ -220,7 +220,7 @@ const PaymentModal = ({
                         className="bg-background border-border"
                       />
                       <Input
-                        placeholder="Transaction ID / TrxID *"
+                        placeholder={t("payment.transactionId")}
                         value={formData.transactionId}
                         onChange={(e) =>
                           setFormData({ ...formData, transactionId: e.target.value })
@@ -235,7 +235,7 @@ const PaymentModal = ({
                         className="flex-1"
                         onClick={() => setStep("method")}
                       >
-                        পিছনে
+                        {t("payment.back")}
                       </Button>
                       <Button
                         className="flex-1 bg-gradient-primary text-primary-foreground"
@@ -245,7 +245,7 @@ const PaymentModal = ({
                         {loading ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                          "অর্ডার কনফার্ম করুন"
+                          t("payment.confirmOrder")
                         )}
                       </Button>
                     </div>
@@ -268,17 +268,17 @@ const PaymentModal = ({
                     </motion.div>
                     <div>
                       <h4 className="text-xl font-bold font-display">
-                        অর্ডার সফলভাবে জমা হয়েছে!
+                        {t("payment.orderSubmitted")}
                       </h4>
                       <p className="text-muted-foreground text-sm mt-2">
-                        আমরা আপনার পেমেন্ট ভেরিফাই করে শীঘ্রই যোগাযোগ করব।
+                        {t("payment.verifyPayment")}
                       </p>
                     </div>
                     <Button
                       onClick={handleClose}
                       className="bg-gradient-primary text-primary-foreground"
                     >
-                      ঠিক আছে
+                      {t("payment.ok")}
                     </Button>
                   </motion.div>
                 )}

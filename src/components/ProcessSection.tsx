@@ -71,7 +71,7 @@ const ProcessSection = () => {
                           <StepIcon className="h-6 w-6 text-primary-foreground" />
                         </div>
                         <div className={isEven ? "lg:text-right" : ""}>
-                          <span className="text-xs font-bold text-primary tracking-widest">STEP {step.number}</span>
+                          <span className="text-xs font-bold text-primary tracking-widest">{t("process.step")} {step.number}</span>
                           <h3 className="text-xl font-bold font-display">{step.title}</h3>
                         </div>
                       </div>

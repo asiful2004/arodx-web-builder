@@ -165,8 +165,8 @@ const Footer = () => {
             </div>
 
             <p className="text-xs text-muted-foreground flex items-center gap-1">
-              Made with <Heart className="h-3 w-3 text-destructive fill-destructive" /> by{" "}
-              <span className="text-primary font-semibold">{brandName}</span> Team
+              {t("footer.madeWithLove")} <Heart className="h-3 w-3 text-destructive fill-destructive" />{" "}
+              <span className="text-primary font-semibold">{brandName}</span> {t("footer.team")}
             </p>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 import aiRobotAvatar from "@/assets/ai-robot-avatar.png";
 
 interface ChatMessage {
@@ -31,6 +32,7 @@ const NOTIF_SOUND_URL = "https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5
 
 export default function LiveChat() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -194,7 +196,7 @@ export default function LiveChat() {
       setStarted(true);
       await supabase.from("chat_messages").insert({
         session_id: data.id, sender_type: "system",
-        message: "আমাদের লাইভ চ্যাটে স্বাগতম! একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন।",
+        message: t("chat.welcome"),
       });
       // Trigger AI greeting immediately
       setShowTyping(true);
@@ -255,7 +257,7 @@ export default function LiveChat() {
       session_id: sessionId,
       sender_type: "client",
       sender_id: user?.id || null,
-      message: messageText || (msgType === "image" ? "📷 ছবি" : "🎤 ভয়েস মেসেজ"),
+      message: messageText || (msgType === "image" ? t("chat.image") : t("chat.voiceMessage")),
       message_type: msgType,
       attachment_url: attachUrl,
     });
@@ -334,9 +336,9 @@ export default function LiveChat() {
   const getSenderInfo = (m: ChatMessage): { name: string; avatar: string | null; isGuest?: boolean } => {
     if (m.sender_type === "client") {
       if (user && m.sender_id === user.id) {
-        return { name: clientProfile.full_name || user.user_metadata?.full_name || "আপনি", avatar: clientProfile.avatar_url || user.user_metadata?.avatar_url || null };
+        return { name: clientProfile.full_name || user.user_metadata?.full_name || t("chat.you"), avatar: clientProfile.avatar_url || user.user_metadata?.avatar_url || null };
       }
-      return { name: guestName || "গেস্ট", avatar: null, isGuest: true };
+      return { name: guestName || t("chat.guest"), avatar: null, isGuest: true };
     }
     if (m.sender_type === "admin") {
       const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
@@ -346,7 +348,7 @@ export default function LiveChat() {
       }
       return { name: profile?.full_name || "ArodX Support Team", avatar: profile?.avatar_url || aiRobotAvatar };
     }
-    return { name: "সিস্টেম", avatar: null };
+    return { name: t("chat.system"), avatar: null };
   };
 
   const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "?";
@@ -361,7 +363,7 @@ export default function LiveChat() {
             className="max-w-full rounded-lg cursor-pointer max-h-48 object-cover"
             onClick={() => window.open(m.attachment_url!, "_blank")}
           />
-          {m.message && m.message !== "📷 ছবি" && <p>{m.message}</p>}
+          {m.message && m.message !== t("chat.image") && m.message !== "📷 ছবি" && <p>{m.message}</p>}
         </div>
       );
     }
@@ -387,7 +389,7 @@ export default function LiveChat() {
               }`} style={{ transition: "width 0.3s" }} />
             </div>
             <p className={`text-[9px] mt-0.5 ${isClient ? "text-primary-foreground/60" : "text-muted-foreground/60"}`}>
-              🎤 ভয়েস মেসেজ
+              {t("chat.voiceMessage")}
             </p>
           </div>
         </div>
@@ -454,10 +456,10 @@ export default function LiveChat() {
                     <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 border-2 border-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-primary-foreground">Arodx Support</p>
+                    <p className="text-sm font-bold text-primary-foreground">{t("chat.support")}</p>
                     <div className="flex items-center gap-1">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <p className="text-[10px] text-primary-foreground/80">Online — সাধারণত কয়েক মিনিটে উত্তর</p>
+                      <p className="text-[10px] text-primary-foreground/80">{t("chat.onlineStatus")}</p>
                     </div>
                   </div>
                 </div>
@@ -482,10 +484,10 @@ export default function LiveChat() {
                   <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
                     <img src={aiRobotAvatar} alt="Support" className="h-12 w-12 object-contain" />
                   </div>
-                  <h3 className="text-base font-bold text-foreground">আমাদের সাথে চ্যাট করুন</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    যেকোনো প্রশ্ন বা সাহায্যের জন্য আমরা আছি
-                  </p>
+                   <h3 className="text-base font-bold text-foreground">{t("chat.chatWithUs")}</h3>
+                   <p className="text-xs text-muted-foreground leading-relaxed">
+                     {t("chat.helpMessage")}
+                   </p>
                 </div>
 
                 {/* Support info cards */}
@@ -495,8 +497,8 @@ export default function LiveChat() {
                       <Bot className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-foreground">🤖 AI Agent — 24/7</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">তাৎক্ষণিক উত্তর, যেকোনো সময়</p>
+                      <p className="text-xs font-semibold text-foreground">{t("chat.aiAgent")}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{t("chat.aiAgentDesc")}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
@@ -504,10 +506,10 @@ export default function LiveChat() {
                       <Headphones className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-foreground">Human Agent</p>
+                      <p className="text-xs font-semibold text-foreground">{t("chat.humanAgent")}</p>
                       <div className="flex items-center gap-1 mt-0.5">
                         <Clock className="h-3 w-3 text-muted-foreground" />
-                        <p className="text-[10px] text-muted-foreground">সকাল ১০টা — রাত ১০টা (বাংলাদেশ সময়)</p>
+                        <p className="text-[10px] text-muted-foreground">{t("chat.humanAgentHours")}</p>
                       </div>
                     </div>
                   </div>
@@ -517,13 +519,13 @@ export default function LiveChat() {
                 {!user && (
                   <div className="space-y-2">
                     <Input
-                      placeholder="আপনার নাম"
+                      placeholder={t("chat.yourName")}
                       value={guestName}
                       onChange={(e) => setGuestName(e.target.value)}
                       className="text-sm h-9"
                     />
                     <Input
-                      placeholder="ফোন নম্বর (যেমন: 01XXXXXXXXX)"
+                      placeholder={t("chat.phonePlaceholder")}
                       value={guestPhone}
                       onChange={(e) => setGuestPhone(e.target.value)}
                       className="text-sm h-9"
@@ -532,7 +534,7 @@ export default function LiveChat() {
                   </div>
                 )}
                 <Button onClick={startChat} className="w-full font-semibold" disabled={!user && (!guestName.trim() || !guestPhone.trim())}>
-                  💬 চ্যাট শুরু করুন
+                  {t("chat.startChat")}
                 </Button>
               </div>
             ) : (
@@ -566,7 +568,7 @@ export default function LiveChat() {
                           }`}>
                             {renderMessageContent(m, isClient)}
                             <p className={`text-[9px] mt-1 ${isClient ? "text-primary-foreground/60" : "text-muted-foreground/60"}`}>
-                              {new Date(m.created_at).toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" })}
+                              {new Date(m.created_at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
                             </p>
                           </div>
                         </div>
@@ -589,7 +591,7 @@ export default function LiveChat() {
                           <AvatarFallback className="text-[10px] font-bold bg-accent text-accent-foreground">AX</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col items-start">
-                          <p className="text-[10px] mb-0.5 text-muted-foreground">টাইপ করছে...</p>
+                          <p className="text-[10px] mb-0.5 text-muted-foreground">{t("chat.typing")}</p>
                           <div className="px-4 py-2.5 rounded-xl bg-accent text-accent-foreground rounded-tl-sm">
                             <div className="flex items-center gap-1">
                               <span className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "0ms", animationDuration: "1s" }} />
@@ -606,9 +608,9 @@ export default function LiveChat() {
                 {/* Input Area */}
                 {sessionStatus === "closed" ? (
                   <div className="border-t border-border p-3 text-center space-y-2">
-                    <p className="text-xs text-muted-foreground">এই চ্যাট বন্ধ হয়ে গেছে।</p>
-                    <Button size="sm" variant="outline" className="text-xs" onClick={endChat}>
-                      নতুন চ্যাট শুরু করুন
+                     <p className="text-xs text-muted-foreground">{t("chat.chatClosed")}</p>
+                     <Button size="sm" variant="outline" className="text-xs" onClick={endChat}>
+                       {t("chat.newChat")}
                     </Button>
                   </div>
                 ) : (
@@ -625,7 +627,7 @@ export default function LiveChat() {
                         <Image className="h-4 w-4" />
                       </Button>
                       <Input
-                        placeholder="মেসেজ লিখুন..."
+                        placeholder={t("chat.inputPlaceholder")}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         className="flex-1 text-sm h-8 border-0 bg-muted/50 focus-visible:ring-0"

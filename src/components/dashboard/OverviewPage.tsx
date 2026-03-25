@@ -15,6 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const categoryIconMap: Record<string, LucideIcon> = {
   "Fashion & Clothing": Shirt,
@@ -69,23 +70,24 @@ interface ActiveOrder {
   business?: BusinessInfo;
 }
 
-const getStatusInfo = (order: ActiveOrder) => {
+const getStatusInfo = (order: ActiveOrder, t: (key: string) => string) => {
   if (order.status === 'confirmed' && order.is_active) {
     if (order.renewal_date) {
       const daysLeft = Math.ceil((new Date(order.renewal_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-      if (daysLeft <= 0) return { label: "মেয়াদ শেষ", icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
-      if (daysLeft <= 7) return { label: `${daysLeft} দিন বাকি`, icon: AlertTriangle, color: "text-yellow-500", bg: "bg-yellow-500/10" };
+      if (daysLeft <= 0) return { label: t("overview.statusExpired"), icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
+      if (daysLeft <= 7) return { label: `${daysLeft} ${t("overview.daysLeft")}`, icon: AlertTriangle, color: "text-yellow-500", bg: "bg-yellow-500/10" };
     }
-    return { label: "সক্রিয়", icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/10" };
+    return { label: t("overview.statusActive"), icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/10" };
   }
-  if (order.refund_status === 'approved') return { label: "রিফান্ডেড", icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
-  if (order.refund_status === 'pending') return { label: "রিফান্ড পেন্ডিং", icon: AlertTriangle, color: "text-yellow-500", bg: "bg-yellow-500/10" };
-  if (!order.is_active || order.status === 'cancelled') return { label: "নিষ্ক্রিয়", icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
-  return { label: "পেন্ডিং", icon: Clock, color: "text-yellow-500", bg: "bg-yellow-500/10" };
+  if (order.refund_status === 'approved') return { label: t("overview.statusRefunded"), icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
+  if (order.refund_status === 'pending') return { label: t("overview.statusRefundPending"), icon: AlertTriangle, color: "text-yellow-500", bg: "bg-yellow-500/10" };
+  if (!order.is_active || order.status === 'cancelled') return { label: t("overview.statusInactive"), icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
+  return { label: t("overview.statusPending"), icon: Clock, color: "text-yellow-500", bg: "bg-yellow-500/10" };
 };
 
 export default function OverviewPage() {
   const { user, profile, isAdmin } = useOutletContext<DashboardContext>();
+  const { t, language } = useLanguage();
   const [orderCount, setOrderCount] = useState(0);
   const [activeOrders, setActiveOrders] = useState<ActiveOrder[]>([]);
   const [ticketCount, setTicketCount] = useState(0);
@@ -140,7 +142,7 @@ export default function OverviewPage() {
   const initials = (profile.full_name || user.email || "U")
     .split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
-  const joinedDate = new Date(user.created_at).toLocaleDateString("bn-BD", {
+  const joinedDate = new Date(user.created_at).toLocaleDateString(language === "bn" ? "bn-BD" : "en-US", {
     year: "numeric", month: "long", day: "numeric",
   });
 
@@ -166,15 +168,15 @@ export default function OverviewPage() {
           </Avatar>
           <div className="flex-1 min-w-0">
             <h1 className="text-base sm:text-lg font-bold font-display text-foreground truncate">
-              স্বাগতম, {profile.full_name || "ব্যবহারকারী"}!
+              {t("overview.welcome")}, {profile.full_name || t("dashboard.user")}!
             </h1>
             <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
-              আপনার ড্যাশবোর্ড থেকে সব কিছু ম্যানেজ করুন
+              {t("overview.manageEverything")}
             </p>
           </div>
           <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-secondary/50 px-3 py-1.5 rounded-full">
             <Activity className="w-3 h-3 text-green-500" />
-            <span>{isAdmin ? "অ্যাডমিন" : "অ্যাক্টিভ"}</span>
+            <span>{isAdmin ? t("dashboard.admin") : t("overview.active")}</span>
           </div>
         </div>
       </motion.div>
@@ -182,10 +184,10 @@ export default function OverviewPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { icon: Calendar, label: "যোগদান", value: joinedDate, color: "text-primary", bg: "bg-primary/10" },
-          { icon: Activity, label: "সদস্যপদ", value: `${daysSinceJoin} দিন`, color: "text-blue-500", bg: "bg-blue-500/10" },
-          { icon: ShoppingBag, label: "মোট অর্ডার", value: `${orderCount}`, color: "text-amber-500", bg: "bg-amber-500/10" },
-          { icon: Package, label: "সক্রিয় প্যাকেজ", value: `${activeOrders.filter(o => o.is_active).length}`, color: "text-green-500", bg: "bg-green-500/10" },
+          { icon: Calendar, label: t("overview.joined"), value: joinedDate, color: "text-primary", bg: "bg-primary/10" },
+          { icon: Activity, label: t("overview.membership"), value: `${daysSinceJoin} ${t("overview.days")}`, color: "text-blue-500", bg: "bg-blue-500/10" },
+          { icon: ShoppingBag, label: t("overview.totalOrders"), value: `${orderCount}`, color: "text-amber-500", bg: "bg-amber-500/10" },
+          { icon: Package, label: t("overview.activePackages"), value: `${activeOrders.filter(o => o.is_active).length}`, color: "text-green-500", bg: "bg-green-500/10" },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
@@ -209,7 +211,7 @@ export default function OverviewPage() {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
         <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2 px-1">
           <Activity className="w-4 h-4 text-primary" />
-          দ্রুত অ্যাক্সেস
+          {t("overview.quickAccess")}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <button
@@ -222,8 +224,8 @@ export default function OverviewPage() {
               </div>
               <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            <p className="text-xs font-semibold text-foreground">অর্ডার দেখুন</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{orderCount}টি অর্ডার</p>
+             <p className="text-xs font-semibold text-foreground">{t("overview.viewOrders")}</p>
+             <p className="text-[10px] text-muted-foreground mt-0.5">{orderCount}{t("overview.ordersCount")}</p>
           </button>
           <button
             onClick={() => navigate("/dashboard/tickets")}
@@ -238,8 +240,8 @@ export default function OverviewPage() {
               )}
               <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            <p className="text-xs font-semibold text-foreground">সাপোর্ট টিকেট</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{ticketCount > 0 ? `${ticketCount}টি ওপেন` : "কোনো ওপেন টিকেট নেই"}</p>
+             <p className="text-xs font-semibold text-foreground">{t("overview.supportTicket")}</p>
+             <p className="text-[10px] text-muted-foreground mt-0.5">{ticketCount > 0 ? `${ticketCount}${t("overview.openTickets")}` : t("overview.noOpenTickets")}</p>
           </button>
           <button
             onClick={() => navigate("/dashboard/notifications")}
@@ -254,8 +256,8 @@ export default function OverviewPage() {
               )}
               <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            <p className="text-xs font-semibold text-foreground">নোটিফিকেশন</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{unreadNotifs > 0 ? `${unreadNotifs}টি অপঠিত` : "কোনো নতুন নোটিফিকেশন নেই"}</p>
+             <p className="text-xs font-semibold text-foreground">{t("overview.notification")}</p>
+             <p className="text-[10px] text-muted-foreground mt-0.5">{unreadNotifs > 0 ? `${unreadNotifs}${t("overview.unread")}` : t("overview.noNewNotifs")}</p>
           </button>
         </div>
       </motion.div>
@@ -265,11 +267,11 @@ export default function OverviewPage() {
         <div className="space-y-4">
           <h2 className="text-sm font-semibold font-display text-foreground flex items-center gap-2 px-1">
             <Building2 className="w-4 h-4 text-primary" />
-            আমার ব্যবসা সমূহ
+            {t("overview.myBusinesses")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {activeOrders.map((order, i) => {
-              const statusInfo = getStatusInfo(order);
+              const statusInfo = getStatusInfo(order, t);
               const biz = order.business;
 
               return (
@@ -307,7 +309,7 @@ export default function OverviewPage() {
                         className="text-xs text-primary hover:text-primary/80 gap-1 h-7 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity"
                         onClick={() => navigate(`/dashboard/business/${order.id}`)}
                       >
-                        বিস্তারিত
+                        {t("overview.details")}
                         <ExternalLink className="w-3 h-3" />
                       </Button>
                     </div>
@@ -327,7 +329,7 @@ export default function OverviewPage() {
                           <div className="flex items-center gap-2">
                             <Globe className="w-3 h-3 shrink-0" /> {biz.domain_name}
                             <Badge variant="secondary" className="text-[10px]">
-                              {biz.domain_type === "own" ? "নিজস্ব" : "প্যাকেজ"}
+                              {biz.domain_type === "own" ? t("overview.own") : t("overview.package")}
                             </Badge>
                           </div>
                         )}
@@ -347,7 +349,7 @@ export default function OverviewPage() {
                     <div className="flex flex-col items-end gap-0.5">
                       <span className="text-sm font-bold text-primary">
                         {order.amount.startsWith("৳") ? order.amount : `৳${order.amount}`}
-                        <span className="text-[10px] font-normal text-muted-foreground">/{order.billing_period === "yearly" ? "বছর" : "মাস"}</span>
+                        <span className="text-[10px] font-normal text-muted-foreground">/{order.billing_period === "yearly" ? t("overview.year") : t("overview.month")}</span>
                       </span>
                       {order.renewal_date && (() => {
                         const daysLeft = Math.ceil((new Date(order.renewal_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -357,7 +359,7 @@ export default function OverviewPage() {
                           <span className={`text-[10px] font-medium ${
                             isExpired ? "text-destructive" : isUrgent ? "text-yellow-500" : "text-muted-foreground"
                           }`}>
-                            {isExpired ? "মেয়াদ শেষ!" : `${daysLeft} দিন বাকি`}
+                            {isExpired ? `${t("overview.statusExpired")}!` : `${daysLeft} ${t("overview.daysLeft")}`}
                           </span>
                         );
                       })()}

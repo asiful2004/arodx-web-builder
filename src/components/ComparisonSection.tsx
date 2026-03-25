@@ -111,14 +111,14 @@ const ComparisonSection = () => {
         >
           <div className="grid grid-cols-[1.2fr_1fr_1fr] bg-muted/60 backdrop-blur-sm">
             <div className="p-3 md:p-5 flex items-center">
-              <span className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wider">তুলনা</span>
+              <span className="text-xs md:text-sm font-bold text-muted-foreground uppercase tracking-wider">{t("comparison.tableHeader")}</span>
             </div>
             <div className="p-3 md:p-5 text-center border-l border-border/50">
               <div className="inline-flex items-center gap-1.5 md:gap-2">
                 <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-destructive/10 flex items-center justify-center">
                   <UserRound className="h-3 w-3 md:h-4 md:w-4 text-destructive" />
                 </div>
-                <span className="text-xs md:text-sm font-bold text-destructive">লোক নিয়োগ</span>
+                <span className="text-xs md:text-sm font-bold text-destructive">{t("comparison.hiring")}</span>
               </div>
             </div>
             <div className="p-3 md:p-5 text-center border-l border-primary/20 bg-primary/5">
@@ -160,13 +160,13 @@ const ComparisonSection = () => {
 
           <div className="grid grid-cols-[1.2fr_1fr_1fr] border-t-2 border-primary/20 bg-primary/[0.03]">
             <div className="p-3 md:p-5 flex items-center">
-              <span className="text-xs md:text-sm font-bold text-foreground">সিদ্ধান্ত</span>
+              <span className="text-xs md:text-sm font-bold text-foreground">{t("comparison.verdict")}</span>
             </div>
             <div className="p-3 md:p-5 flex items-center justify-center border-l border-border/50">
-              <span className="text-[11px] md:text-xs text-destructive/70 font-medium text-center">বেশি খরচ, কম ফলাফল</span>
+              <span className="text-[11px] md:text-xs text-destructive/70 font-medium text-center">{t("comparison.hiringVerdict")}</span>
             </div>
             <div className="p-3 md:p-5 flex items-center justify-center border-l border-primary/20">
-              <span className="text-[11px] md:text-xs text-primary font-bold text-center">কম খরচে সেরা ফলাফল ✓</span>
+              <span className="text-[11px] md:text-xs text-primary font-bold text-center">{t("comparison.arodxVerdict")}</span>
             </div>
           </div>
         </motion.div>

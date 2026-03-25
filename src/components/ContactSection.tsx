@@ -194,7 +194,7 @@ const ContactSection = () => {
                         {g.enabled ? (
                           <span className="text-foreground">{fmt12(g.open)} – {fmt12(g.close)}</span>
                         ) : (
-                          <span className="text-destructive">বন্ধ</span>
+                          <span className="text-destructive">{t("contact.closedLabel")}</span>
                         )}
                       </div>
                     ));
@@ -202,16 +202,16 @@ const ContactSection = () => {
                 ) : (
                   <>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">শনি – বুধবার</span>
+                      <span className="text-muted-foreground">{t("contact.satToWed")}</span>
                       <span className="text-foreground">{officeHours.sat_to_wed || "8:00 AM – 12:00 AM"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">বৃহস্পতিবার</span>
+                      <span className="text-muted-foreground">{t("contact.thursday")}</span>
                       <span className="text-foreground">{officeHours.thursday || "8:00 AM – 5:00 PM"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">শুক্রবার</span>
-                      <span className="text-destructive">{officeHours.friday || "বন্ধ"}</span>
+                      <span className="text-muted-foreground">{t("contact.friday")}</span>
+                      <span className="text-destructive">{officeHours.friday || t("contact.closedLabel")}</span>
                     </div>
                   </>
                 )}

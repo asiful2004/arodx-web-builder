@@ -108,7 +108,7 @@ const PricingSection = () => {
               }}
               className="bg-gradient-primary text-primary-foreground hover:opacity-90 px-8 py-5 font-semibold shadow-glow transition-all duration-300 hover:shadow-[0_0_30px_hsl(var(--primary)/0.4)]"
             >
-              যোগাযোগ করুন
+              {t("pricing.contactUs")}
             </Button>
           </div>
         </motion.div>

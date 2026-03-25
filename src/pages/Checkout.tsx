@@ -10,12 +10,12 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-
-const steps = [
-  { id: 1, label: "প্যাকেজ", icon: Package },
-  { id: 2, label: "ব্যবসা", icon: Building2 },
-  { id: 3, label: "পেমেন্ট", icon: CreditCard },
-  { id: 4, label: "সম্পন্ন", icon: CheckCircle },
+import { useLanguage } from "@/contexts/LanguageContext";
+const steps_data = [
+  { id: 1, labelKey: "checkout.stepPackage", icon: Package },
+  { id: 2, labelKey: "checkout.stepBusiness", icon: Building2 },
+  { id: 3, labelKey: "checkout.stepPayment", icon: CreditCard },
+  { id: 4, labelKey: "checkout.stepDone", icon: CheckCircle },
 ];
 
 const paymentMethods = [
@@ -90,6 +90,8 @@ const slideVariants = {
 };
 
 export default function Checkout() {
+  const { t } = useLanguage();
+  const steps = steps_data.map(s => ({ ...s, label: t(s.labelKey) }));
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -129,7 +131,7 @@ export default function Checkout() {
   // Redirect to signin if not logged in
   useEffect(() => {
     if (!authLoading && !user) {
-      toast.error("প্যাকেজ কিনতে আগে লগইন করুন");
+      toast.error(t("checkout.loginRequired"));
       navigate(`/signin?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
     }
   }, [user, authLoading, navigate]);
@@ -151,7 +153,7 @@ export default function Checkout() {
 
   const copyNumber = (number: string) => {
     navigator.clipboard.writeText(number);
-    toast.success("নম্বর কপি হয়েছে!");
+    toast.success(t("checkout.numberCopied"));
   };
 
   const checkDomain = useCallback(async (domainName: string) => {
@@ -173,7 +175,7 @@ export default function Checkout() {
 
   const handleSubmit = async () => {
     if (!transactionId || !selectedMethod) {
-      toast.error("পেমেন্ট তথ্য পূরণ করুন");
+      toast.error(t("checkout.paymentFillAll"));
       return;
     }
     if (!user) return;
@@ -233,7 +235,7 @@ export default function Checkout() {
       goNext();
     } catch (err) {
       console.error(err);
-      toast.error("অর্ডার সাবমিট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+      toast.error(t("checkout.submitError"));
     } finally {
       setLoading(false);
     }
@@ -286,7 +288,7 @@ export default function Checkout() {
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            হোমে ফিরুন
+            {t("checkout.backHome")}
           </button>
           <span className="text-sm font-display font-bold text-gradient">Arodx</span>
         </div>
@@ -342,8 +344,8 @@ export default function Checkout() {
               className="space-y-6"
             >
               <div>
-                <h2 className="text-2xl font-bold font-display">প্যাকেজ সামারি</h2>
-                <p className="text-muted-foreground text-sm mt-1">আপনার সিলেক্ট করা প্যাকেজের বিস্তারিত</p>
+                <h2 className="text-2xl font-bold font-display">{t("checkout.packageSummary")}</h2>
+                <p className="text-muted-foreground text-sm mt-1">{t("checkout.packageSummaryDesc")}</p>
               </div>
 
               <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
@@ -354,14 +356,14 @@ export default function Checkout() {
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold text-gradient">{currency}{amount}</p>
-                    <p className="text-xs text-muted-foreground">/{billingPeriod === "yearly" ? "বছর" : "মাস"}</p>
+                    <p className="text-xs text-muted-foreground">/{billingPeriod === "yearly" ? t("checkout.year") : t("checkout.month")}</p>
                   </div>
                 </div>
 
                 <div className="h-px bg-border" />
 
                 <div className="space-y-2.5">
-                  <p className="text-sm font-semibold text-foreground">অন্তর্ভুক্ত ফিচারসমূহ:</p>
+                  <p className="text-sm font-semibold text-foreground">{t("checkout.includedFeatures")}</p>
                   {pkg?.features.map((f, i) => (
                     <motion.div
                       key={i}
@@ -379,7 +381,7 @@ export default function Checkout() {
 
               <div className="flex justify-end">
                 <Button onClick={goNext} className="bg-gradient-primary text-primary-foreground px-8 py-5 font-semibold">
-                  পরবর্তী <ArrowRight className="ml-2 w-4 h-4" />
+                  {t("checkout.next")} <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </div>
             </motion.div>
@@ -395,9 +397,9 @@ export default function Checkout() {
               className="space-y-6"
             >
               <div>
-                <h2 className="text-2xl font-bold font-display">ব্যবসার তথ্য</h2>
+                <h2 className="text-2xl font-bold font-display">{t("checkout.businessInfo")}</h2>
                 <p className="text-muted-foreground text-sm mt-1">
-                  আপনার ব্যবসা সম্পর্কে কিছু প্রয়োজনীয় তথ্য দিন
+                  {t("checkout.businessInfoDesc")}
                 </p>
               </div>
 
@@ -407,7 +409,7 @@ export default function Checkout() {
                   <Check className="w-4 h-4 text-primary" />
                 </div>
                 <div className="text-sm">
-                  <span className="text-muted-foreground">লগইন হিসেবে: </span>
+                  <span className="text-muted-foreground">{t("checkout.loggedInAs")}: </span>
                   <span className="font-medium text-foreground">{user.email}</span>
                 </div>
               </div>

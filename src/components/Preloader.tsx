@@ -110,7 +110,7 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
               animate={phase !== "morph" ? { opacity: 1 } : {}}
               transition={{ delay: 0.6, duration: 0.4 }}
             >
-              Your Digital Growth Partner
+              {(() => { try { const stored = localStorage.getItem("app-language"); return stored === "bn" ? "আপনার ডিজিটাল গ্রোথ পার্টনার" : "Your Digital Growth Partner"; } catch { return "Your Digital Growth Partner"; } })()}
             </motion.p>
           </motion.div>
 
