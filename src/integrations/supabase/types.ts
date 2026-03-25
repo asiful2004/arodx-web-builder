@@ -81,6 +81,7 @@ export type Database = {
           business_name: string
           business_phone: string
           created_at: string
+          delivered_at: string | null
           description: string | null
           domain_name: string | null
           domain_type: string
@@ -99,6 +100,7 @@ export type Database = {
           business_name: string
           business_phone: string
           created_at?: string
+          delivered_at?: string | null
           description?: string | null
           domain_name?: string | null
           domain_type?: string
@@ -117,6 +119,7 @@ export type Database = {
           business_name?: string
           business_phone?: string
           created_at?: string
+          delivered_at?: string | null
           description?: string | null
           domain_name?: string | null
           domain_type?: string
@@ -948,6 +951,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_delivered_businesses: { Args: never; Returns: undefined }
       cleanup_old_activity_logs: { Args: never; Returns: undefined }
       cleanup_old_cron_runs: { Args: never; Returns: undefined }
       get_cron_jobs: {
