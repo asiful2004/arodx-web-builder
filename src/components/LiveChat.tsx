@@ -456,10 +456,10 @@ export default function LiveChat() {
                     <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 border-2 border-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-primary-foreground">Arodx Support</p>
+                    <p className="text-sm font-bold text-primary-foreground">{t("chat.support")}</p>
                     <div className="flex items-center gap-1">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <p className="text-[10px] text-primary-foreground/80">Online — সাধারণত কয়েক মিনিটে উত্তর</p>
+                      <p className="text-[10px] text-primary-foreground/80">{t("chat.onlineStatus")}</p>
                     </div>
                   </div>
                 </div>
