@@ -194,7 +194,7 @@ const ContactSection = () => {
                         {g.enabled ? (
                           <span className="text-foreground">{fmt12(g.open)} – {fmt12(g.close)}</span>
                         ) : (
-                          <span className="text-destructive">বন্ধ</span>
+                          <span className="text-destructive">{t("contact.closedLabel")}</span>
                         )}
                       </div>
                     ));
