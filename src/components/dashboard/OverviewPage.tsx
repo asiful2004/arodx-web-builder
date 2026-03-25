@@ -267,7 +267,7 @@ export default function OverviewPage() {
         <div className="space-y-4">
           <h2 className="text-sm font-semibold font-display text-foreground flex items-center gap-2 px-1">
             <Building2 className="w-4 h-4 text-primary" />
-            আমার ব্যবসা সমূহ
+            {t("overview.myBusinesses")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {activeOrders.map((order, i) => {
