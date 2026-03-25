@@ -17,9 +17,22 @@ const ComparisonSection = () => {
   const subtitle = t("comparison.subtitle", cmp?.subtitle);
   const hiringTitle = t("comparison.hiringTitle", cmp?.hiring_title);
   const arodxTitle = t("comparison.arodxTitle", cmp?.arodx_title);
-  const hiringProblems = cmp?.hiring_problems || [];
-  const arodxBenefits = cmp?.arodx_benefits || [];
-  const comparisonPoints = cmp?.comparison_points || [];
+  const hiringProblems = (cmp?.hiring_problems || []).map((item: any, i: number) => ({
+    ...item,
+    title: t(`comparison.hiringProblem.${i}.title`, item.title),
+    description: t(`comparison.hiringProblem.${i}.description`, item.description),
+  }));
+  const arodxBenefits = (cmp?.arodx_benefits || []).map((item: any, i: number) => ({
+    ...item,
+    title: t(`comparison.arodxBenefit.${i}.title`, item.title),
+    description: t(`comparison.arodxBenefit.${i}.description`, item.description),
+  }));
+  const comparisonPoints = (cmp?.comparison_points || []).map((point: any, i: number) => ({
+    ...point,
+    feature: t(`comparison.point.${i}.feature`, point.feature),
+    hiring: t(`comparison.point.${i}.hiring`, point.hiring),
+    arodx: t(`comparison.point.${i}.arodx`, point.arodx),
+  }));
 
   return (
     <section className="py-24 px-4" id="comparison">

@@ -26,17 +26,23 @@ const paymentMethods = [
 ];
 
 const businessCategories = [
-  "E-commerce",
-  "Restaurant / Food",
-  "Fashion & Clothing",
-  "Health & Beauty",
-  "Education",
-  "Real Estate",
-  "Technology",
-  "Service Provider",
-  "Freelancer / Portfolio",
-  "Other",
+  { value: "E-commerce", key: "checkout.category.ecommerce" },
+  { value: "Restaurant / Food", key: "checkout.category.restaurant" },
+  { value: "Fashion & Clothing", key: "checkout.category.fashion" },
+  { value: "Health & Beauty", key: "checkout.category.health" },
+  { value: "Education", key: "checkout.category.education" },
+  { value: "Real Estate", key: "checkout.category.realEstate" },
+  { value: "Technology", key: "checkout.category.technology" },
+  { value: "Service Provider", key: "checkout.category.serviceProvider" },
+  { value: "Freelancer / Portfolio", key: "checkout.category.freelancer" },
+  { value: "Other", key: "checkout.category.other" },
 ];
+
+const packageIndexMap: Record<string, number> = {
+  Starter: 0,
+  Business: 1,
+  Enterprise: 2,
+};
 
 const packageInfo: Record<string, { features: string[]; description: string; hasDomain: boolean }> = {
   Starter: {
@@ -102,6 +108,13 @@ export default function Checkout() {
   const billingPeriod = searchParams.get("billing") || "monthly";
 
   const pkg = packageInfo[packageName];
+  const pkgIndex = packageIndexMap[packageName];
+  const localizedPackageDescription =
+    pkgIndex !== undefined ? t(`pricing.pkg.${pkgIndex}.description`, pkg?.description) : pkg?.description;
+  const localizedPackageFeatures =
+    pkgIndex !== undefined
+      ? pkg?.features.map((feature, i) => t(`pricing.pkg.${pkgIndex}.feature.${i}`, feature)) || []
+      : pkg?.features || [];
 
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(1);
@@ -352,7 +365,7 @@ export default function Checkout() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xl font-bold font-display text-foreground">{packageName}</h3>
-                    <p className="text-sm text-muted-foreground">{pkg?.description}</p>
+                    <p className="text-sm text-muted-foreground">{localizedPackageDescription}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold text-gradient">{currency}{amount}</p>
@@ -364,7 +377,7 @@ export default function Checkout() {
 
                 <div className="space-y-2.5">
                   <p className="text-sm font-semibold text-foreground">{t("checkout.includedFeatures")}</p>
-                  {pkg?.features.map((f, i) => (
+                  {localizedPackageFeatures.map((f, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, x: -8 }}
@@ -417,9 +430,9 @@ export default function Checkout() {
               <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
                 {/* Business Name */}
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">ব্যবসার নাম *</label>
+                  <label className="text-sm font-medium text-foreground">{t("checkout.businessName")}</label>
                   <Input
-                    placeholder="যেমন: My Fashion Store"
+                    placeholder={t("checkout.businessNamePlaceholder")}
                     value={businessData.businessName}
                     onChange={(e) => setBusinessData({ ...businessData, businessName: e.target.value })}
                     className="bg-background border-border h-12"
@@ -428,11 +441,11 @@ export default function Checkout() {
 
                 {/* Business Logo */}
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">ব্যবসার লোগো *</label>
+                  <label className="text-sm font-medium text-foreground">{t("checkout.businessLogo")}</label>
                   <div className="flex items-center gap-4">
                     {logoPreview ? (
                       <div className="relative w-20 h-20 rounded-xl border-2 border-primary/20 overflow-hidden bg-secondary/50 shrink-0">
-                        <img src={logoPreview} alt="Logo preview" className="w-full h-full object-contain" />
+                        <img src={logoPreview} alt={t("checkout.logoPreviewAlt")} className="w-full h-full object-contain" />
                         <button
                           type="button"
                           onClick={() => { setLogoFile(null); setLogoPreview(null); }}
@@ -444,7 +457,7 @@ export default function Checkout() {
                     ) : (
                       <label className="flex flex-col items-center justify-center w-20 h-20 rounded-xl border-2 border-dashed border-border hover:border-primary/40 cursor-pointer transition-colors bg-secondary/30 shrink-0">
                         <Upload className="w-5 h-5 text-muted-foreground mb-1" />
-                        <span className="text-[10px] text-muted-foreground">আপলোড</span>
+                        <span className="text-[10px] text-muted-foreground">{t("checkout.upload")}</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -453,7 +466,7 @@ export default function Checkout() {
                             const file = e.target.files?.[0];
                             if (file) {
                               if (file.size > 5 * 1024 * 1024) {
-                                toast.error("ফাইল সাইজ ৫MB এর বেশি হতে পারবে না");
+                                toast.error(t("checkout.fileSizeExceeded"));
                                 return;
                               }
                               setLogoFile(file);
@@ -464,28 +477,28 @@ export default function Checkout() {
                       </label>
                     )}
                     <div className="text-xs text-muted-foreground">
-                      <p>PNG, JPG, SVG বা WEBP</p>
-                      <p>সর্বোচ্চ ৫MB</p>
+                      <p>{t("checkout.fileFormats")}</p>
+                      <p>{t("checkout.maxFileSize")}</p>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">ব্যবসার ক্যাটাগরি *</label>
+                  <label className="text-sm font-medium text-foreground">{t("checkout.businessCategory")}</label>
                   <select
                     value={businessData.businessCategory}
                     onChange={(e) => setBusinessData({ ...businessData, businessCategory: e.target.value })}
                     className="w-full h-12 rounded-md border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                   >
-                    <option value="" disabled>ক্যাটাগরি সিলেক্ট করুন</option>
+                    <option value="" disabled>{t("checkout.selectCategory")}</option>
                     {businessCategories.map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat.value} value={cat.value}>{t(cat.key, cat.value)}</option>
                     ))}
                   </select>
                 </div>
 
                 {/* Business Phone */}
                 <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-foreground">ব্যবসার ফোন নম্বর *</label>
+                  <label className="text-sm font-medium text-foreground">{t("checkout.phoneNumber")}</label>
                   <Input
                     placeholder="01XXXXXXXXX"
                     value={businessData.businessPhone}
@@ -497,10 +510,10 @@ export default function Checkout() {
                 {/* Business Address */}
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium text-foreground">
-                    ব্যবসার ঠিকানা <span className="text-muted-foreground">(ঐচ্ছিক)</span>
+                    {t("checkout.address")}
                   </label>
                   <Input
-                    placeholder="যেমন: ঢাকা, বাংলাদেশ"
+                    placeholder={t("checkout.addressPlaceholder")}
                     value={businessData.businessAddress}
                     onChange={(e) => setBusinessData({ ...businessData, businessAddress: e.target.value })}
                     className="bg-background border-border h-12"
@@ -512,7 +525,7 @@ export default function Checkout() {
               <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
                 <div className="flex items-center gap-2">
                   <Globe className="w-4 h-4 text-primary" />
-                  <h3 className="text-sm font-semibold text-foreground">ডোমেইন সেটআপ</h3>
+                  <h3 className="text-sm font-semibold text-foreground">{t("checkout.domainSetup")}</h3>
                 </div>
 
                 <div className="space-y-3">
@@ -533,9 +546,9 @@ export default function Checkout() {
                       className="mt-1 accent-[hsl(190,90%,50%)]"
                     />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">আমার নিজের ডোমেইন আছে</p>
+                      <p className="text-sm font-medium text-foreground">{t("checkout.domainOwnTitle")}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        আপনার existing domain দিয়ে ওয়েবসাইট সেটআপ করা হবে
+                        {t("checkout.domainOwnDesc")}
                       </p>
                       {businessData.domainType === "own" && (
                         <motion.div
@@ -572,17 +585,17 @@ export default function Checkout() {
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-foreground">প্যাকেজের সাথে ডোমেইন নিতে চাই</p>
+                        <p className="text-sm font-medium text-foreground">{t("checkout.domainPackageTitle")}</p>
                         {pkg?.hasDomain && (
                           <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                            ফ্রি .com!
+                            {t("checkout.domainPackageFreeBadge")}
                           </span>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {pkg?.hasDomain
-                          ? "আপনার Enterprise প্যাকেজে ১ বছরের জন্য একটি ফ্রি .com ডোমেইন অন্তর্ভুক্ত"
-                          : "পরবর্তীতে আমাদের টিম আপনার সাথে যোগাযোগ করে ডোমেইন সেটআপ করবে"
+                          ? t("checkout.domainPackageDescFree")
+                          : t("checkout.domainPackageDescPaid")
                         }
                       </p>
                       {businessData.domainType === "package" && (
@@ -611,7 +624,7 @@ export default function Checkout() {
                               {domainCheck.checking ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
                               ) : (
-                                <><Search className="w-4 h-4 mr-1" /> চেক</>
+                                <><Search className="w-4 h-4 mr-1" /> {t("checkout.check")}</>
                               )}
                             </Button>
                           </div>
@@ -633,14 +646,14 @@ export default function Checkout() {
                                   <>
                                     <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
                                     <span className="text-green-500 font-medium">
-                                      {domainCheck.result.domain} available!
+                                      {domainCheck.result.domain} — {t("checkout.domainAvailable")}
                                     </span>
                                   </>
                                 ) : (
                                   <>
                                     <X className="w-4 h-4 text-destructive shrink-0" />
                                     <span className="text-destructive font-medium">
-                                      {domainCheck.result.domain} already taken
+                                      {domainCheck.result.domain} — {t("checkout.domainTaken")}
                                     </span>
                                   </>
                                 )}
@@ -650,7 +663,7 @@ export default function Checkout() {
 
                           <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                             <AlertCircle className="w-3 h-3" />
-                            ফাইনাল availability আমাদের টিম কনফার্ম করবে
+                            {t("checkout.domainFinalAvailability")}
                           </p>
                         </motion.div>
                       )}
@@ -666,22 +679,22 @@ export default function Checkout() {
                 <Button
                   onClick={() => {
                     if (!businessData.businessName || !businessData.businessCategory || !businessData.businessPhone) {
-                      toast.error("ব্যবসার নাম, ক্যাটাগরি ও ফোন নম্বর দিতে হবে");
+                      toast.error(t("checkout.requiredFieldsError"));
                       return;
                     }
                     if (!logoFile) {
-                      toast.error("ব্যবসার লোগো আপলোড করুন");
+                      toast.error(t("checkout.logoRequired"));
                       return;
                     }
                     if (businessData.domainType === "own" && !businessData.domainName) {
-                      toast.error("আপনার ডোমেইন নাম লিখুন");
+                      toast.error(t("checkout.domainNameRequired"));
                       return;
                     }
                     goNext();
                   }}
                   className="bg-gradient-primary text-primary-foreground px-8 py-5 font-semibold"
                 >
-                  পরবর্তী <ArrowRight className="ml-2 w-4 h-4" />
+                  {t("checkout.next")} <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </div>
             </motion.div>
@@ -697,8 +710,8 @@ export default function Checkout() {
               className="space-y-6"
             >
               <div>
-                <h2 className="text-2xl font-bold font-display">পেমেন্ট</h2>
-                <p className="text-muted-foreground text-sm mt-1">পেমেন্ট মেথড সিলেক্ট করুন এবং ট্রানজেকশন সম্পন্ন করুন</p>
+                <h2 className="text-2xl font-bold font-display">{t("checkout.paymentInfo")}</h2>
+                <p className="text-muted-foreground text-sm mt-1">{t("checkout.paymentInfoDesc")}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -733,7 +746,7 @@ export default function Checkout() {
                   className="rounded-xl overflow-hidden"
                 >
                   <div className="p-5 text-white text-center" style={{ backgroundColor: selectedPayment.color }}>
-                    <p className="text-sm opacity-90">{selectedPayment.name} Send Money করুন এই নম্বরে</p>
+                    <p className="text-sm opacity-90">{selectedPayment.name} {t("checkout.sendMoneyToNumber")}</p>
                     <div className="flex items-center justify-center gap-2 mt-2">
                       <p className="text-2xl font-bold tracking-wider">{selectedPayment.number}</p>
                       <button
@@ -749,7 +762,7 @@ export default function Checkout() {
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium text-foreground">Transaction ID / TrxID *</label>
                       <Input
-                        placeholder="আপনার ট্রানজেকশন আইডি লিখুন"
+                        placeholder={t("checkout.transactionPlaceholder")}
                         value={transactionId}
                         onChange={(e) => setTransactionId(e.target.value)}
                         className="bg-background border-border h-12"
@@ -761,23 +774,23 @@ export default function Checkout() {
 
               {/* Order summary */}
               <div className="rounded-xl border border-border bg-card/50 p-5 space-y-3">
-                <h4 className="text-sm font-semibold text-foreground">অর্ডার সামারি</h4>
+                <h4 className="text-sm font-semibold text-foreground">{t("checkout.orderSummary")}</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">প্যাকেজ</span>
+                    <span className="text-muted-foreground">{t("checkout.summaryPackage")}</span>
                     <span className="text-foreground font-medium">{packageName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">ব্যবসা</span>
+                    <span className="text-muted-foreground">{t("checkout.summaryBusiness")}</span>
                     <span className="text-foreground">{businessData.businessName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">বিলিং</span>
-                    <span className="text-foreground capitalize">{billingPeriod}</span>
+                    <span className="text-muted-foreground">{t("checkout.summaryBilling")}</span>
+                    <span className="text-foreground capitalize">{billingPeriod === "yearly" ? t("pricing.yearly") : t("pricing.monthly")}</span>
                   </div>
                   <div className="h-px bg-border" />
                   <div className="flex justify-between text-base font-bold">
-                    <span className="text-foreground">মোট</span>
+                    <span className="text-foreground">{t("checkout.summaryTotal")}</span>
                     <span className="text-gradient">{currency}{amount}</span>
                   </div>
                 </div>
@@ -785,14 +798,14 @@ export default function Checkout() {
 
               <div className="flex justify-between">
                 <Button variant="outline" onClick={goBack} className="px-6 py-5">
-                  <ArrowLeft className="mr-2 w-4 h-4" /> পিছনে
+                  <ArrowLeft className="mr-2 w-4 h-4" /> {t("checkout.previous")}
                 </Button>
                 <Button
                   onClick={handleSubmit}
                   disabled={loading || !selectedMethod || !transactionId}
                   className="bg-gradient-primary text-primary-foreground px-8 py-5 font-semibold"
                 >
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "অর্ডার কনফার্ম করুন"}
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("checkout.payAndConfirm")}
                 </Button>
               </div>
             </motion.div>
@@ -817,9 +830,9 @@ export default function Checkout() {
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <h2 className="text-3xl font-bold font-display">অর্ডার সফলভাবে জমা হয়েছে!</h2>
+                <h2 className="text-3xl font-bold font-display">{t("checkout.orderComplete")}</h2>
                 <p className="text-muted-foreground mt-3 max-w-md mx-auto">
-                  আমরা আপনার পেমেন্ট ভেরিফাই করে শীঘ্রই যোগাযোগ করবো। ধন্যবাদ আমাদের উপর আস্থা রাখার জন্য।
+                  {t("checkout.orderCompleteMsg")}
                 </p>
               </motion.div>
 
@@ -830,19 +843,19 @@ export default function Checkout() {
                 className="rounded-xl border border-border bg-card p-5 max-w-sm mx-auto text-left space-y-2 text-sm"
               >
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">প্যাকেজ</span>
+                  <span className="text-muted-foreground">{t("checkout.summaryPackage")}</span>
                   <span className="font-medium text-foreground">{packageName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">ব্যবসা</span>
+                  <span className="text-muted-foreground">{t("checkout.summaryBusiness")}</span>
                   <span className="text-foreground">{businessData.businessName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">মোট</span>
+                  <span className="text-muted-foreground">{t("checkout.summaryTotal")}</span>
                   <span className="font-bold text-gradient">{currency}{amount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">পেমেন্ট</span>
+                  <span className="text-muted-foreground">{t("checkout.summaryPayment")}</span>
                   <span className="text-foreground capitalize">{selectedMethod}</span>
                 </div>
               </motion.div>
@@ -854,13 +867,13 @@ export default function Checkout() {
                 className="flex gap-3 justify-center pt-4"
               >
                 <Button variant="outline" onClick={() => navigate("/")} className="px-6 py-5">
-                  হোমে ফিরুন
+                  {t("checkout.goHome")}
                 </Button>
                 <Button
                   onClick={() => navigate("/dashboard")}
                   className="bg-gradient-primary text-primary-foreground px-6 py-5"
                 >
-                  ড্যাশবোর্ডে যান
+                  {t("checkout.goToDashboard")}
                 </Button>
               </motion.div>
             </motion.div>
