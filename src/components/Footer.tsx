@@ -14,7 +14,7 @@ const Footer = () => {
   const brandName = footer?.brand_name || "Arodx";
   const tagline = footer?.tagline || "Your Digital Growth Partner";
   const copyrightText = footer?.copyright_text || "Arodx. All rights reserved.";
-  const description = footer?.description || "";
+  const description = t("footer.description", footer?.description);
   const email = footer?.email || "arodxofficial@gmail.com";
   const phone = footer?.phone || "+880 1XXX-XXXXXX";
   const address = footer?.address || "ঢাকা, বাংলাদেশ";
