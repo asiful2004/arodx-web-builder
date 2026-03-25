@@ -168,10 +168,10 @@ export default function OverviewPage() {
           </Avatar>
           <div className="flex-1 min-w-0">
             <h1 className="text-base sm:text-lg font-bold font-display text-foreground truncate">
-              স্বাগতম, {profile.full_name || "ব্যবহারকারী"}!
+              {t("overview.welcome")}, {profile.full_name || t("dashboard.user")}!
             </h1>
             <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
-              আপনার ড্যাশবোর্ড থেকে সব কিছু ম্যানেজ করুন
+              {t("overview.manageEverything")}
             </p>
           </div>
           <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-secondary/50 px-3 py-1.5 rounded-full">
