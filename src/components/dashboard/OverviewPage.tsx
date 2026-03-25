@@ -142,7 +142,7 @@ export default function OverviewPage() {
   const initials = (profile.full_name || user.email || "U")
     .split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
-  const joinedDate = new Date(user.created_at).toLocaleDateString("bn-BD", {
+  const joinedDate = new Date(user.created_at).toLocaleDateString(language === "bn" ? "bn-BD" : "en-US", {
     year: "numeric", month: "long", day: "numeric",
   });
 
