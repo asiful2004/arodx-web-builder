@@ -91,7 +91,11 @@ const slideVariants = {
   exit: (direction: number) => ({ x: direction > 0 ? -40 : 40, opacity: 0 }),
 };
 
-export default function Checkout() {
+export default function CheckoutPage() {
+  return <Checkout />;
+}
+
+function Checkout() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
