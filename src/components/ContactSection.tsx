@@ -67,7 +67,7 @@ const ContactSection = () => {
   const subtitle = t("contact.subtitle", contact?.subtitle);
   const email = contact?.email || "arodxofficial@gmail.com";
   const phone = contact?.phone || "+880 1XXX-XXXXXX";
-  const address = contact?.address || "ঢাকা, বাংলাদেশ";
+  const address = t("contact.addressValue", contact?.address);
   const officeHours = contact?.office_hours || {};
   const schedule = officeHours?.schedule as any[] | undefined;
 
@@ -186,10 +186,12 @@ const ContactSection = () => {
                       const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
                       return `${h12}:${mStr} ${period}`;
                     };
-                    return groups.map((g, i) => (
+                    return groups.map((g, i) => {
+                      const translatedDays = g.days.map((d: string) => t(`schedule.${d}`, d));
+                      return (
                       <div key={i} className="flex justify-between">
                         <span className="text-muted-foreground">
-                          {g.days.length > 1 ? `${g.days[0]} – ${g.days[g.days.length - 1]}` : g.days[0]}
+                          {translatedDays.length > 1 ? `${translatedDays[0]} – ${translatedDays[translatedDays.length - 1]}` : translatedDays[0]}
                         </span>
                         {g.enabled ? (
                           <span className="text-foreground">{fmt12(g.open)} – {fmt12(g.close)}</span>
@@ -197,7 +199,7 @@ const ContactSection = () => {
                           <span className="text-destructive">{t("contact.closedLabel")}</span>
                         )}
                       </div>
-                    ));
+                    );});
                   })()
                 ) : (
                   <>

@@ -14,10 +14,10 @@ const Footer = () => {
   const brandName = footer?.brand_name || "Arodx";
   const tagline = footer?.tagline || "Your Digital Growth Partner";
   const copyrightText = footer?.copyright_text || "Arodx. All rights reserved.";
-  const description = footer?.description || "";
+  const description = t("footer.description", footer?.description);
   const email = footer?.email || "arodxofficial@gmail.com";
   const phone = footer?.phone || "+880 1XXX-XXXXXX";
-  const address = footer?.address || "ঢাকা, বাংলাদেশ";
+  const address = t("contact.addressValue", footer?.address);
   const socialLinks = footer?.social_links || [];
   const quickLinks = footer?.quick_links || [];
   const serviceLinks = footer?.service_links || [];
@@ -86,7 +86,7 @@ const Footer = () => {
                             className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-1.5 group"
                           >
                             <span className="w-1 h-1 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
-                            {link.label}
+                            {t(`footer.link.${link.label}`, link.label)}
                           </Comp>
                         </motion.div>
                       </li>
@@ -111,7 +111,7 @@ const Footer = () => {
                         className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-1.5 group"
                       >
                         <span className="w-1 h-1 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
-                        {link.label}
+                        {t(`footer.service.${link.label}`, link.label)}
                       </motion.a>
                     </li>
                   ))}

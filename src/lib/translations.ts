@@ -26,6 +26,86 @@ export const translations: Record<string, Record<string, string>> = {
     "services.badge": "আমাদের সার্ভিস",
     "services.title": "আমরা যা",
     "services.titleHighlight": "করি",
+    "services.item.0.title": "Web Development",
+    "services.item.0.description": "আধুনিক ও রেসপন্সিভ ওয়েবসাইট তৈরি করি যা আপনার ব্যবসাকে অনলাইনে নিয়ে যায়।",
+    "services.item.1.title": "Digital Marketing",
+    "services.item.1.description": "SEO, Social Media ও Ads ক্যাম্পেইনের মাধ্যমে আপনার ব্যবসা বাড়াই।",
+    "services.item.2.title": "Video Editing",
+    "services.item.2.description": "প্রফেশনাল ভিডিও এডিটিং সার্ভিস যা আপনার কন্টেন্টকে আকর্ষণীয় করে তোলে।",
+    "services.item.3.title": "Business Automation",
+    "services.item.3.description": "আপনার ব্যবসার প্রসেস অটোমেট করে সময় ও খরচ বাঁচান।",
+    "services.item.4.title": "Brand Strategy",
+    "services.item.4.description": "আপনার ব্র্যান্ডের জন্য সঠিক স্ট্র্যাটেজি তৈরি করি।",
+    "services.item.5.title": "Graphics & UI/UX Design",
+    "services.item.5.description": "লোগো, ব্যানার, সোশ্যাল মিডিয়া পোস্ট ও অ্যাপ/ওয়েব UI ডিজাইন করি যা আপনার ব্র্যান্ডকে আলাদা করে তোলে।",
+
+    // About
+    "about.badge": "আমাদের সম্পর্কে",
+    "about.title": "আমরা",
+    "about.description1": "আমরা ছোট-বড় সব ধরনের ব্যবসাকে অনলাইনে প্রতিষ্ঠিত করতে সাহায্য করি। ক্রিয়েটিভ ডিজাইন, ওয়েব ডেভেলপমেন্ট এবং ডিজিটাল মার্কেটিং - সবকিছু এক ছাদের নিচে।",
+    "about.description2": "আমাদের লক্ষ্য হলো প্রতিটি ক্লায়েন্টের ব্যবসাকে ডিজিটাল প্ল্যাটফর্মে সফল করা। আমরা বিশ্বাস করি যে সঠিক ডিজিটাল কৌশল যেকোনো ব্যবসাকে পরবর্তী স্তরে নিয়ে যেতে পারে।",
+    "about.stat.0.label": "সম্পন্ন প্রজেক্ট",
+    "about.stat.1.label": "সন্তুষ্ট ক্লায়েন্ট",
+    "about.stat.2.label": "বছরের অভিজ্ঞতা",
+    "about.stat.3.label": "সাপোর্ট",
+
+    // About Values
+    "about.value.0.title": "ক্লায়েন্ট ফোকাস",
+    "about.value.0.description": "প্রতিটি ক্লায়েন্টের চাহিদা বোঝা ও সেরা সমাধান দেওয়া।",
+    "about.value.1.title": "কোয়ালিটি",
+    "about.value.1.description": "প্রতিটি প্রজেক্টে সেরা মান নিশ্চিত করা।",
+    "about.value.2.title": "ইনোভেশন",
+    "about.value.2.description": "সর্বদা নতুন প্রযুক্তি ও কৌশল ব্যবহার করা।",
+    "about.value.3.title": "টিমওয়ার্ক",
+    "about.value.3.description": "দক্ষ টিমের মাধ্যমে সেরা ফলাফল।",
+
+    // Process
+    "process.badge": "কিভাবে কাজ করি",
+    "process.title": "আমাদের কাজের",
+    "process.titleHighlight": "ধাপসমূহ",
+    "process.subtitle": "প্রতিটি প্রজেক্টে ৪ জন ডেডিকেটেড বিশেষজ্ঞ কাজ করেন, তাই সবকিছু হয় নিখুঁত, সময়মতো এবং ঝামেলামুক্ত।",
+    "process.bottomCta": "সবকিছু এক টিমে — আপনি শুধু ব্যবসায় ফোকাস করুন, বাকিটা আমাদের দায়িত্ব।",
+    "process.step": "ধাপ",
+    "process.step.0.title": "প্রজেক্ট ম্যানেজার",
+    "process.step.0.subtitle": "পরিকল্পনা ও সমন্বয়",
+    "process.step.0.description": "আপনার প্রজেক্টের জন্য একজন ডেডিকেটেড প্রজেক্ট ম্যানেজার থাকেন যিনি পুরো কাজের পরিকল্পনা করেন, টাইমলাইন সেট করেন এবং টিমের সাথে সমন্বয় রাখেন।",
+    "process.step.1.title": "গ্রাফিক্স ডিজাইনার",
+    "process.step.1.subtitle": "ক্রিয়েটিভ ডিজাইন",
+    "process.step.1.description": "ডেডিকেটেড ডিজাইনার আপনার ব্র্যান্ডের লোগো, ব্যানার, সোশ্যাল মিডিয়া পোস্ট এবং UI/UX ডিজাইন করেন।",
+    "process.step.2.title": "ওয়েব ডেভেলপার",
+    "process.step.2.subtitle": "ডেভেলপমেন্ট ও টেক",
+    "process.step.2.description": "এক্সপার্ট ডেভেলপার আপনার ওয়েবসাইট তৈরি করেন, হোস্টিং সেটআপ করেন এবং টেকনিক্যাল সব কিছু সামলান।",
+    "process.step.3.title": "ডিজিটাল মার্কেটার",
+    "process.step.3.subtitle": "মার্কেটিং ও গ্রোথ",
+    "process.step.3.description": "ডেডিকেটেড মার্কেটার SEO, সোশ্যাল মিডিয়া ম্যানেজমেন্ট এবং অ্যাড ক্যাম্পেইন চালান।",
+
+    // Portfolio
+    "portfolio.badge": "পোর্টফোলিও",
+    "portfolio.title": "আমাদের",
+    "portfolio.titleHighlight": "কাজ",
+    "portfolio.subtitle": "আমরা এ পর্যন্ত যেসব প্রজেক্ট সফলভাবে সম্পন্ন করেছি তার কিছু নমুনা।",
+    "portfolio.project.0.title": "E-Commerce Platform",
+    "portfolio.project.0.category": "Web Development",
+    "portfolio.project.0.description": "একটি সম্পূর্ণ ই-কমার্স প্ল্যাটফর্ম যেখানে পেমেন্ট ইন্টিগ্রেশন ও ইনভেন্টরি ম্যানেজমেন্ট আছে।",
+    "portfolio.project.1.title": "Restaurant Branding",
+    "portfolio.project.1.category": "UI/UX Design",
+    "portfolio.project.1.description": "একটি রেস্টুরেন্টের জন্য সম্পূর্ণ ব্র্যান্ডিং: লোগো, মেনু ডিজাইন ও ওয়েবসাইট।",
+    "portfolio.project.2.title": "Social Media Campaign",
+    "portfolio.project.2.category": "Digital Marketing",
+    "portfolio.project.2.description": "সোশ্যাল মিডিয়া ক্যাম্পেইন যা ক্লায়েন্টের সেলস ৩x বাড়িয়েছে।",
+
+    // Comparison
+    "comparison.badge": "কেন আমরা?",
+    "comparison.titlePrefix": "লোক নিয়োগ vs",
+    "comparison.titleHighlight": "Arodx টিম",
+    "comparison.subtitle": "আলাদা লোক নিয়োগ দিলে কতটুকু খরচ ও ঝামেলা, আর আমাদের সাথে কতটুকু সুবিধা — নিজে দেখুন।",
+    "comparison.hiringTitle": "আলাদা লোক নিয়োগ দিলে",
+    "comparison.arodxTitle": "আমাদের প্যাকেজ কিনলে",
+    "comparison.tableHeader": "তুলনা",
+    "comparison.hiring": "লোক নিয়োগ",
+    "comparison.verdict": "সিদ্ধান্ত",
+    "comparison.hiringVerdict": "বেশি খরচ, কম ফলাফল",
+    "comparison.arodxVerdict": "কম খরচে সেরা ফলাফল ✓",
 
     // Pricing
     "pricing.badge": "প্রাইসিং",
@@ -39,22 +119,34 @@ export const translations: Record<string, Record<string, string>> = {
     "pricing.customCtaDesc": "আমাদের টিমের সাথে যোগাযোগ করুন এবং আপনার বাজেট ও চাহিদা অনুযায়ী প্যাকেজ তৈরি করুন।",
     "pricing.contactUs": "যোগাযোগ করুন",
 
-    // About
-    "about.badge": "আমাদের সম্পর্কে",
-    "about.title": "আমরা",
-
-    // Process
-    "process.badge": "কিভাবে কাজ করি",
-    "process.title": "আমাদের কাজের",
-    "process.titleHighlight": "ধাপসমূহ",
-
-    // Portfolio
-    "portfolio.badge": "পোর্টফোলিও",
-    "portfolio.title": "আমাদের",
-    "portfolio.titleHighlight": "কাজ",
-
-    // Comparison
-    "comparison.badge": "কেন আমরা?",
+    // Pricing packages
+    "pricing.pkg.0.description": "ছোট ব্যবসার জন্য পারফেক্ট শুরু",
+    "pricing.pkg.1.description": "গ্রোয়িং ব্যবসার জন্য সেরা চয়েস",
+    "pricing.pkg.2.description": "বড় ব্র্যান্ড ও কোম্পানির জন্য",
+    "pricing.pkg.0.feature.0": "Website + ১টি Landing Page (Hosting সহ)",
+    "pricing.pkg.0.feature.1": "Basic Maintenance & Support",
+    "pricing.pkg.0.feature.2": "মাসে ২টি Video Edit",
+    "pricing.pkg.0.feature.3": "Basic SEO Setup",
+    "pricing.pkg.0.feature.4": "১টি Social Media Management",
+    "pricing.pkg.0.feature.5": "Basic Brand Guidelines",
+    "pricing.pkg.1.feature.0": "Website + ৫টি Landing Page (Hosting সহ)",
+    "pricing.pkg.1.feature.1": "Full Maintenance & Technical Support",
+    "pricing.pkg.1.feature.2": "মাসে ৫টি Video Edit",
+    "pricing.pkg.1.feature.3": "Advanced SEO + Ad Campaign",
+    "pricing.pkg.1.feature.4": "৩টি Social Media Management",
+    "pricing.pkg.1.feature.5": "Brand Strategy & Logo Optimization",
+    "pricing.pkg.1.feature.6": "Monthly Graphics Package",
+    "pricing.pkg.1.feature.7": "Basic Business Automation",
+    "pricing.pkg.2.feature.0": "Website + ১০টি Landing Page (Hosting সহ)",
+    "pricing.pkg.2.feature.1": "Free .com Domain (১ বছরের জন্য)",
+    "pricing.pkg.2.feature.2": "Priority Technical Support & Maintenance",
+    "pricing.pkg.2.feature.3": "Unlimited Video Editing",
+    "pricing.pkg.2.feature.4": "Complete Digital Marketing (SEO, Ads, Organic)",
+    "pricing.pkg.2.feature.5": "All Social Media Management",
+    "pricing.pkg.2.feature.6": "Complete Brand Identity & Strategy",
+    "pricing.pkg.2.feature.7": "Premium Graphics & UI/UX Design",
+    "pricing.pkg.2.feature.8": "Advanced Business Automation",
+    "pricing.pkg.2.feature.9": "Dedicated Account Manager",
 
     // Contact
     "contact.badge": "যোগাযোগ",
@@ -64,6 +156,7 @@ export const translations: Record<string, Record<string, string>> = {
     "contact.email": "ইমেইল",
     "contact.phone": "ফোন",
     "contact.address": "ঠিকানা",
+    "contact.addressValue": "ঢাকা, বাংলাদেশ",
     "contact.officeHours": "অফিস কর্মসূচি",
     "contact.open": "চালু আছে",
     "contact.closed": "বন্ধ আছে",
@@ -77,6 +170,19 @@ export const translations: Record<string, Record<string, string>> = {
     "contact.sentMessage": "আপনার মেসেজটি আমরা পেয়েছি। অনুগ্রহ করে অপেক্ষা করুন, আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।",
     "contact.error": "ত্রুটি!",
     "contact.errorDesc": "মেসেজ পাঠাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।",
+    "contact.satToWed": "শনি – বুধবার",
+    "contact.thursday": "বৃহস্পতিবার",
+    "contact.friday": "শুক্রবার",
+    "contact.closedLabel": "বন্ধ",
+
+    // Schedule day names (from DB)
+    "schedule.শনিবার": "শনিবার",
+    "schedule.রবিবার": "রবিবার",
+    "schedule.সোমবার": "সোমবার",
+    "schedule.মঙ্গলবার": "মঙ্গলবার",
+    "schedule.বুধবার": "বুধবার",
+    "schedule.বৃহস্পতিবার": "বৃহস্পতিবার",
+    "schedule.শুক্রবার": "শুক্রবার",
 
     // Footer
     "footer.quickLinks": "দ্রুত লিংক",
@@ -84,6 +190,21 @@ export const translations: Record<string, Record<string, string>> = {
     "footer.contact": "যোগাযোগ",
     "footer.madeWith": "তৈরি করেছে",
     "footer.language": "ভাষা",
+    "footer.madeWithLove": "তৈরি করেছে",
+    "footer.team": "Team",
+    "footer.description": "আমরা ছোট-বড় সব ধরনের ব্যবসাকে অনলাইনে প্রতিষ্ঠিত করতে সাহায্য করি। ক্রিয়েটিভ ডিজাইন, ওয়েব ডেভেলপমেন্ট এবং ডিজিটাল মার্কেটিং - সবকিছু এক ছাদের নিচে।",
+    // Footer quick links
+    "footer.link.সার্ভিস": "সার্ভিস",
+    "footer.link.প্যাকেজ": "প্যাকেজ",
+    "footer.link.পোর্টফোলিও": "পোর্টফোলিও",
+    "footer.link.যোগাযোগ": "যোগাযোগ",
+    "footer.link.টিমে জয়েন করুন": "টিমে জয়েন করুন",
+    // Footer service links
+    "footer.service.Web Development": "Web Development",
+    "footer.service.Digital Marketing": "Digital Marketing",
+    "footer.service.Graphics Design": "Graphics Design",
+    "footer.service.Video Editing": "Video Editing",
+    "footer.service.Brand Strategy": "Brand Strategy",
 
     // General
     "lang.bengali": "বাংলা",
@@ -418,22 +539,6 @@ export const translations: Record<string, Record<string, string>> = {
     "pricingCard.perMonth": "/মাস",
     "pricingCard.renewal": "রিনিউয়াল",
 
-    // Comparison table
-    "comparison.tableHeader": "তুলনা",
-    "comparison.hiring": "লোক নিয়োগ",
-    "comparison.verdict": "সিদ্ধান্ত",
-    "comparison.hiringVerdict": "বেশি খরচ, কম ফলাফল",
-    "comparison.arodxVerdict": "কম খরচে সেরা ফলাফল ✓",
-
-    // Process
-    "process.step": "ধাপ",
-
-    // Contact schedule fallback
-    "contact.satToWed": "শনি – বুধবার",
-    "contact.thursday": "বৃহস্পতিবার",
-    "contact.friday": "শুক্রবার",
-    "contact.closedLabel": "বন্ধ",
-
     // LiveChat
     "chat.support": "Arodx Support",
     "chat.onlineStatus": "Online — সাধারণত কয়েক মিনিটে উত্তর",
@@ -518,10 +623,6 @@ export const translations: Record<string, Record<string, string>> = {
     "checkout.year": "বছর",
     "checkout.month": "মাস",
 
-    // Footer extra
-    "footer.madeWithLove": "তৈরি করেছে",
-    "footer.team": "Team",
-
     // Preloader
     "preloader.tagline": "Your Digital Growth Partner",
   },
@@ -553,6 +654,86 @@ export const translations: Record<string, Record<string, string>> = {
     "services.badge": "Our Services",
     "services.title": "What We",
     "services.titleHighlight": "Do",
+    "services.item.0.title": "Web Development",
+    "services.item.0.description": "We build modern and responsive websites that take your business online.",
+    "services.item.1.title": "Digital Marketing",
+    "services.item.1.description": "Grow your business through SEO, Social Media and Ad campaigns.",
+    "services.item.2.title": "Video Editing",
+    "services.item.2.description": "Professional video editing services that make your content engaging.",
+    "services.item.3.title": "Business Automation",
+    "services.item.3.description": "Automate your business processes to save time and costs.",
+    "services.item.4.title": "Brand Strategy",
+    "services.item.4.description": "We create the right strategy for your brand.",
+    "services.item.5.title": "Graphics & UI/UX Design",
+    "services.item.5.description": "Logo, banner, social media posts and app/web UI design that makes your brand stand out.",
+
+    // About
+    "about.badge": "About Us",
+    "about.title": "We Are",
+    "about.description1": "We help businesses of all sizes establish their online presence. Creative design, web development and digital marketing — all under one roof.",
+    "about.description2": "Our goal is to make every client's business successful on digital platforms. We believe the right digital strategy can take any business to the next level.",
+    "about.stat.0.label": "Completed Projects",
+    "about.stat.1.label": "Happy Clients",
+    "about.stat.2.label": "Years Experience",
+    "about.stat.3.label": "Support",
+
+    // About Values
+    "about.value.0.title": "Client Focus",
+    "about.value.0.description": "Understanding each client's needs and providing the best solutions.",
+    "about.value.1.title": "Quality",
+    "about.value.1.description": "Ensuring the best quality in every project.",
+    "about.value.2.title": "Innovation",
+    "about.value.2.description": "Always using new technologies and strategies.",
+    "about.value.3.title": "Teamwork",
+    "about.value.3.description": "Best results through skilled teamwork.",
+
+    // Process
+    "process.badge": "How We Work",
+    "process.title": "Our Work",
+    "process.titleHighlight": "Process",
+    "process.subtitle": "4 dedicated experts work on every project, ensuring everything is perfect, on time, and hassle-free.",
+    "process.bottomCta": "Everything in one team — you just focus on your business, we'll handle the rest.",
+    "process.step": "STEP",
+    "process.step.0.title": "Project Manager",
+    "process.step.0.subtitle": "Planning & Coordination",
+    "process.step.0.description": "A dedicated project manager plans the entire workflow, sets timelines, and coordinates with the team for your project.",
+    "process.step.1.title": "Graphics Designer",
+    "process.step.1.subtitle": "Creative Design",
+    "process.step.1.description": "A dedicated designer creates your brand's logo, banners, social media posts and UI/UX designs.",
+    "process.step.2.title": "Web Developer",
+    "process.step.2.subtitle": "Development & Tech",
+    "process.step.2.description": "Expert developers build your website, set up hosting, and handle all technical aspects. No technical knowledge needed from you.",
+    "process.step.3.title": "Digital Marketer",
+    "process.step.3.subtitle": "Marketing & Growth",
+    "process.step.3.description": "A dedicated marketer runs SEO, social media management and ad campaigns to ensure your business growth.",
+
+    // Portfolio
+    "portfolio.badge": "Portfolio",
+    "portfolio.title": "Our",
+    "portfolio.titleHighlight": "Work",
+    "portfolio.subtitle": "A showcase of projects we've successfully completed so far.",
+    "portfolio.project.0.title": "E-Commerce Platform",
+    "portfolio.project.0.category": "Web Development",
+    "portfolio.project.0.description": "A complete e-commerce platform with payment integration and inventory management.",
+    "portfolio.project.1.title": "Restaurant Branding",
+    "portfolio.project.1.category": "UI/UX Design",
+    "portfolio.project.1.description": "Complete branding for a restaurant: logo, menu design and website.",
+    "portfolio.project.2.title": "Social Media Campaign",
+    "portfolio.project.2.category": "Digital Marketing",
+    "portfolio.project.2.description": "Social media campaign that increased client's sales by 3x.",
+
+    // Comparison
+    "comparison.badge": "Why Us?",
+    "comparison.titlePrefix": "Hiring Staff vs",
+    "comparison.titleHighlight": "Arodx Team",
+    "comparison.subtitle": "See the difference — how much cost and hassle hiring individually vs how much benefit with us.",
+    "comparison.hiringTitle": "Hiring Individual Staff",
+    "comparison.arodxTitle": "Our Package",
+    "comparison.tableHeader": "Comparison",
+    "comparison.hiring": "Hiring Staff",
+    "comparison.verdict": "Verdict",
+    "comparison.hiringVerdict": "Higher cost, less results",
+    "comparison.arodxVerdict": "Best results at lower cost ✓",
 
     // Pricing
     "pricing.badge": "Pricing",
@@ -563,25 +744,37 @@ export const translations: Record<string, Record<string, string>> = {
     "pricing.yearly": "Yearly",
     "pricing.freeMonths": "2 months free!",
     "pricing.customCta": "Want a Custom Package tailored to your needs?",
-    "pricing.customCtaDesc": "Contact our team and we'll create a package based on your budget and requirements.",
+    "pricing.customCtaDesc": "Contact our team to create a package that fits your budget and requirements.",
     "pricing.contactUs": "Contact Us",
 
-    // About
-    "about.badge": "About Us",
-    "about.title": "We Are",
-
-    // Process
-    "process.badge": "How We Work",
-    "process.title": "Our Work",
-    "process.titleHighlight": "Process",
-
-    // Portfolio
-    "portfolio.badge": "Portfolio",
-    "portfolio.title": "Our",
-    "portfolio.titleHighlight": "Work",
-
-    // Comparison
-    "comparison.badge": "Why Us?",
+    // Pricing packages
+    "pricing.pkg.0.description": "Perfect start for small businesses",
+    "pricing.pkg.1.description": "Best choice for growing businesses",
+    "pricing.pkg.2.description": "For large brands and companies",
+    "pricing.pkg.0.feature.0": "Website + 1 Landing Page (with Hosting)",
+    "pricing.pkg.0.feature.1": "Basic Maintenance & Support",
+    "pricing.pkg.0.feature.2": "2 Video Edits per month",
+    "pricing.pkg.0.feature.3": "Basic SEO Setup",
+    "pricing.pkg.0.feature.4": "1 Social Media Management",
+    "pricing.pkg.0.feature.5": "Basic Brand Guidelines",
+    "pricing.pkg.1.feature.0": "Website + 5 Landing Pages (with Hosting)",
+    "pricing.pkg.1.feature.1": "Full Maintenance & Technical Support",
+    "pricing.pkg.1.feature.2": "5 Video Edits per month",
+    "pricing.pkg.1.feature.3": "Advanced SEO + Ad Campaign",
+    "pricing.pkg.1.feature.4": "3 Social Media Management",
+    "pricing.pkg.1.feature.5": "Brand Strategy & Logo Optimization",
+    "pricing.pkg.1.feature.6": "Monthly Graphics Package",
+    "pricing.pkg.1.feature.7": "Basic Business Automation",
+    "pricing.pkg.2.feature.0": "Website + 10 Landing Pages (with Hosting)",
+    "pricing.pkg.2.feature.1": "Free .com Domain (for 1 year)",
+    "pricing.pkg.2.feature.2": "Priority Technical Support & Maintenance",
+    "pricing.pkg.2.feature.3": "Unlimited Video Editing",
+    "pricing.pkg.2.feature.4": "Complete Digital Marketing (SEO, Ads, Organic)",
+    "pricing.pkg.2.feature.5": "All Social Media Management",
+    "pricing.pkg.2.feature.6": "Complete Brand Identity & Strategy",
+    "pricing.pkg.2.feature.7": "Premium Graphics & UI/UX Design",
+    "pricing.pkg.2.feature.8": "Advanced Business Automation",
+    "pricing.pkg.2.feature.9": "Dedicated Account Manager",
 
     // Contact
     "contact.badge": "Contact",
@@ -591,6 +784,7 @@ export const translations: Record<string, Record<string, string>> = {
     "contact.email": "Email",
     "contact.phone": "Phone",
     "contact.address": "Address",
+    "contact.addressValue": "Dhaka, Bangladesh",
     "contact.officeHours": "Office Hours",
     "contact.open": "Open",
     "contact.closed": "Closed",
@@ -604,6 +798,19 @@ export const translations: Record<string, Record<string, string>> = {
     "contact.sentMessage": "We've received your message. Please wait, we'll contact you soon.",
     "contact.error": "Error!",
     "contact.errorDesc": "Failed to send message. Please try again.",
+    "contact.satToWed": "Saturday – Wednesday",
+    "contact.thursday": "Thursday",
+    "contact.friday": "Friday",
+    "contact.closedLabel": "Closed",
+
+    // Schedule day names (from DB)
+    "schedule.শনিবার": "Saturday",
+    "schedule.রবিবার": "Sunday",
+    "schedule.সোমবার": "Monday",
+    "schedule.মঙ্গলবার": "Tuesday",
+    "schedule.বুধবার": "Wednesday",
+    "schedule.বৃহস্পতিবার": "Thursday",
+    "schedule.শুক্রবার": "Friday",
 
     // Footer
     "footer.quickLinks": "Quick Links",
@@ -611,6 +818,21 @@ export const translations: Record<string, Record<string, string>> = {
     "footer.contact": "Contact",
     "footer.madeWith": "Made by",
     "footer.language": "Language",
+    "footer.madeWithLove": "Made by",
+    "footer.team": "Team",
+    "footer.description": "We help businesses of all sizes establish their online presence. Creative design, web development and digital marketing — all under one roof.",
+    // Footer quick links
+    "footer.link.সার্ভিস": "Services",
+    "footer.link.প্যাকেজ": "Packages",
+    "footer.link.পোর্টফোলিও": "Portfolio",
+    "footer.link.যোগাযোগ": "Contact",
+    "footer.link.টিমে জয়েন করুন": "Join Our Team",
+    // Footer service links
+    "footer.service.Web Development": "Web Development",
+    "footer.service.Digital Marketing": "Digital Marketing",
+    "footer.service.Graphics Design": "Graphics Design",
+    "footer.service.Video Editing": "Video Editing",
+    "footer.service.Brand Strategy": "Brand Strategy",
 
     // General
     "lang.bengali": "বাংলা",
@@ -945,22 +1167,6 @@ export const translations: Record<string, Record<string, string>> = {
     "pricingCard.perMonth": "/month",
     "pricingCard.renewal": "Renewal",
 
-    // Comparison table
-    "comparison.tableHeader": "Comparison",
-    "comparison.hiring": "Hiring Staff",
-    "comparison.verdict": "Verdict",
-    "comparison.hiringVerdict": "Higher cost, less results",
-    "comparison.arodxVerdict": "Best results at lower cost ✓",
-
-    // Process
-    "process.step": "STEP",
-
-    // Contact schedule fallback
-    "contact.satToWed": "Saturday – Wednesday",
-    "contact.thursday": "Thursday",
-    "contact.friday": "Friday",
-    "contact.closedLabel": "Closed",
-
     // LiveChat
     "chat.support": "Arodx Support",
     "chat.onlineStatus": "Online — usually replies in minutes",
@@ -1044,10 +1250,6 @@ export const translations: Record<string, Record<string, string>> = {
     "checkout.numberCopied": "Number copied!",
     "checkout.year": "year",
     "checkout.month": "month",
-
-    // Footer extra
-    "footer.madeWithLove": "Made by",
-    "footer.team": "Team",
 
     // Preloader
     "preloader.tagline": "Your Digital Growth Partner",

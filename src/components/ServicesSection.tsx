@@ -77,7 +77,12 @@ const ServicesSection = () => {
   const badge = t("services.badge", svc?.badge);
   const title = t("services.title", svc?.title);
   const titleHighlight = t("services.titleHighlight", svc?.title_highlight);
-  const items = svc?.items || defaultServices;
+  const rawItems = svc?.items || defaultServices;
+  const items = rawItems.map((s: any, i: number) => ({
+    ...s,
+    title: t(`services.item.${i}.title`, s.title),
+    description: t(`services.item.${i}.description`, s.description),
+  }));
 
   return (
     <section className="py-24 px-4" id="services">

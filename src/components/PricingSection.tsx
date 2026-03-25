@@ -23,7 +23,12 @@ const PricingSection = () => {
   const title = t("pricing.title", pricing?.title);
   const titleHighlight = t("pricing.titleHighlight", pricing?.title_highlight);
   const subtitle = t("pricing.subtitle", pricing?.subtitle);
-  const packages = pricing?.packages || defaultPackages;
+  const rawPackages = pricing?.packages || defaultPackages;
+  const packages = rawPackages.map((pkg: any, i: number) => ({
+    ...pkg,
+    description: t(`pricing.pkg.${i}.description`, pkg.description),
+    features: pkg.features.map((f: string, fi: number) => t(`pricing.pkg.${i}.feature.${fi}`, f)),
+  }));
   const customCtaText = t("pricing.customCta", pricing?.custom_cta_text);
   const customCtaDesc = t("pricing.customCtaDesc", pricing?.custom_cta_description);
 

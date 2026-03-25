@@ -20,9 +20,15 @@ const ProcessSection = () => {
   const badge = t("process.badge", proc?.badge);
   const title = t("process.title", proc?.title);
   const titleHighlight = t("process.titleHighlight", proc?.title_highlight);
-  const subtitle = proc?.subtitle || "প্রতিটি প্রজেক্টে ৪ জন ডেডিকেটেড বিশেষজ্ঞ কাজ করেন, তাই সবকিছু হয় নিখুঁত, সময়মতো এবং ঝামেলামুক্ত।";
-  const bottomCta = proc?.bottom_cta || "সবকিছু এক টিমে। আপনি শুধু ব্যবসায় ফোকাস করুন, বাকিটা আমাদের দায়িত্ব।";
-  const steps = proc?.steps || defaultSteps;
+  const subtitle = t("process.subtitle", proc?.subtitle);
+  const bottomCta = t("process.bottomCta", proc?.bottom_cta);
+  const rawSteps = proc?.steps || defaultSteps;
+  const steps = rawSteps.map((s: any, i: number) => ({
+    ...s,
+    title: t(`process.step.${i}.title`, s.title),
+    subtitle: t(`process.step.${i}.subtitle`, s.subtitle),
+    description: t(`process.step.${i}.description`, s.description),
+  }));
 
   return (
     <section className="py-24 px-4 relative overflow-hidden" id="process">
@@ -108,11 +114,7 @@ const ProcessSection = () => {
           <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl border border-primary/20 bg-primary/[0.03]">
             <Sparkles className="h-5 w-5 text-primary" />
             <p className="text-sm font-medium text-foreground">
-              {bottomCta.includes("এক টিমে") ? (
-                <>
-                  সবকিছু <span className="text-primary font-bold">এক টিমে</span>। {bottomCta.split("এক টিমে")[1]?.replace(/^[।. ]+/, "") || "আপনি শুধু ব্যবসায় ফোকাস করুন, বাকিটা আমাদের দায়িত্ব।"}
-                </>
-              ) : bottomCta}
+              {bottomCta}
             </p>
           </div>
         </motion.div>
