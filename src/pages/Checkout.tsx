@@ -344,8 +344,8 @@ export default function Checkout() {
               className="space-y-6"
             >
               <div>
-                <h2 className="text-2xl font-bold font-display">প্যাকেজ সামারি</h2>
-                <p className="text-muted-foreground text-sm mt-1">আপনার সিলেক্ট করা প্যাকেজের বিস্তারিত</p>
+                <h2 className="text-2xl font-bold font-display">{t("checkout.packageSummary")}</h2>
+                <p className="text-muted-foreground text-sm mt-1">{t("checkout.packageSummaryDesc")}</p>
               </div>
 
               <div className="rounded-2xl border border-border bg-card p-6 space-y-5">
