@@ -11,6 +11,7 @@ import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
 import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useDashboardActivityTracker } from "@/hooks/useDashboardActivityTracker";
 
 const STAFF_ROLES = ["admin", "hr", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
 const SEND_NOTIF_ROLES = ["admin", "hr", "project_manager"];
@@ -22,6 +23,7 @@ export default function StaffLayout() {
   const { toast } = useToast();
   const presenceValue = useOnlinePresenceProvider();
   const { t } = useLanguage();
+  useDashboardActivityTracker();
 
   const canSendNotif = userRoles.some(r => SEND_NOTIF_ROLES.includes(r));
 
