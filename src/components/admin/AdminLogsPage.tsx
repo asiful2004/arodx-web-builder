@@ -30,6 +30,13 @@ interface ActivityLog {
   created_at: string;
 }
 
+interface UserProfile {
+  user_id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  email?: string;
+}
+
 const ACTION_TYPE_CONFIG: Record<string, { icon: any; color: string; label_bn: string; label_en: string }> = {
   auth: { icon: Shield, color: "text-blue-500 bg-blue-500/10", label_bn: "অথেন্টিকেশন", label_en: "Authentication" },
   profile: { icon: User, color: "text-violet-500 bg-violet-500/10", label_bn: "প্রোফাইল", label_en: "Profile" },
@@ -53,6 +60,7 @@ export default function AdminLogsPage() {
   const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [page, setPage] = useState(0);
+  const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
   const PAGE_SIZE = 50;
 
   const fetchLogs = useCallback(async () => {
@@ -72,8 +80,33 @@ export default function AdminLogsPage() {
 
     const { data, count, error } = await query;
     if (!error && data) {
-      setLogs(data as any as ActivityLog[]);
+      const logsData = data as any as ActivityLog[];
+      setLogs(logsData);
       setTotalCount(count || 0);
+
+      // Fetch real profiles for all unique user_ids
+      const userIds = [...new Set(logsData.map(l => l.user_id))];
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, avatar_url")
+          .in("user_id", userIds);
+        
+        const { data: emails } = await supabase.rpc("get_user_emails");
+        
+        const emailMap: Record<string, string> = {};
+        if (emails) {
+          (emails as any[]).forEach((e: any) => { emailMap[e.user_id] = e.email; });
+        }
+
+        if (profiles) {
+          const map: Record<string, UserProfile> = {};
+          profiles.forEach((p: any) => {
+            map[p.user_id] = { ...p, email: emailMap[p.user_id] || null };
+          });
+          setUserProfiles(prev => ({ ...prev, ...map }));
+        }
+      }
     }
     setLoading(false);
   }, [page, typeFilter, search]);
@@ -195,6 +228,10 @@ export default function AdminLogsPage() {
               {logs.map((log, i) => {
                 const cfg = getTypeConfig(log.action_type);
                 const Icon = cfg.icon;
+                const profile = userProfiles[log.user_id];
+                const displayName = profile?.full_name || log.user_name || log.user_email || "Unknown";
+                const displayEmail = profile?.email || log.user_email || "";
+                const avatarUrl = profile?.avatar_url || null;
                 return (
                   <motion.div
                     key={log.id}
@@ -204,9 +241,12 @@ export default function AdminLogsPage() {
                     onClick={() => setSelectedLog(log)}
                     className="flex items-start gap-3 px-4 py-3 hover:bg-accent/30 cursor-pointer transition-colors"
                   >
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${cfg.color}`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
+                    <Avatar className="w-8 h-8 shrink-0 mt-0.5">
+                      {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+                      <AvatarFallback className={`text-xs font-bold ${cfg.color}`}>
+                        {displayName.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-medium text-foreground">{log.action}</span>
@@ -218,10 +258,13 @@ export default function AdminLogsPage() {
                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{log.description}</p>
                       )}
                       <div className="flex items-center gap-3 mt-1.5 text-[11px] text-muted-foreground/70">
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-1 font-medium">
                           <User className="w-3 h-3" />
-                          {log.user_name || log.user_email || "Unknown"}
+                          {displayName}
                         </span>
+                        {displayEmail && (
+                          <span className="text-muted-foreground/50">{displayEmail}</span>
+                        )}
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {formatTime(log.created_at)}
@@ -269,18 +312,24 @@ export default function AdminLogsPage() {
               {t("admin.logsDetail")}
             </DialogTitle>
           </DialogHeader>
-          {selectedLog && (
+          {selectedLog && (() => {
+            const detailProfile = userProfiles[selectedLog.user_id];
+            const detailName = detailProfile?.full_name || selectedLog.user_name || "N/A";
+            const detailEmail = detailProfile?.email || selectedLog.user_email || "N/A";
+            const detailAvatar = detailProfile?.avatar_url || null;
+            return (
             <div className="space-y-4">
               {/* User info */}
               <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
                 <Avatar className="w-10 h-10">
+                  {detailAvatar && <AvatarImage src={detailAvatar} alt={detailName} />}
                   <AvatarFallback className="bg-primary/10 text-primary text-sm font-bold">
-                    {(selectedLog.user_name || selectedLog.user_email || "U").charAt(0).toUpperCase()}
+                    {detailName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-foreground">{selectedLog.user_name || "N/A"}</p>
-                  <p className="text-xs text-muted-foreground">{selectedLog.user_email || "N/A"}</p>
+                  <p className="text-sm font-semibold text-foreground">{detailName}</p>
+                  <p className="text-xs text-muted-foreground">{detailEmail}</p>
                 </div>
               </div>
 
@@ -312,7 +361,8 @@ export default function AdminLogsPage() {
                 ID: {selectedLog.id}
               </div>
             </div>
-          )}
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>
