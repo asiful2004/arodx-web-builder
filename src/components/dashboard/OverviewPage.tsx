@@ -349,7 +349,7 @@ export default function OverviewPage() {
                     <div className="flex flex-col items-end gap-0.5">
                       <span className="text-sm font-bold text-primary">
                         {order.amount.startsWith("৳") ? order.amount : `৳${order.amount}`}
-                        <span className="text-[10px] font-normal text-muted-foreground">/{order.billing_period === "yearly" ? "বছর" : "মাস"}</span>
+                        <span className="text-[10px] font-normal text-muted-foreground">/{order.billing_period === "yearly" ? t("overview.year") : t("overview.month")}</span>
                       </span>
                       {order.renewal_date && (() => {
                         const daysLeft = Math.ceil((new Date(order.renewal_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
