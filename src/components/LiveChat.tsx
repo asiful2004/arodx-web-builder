@@ -534,7 +534,7 @@ export default function LiveChat() {
                   </div>
                 )}
                 <Button onClick={startChat} className="w-full font-semibold" disabled={!user && (!guestName.trim() || !guestPhone.trim())}>
-                  💬 চ্যাট শুরু করুন
+                  {t("chat.startChat")}
                 </Button>
               </div>
             ) : (
