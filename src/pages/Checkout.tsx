@@ -409,7 +409,7 @@ export default function Checkout() {
                   <Check className="w-4 h-4 text-primary" />
                 </div>
                 <div className="text-sm">
-                  <span className="text-muted-foreground">লগইন হিসেবে: </span>
+                  <span className="text-muted-foreground">{t("checkout.loggedInAs")}: </span>
                   <span className="font-medium text-foreground">{user.email}</span>
                 </div>
               </div>
