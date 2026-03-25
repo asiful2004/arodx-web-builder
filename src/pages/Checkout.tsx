@@ -11,14 +11,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-const Checkout = () => {
-  const { t } = useLanguage();
-  const steps = [
-    { id: 1, label: t("checkout.stepPackage"), icon: Package },
-    { id: 2, label: t("checkout.stepBusiness"), icon: Building2 },
-    { id: 3, label: t("checkout.stepPayment"), icon: CreditCard },
-    { id: 4, label: t("checkout.stepDone"), icon: CheckCircle },
-  ];
+const steps_data = [
+  { id: 1, labelKey: "checkout.stepPackage", icon: Package },
+  { id: 2, labelKey: "checkout.stepBusiness", icon: Building2 },
+  { id: 3, labelKey: "checkout.stepPayment", icon: CreditCard },
+  { id: 4, labelKey: "checkout.stepDone", icon: CheckCircle },
+];
 
 const paymentMethods = [
   { id: "bkash", name: "bKash", number: "01XXXXXXXXX", color: "#E2136E" },
@@ -91,11 +89,9 @@ const slideVariants = {
   exit: (direction: number) => ({ x: direction > 0 ? -40 : 40, opacity: 0 }),
 };
 
-export default function CheckoutPage() {
-  return <Checkout />;
-}
-
-function Checkout() {
+export default function Checkout() {
+  const { t } = useLanguage();
+  const steps = steps_data.map(s => ({ ...s, label: t(s.labelKey) }));
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
