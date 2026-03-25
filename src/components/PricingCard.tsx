@@ -2,6 +2,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PricingCardProps {
   pkg: {
@@ -21,6 +22,7 @@ interface PricingCardProps {
 }
 
 const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
+  const { t } = useLanguage();
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -74,7 +76,6 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
       style={{ perspective: 800 }}
       className={`relative pt-4 ${pkg.popular ? "md:-mt-4 md:mb-[-16px]" : ""}`}
     >
-      {/* Popular badge — centered on top border of the card */}
       {pkg.popular && (
         <div className="absolute top-[4px] left-1/2 -translate-x-1/2 z-20">
           <motion.span
@@ -84,7 +85,7 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
             transition={{ delay: 0.4, type: "spring" as const, stiffness: 200 }}
             className="inline-flex items-center gap-1.5 px-5 py-1.5 text-xs font-semibold rounded-full bg-gradient-primary text-primary-foreground shadow-lg shadow-primary/25 whitespace-nowrap"
           >
-            <Sparkles className="h-3 w-3" /> Most Popular
+            <Sparkles className="h-3 w-3" /> {t("pricingCard.mostPopular")}
           </motion.span>
         </div>
       )}
@@ -106,7 +107,6 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
             : "border-border bg-card shadow-card hover:border-primary/20"
         }`}
       >
-        {/* Cursor-following glow */}
         <motion.div
           className="pointer-events-none absolute inset-0 rounded-2xl"
           style={{
@@ -116,12 +116,10 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
           }}
         />
 
-        {/* Top edge glow for popular */}
         {pkg.popular && (
           <div className="absolute top-0 left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
         )}
 
-        {/* Content */}
         <div className="relative z-10 flex flex-col h-full">
           <div className="mb-6">
             <h3 className="text-xl font-semibold font-display">{pkg.name}</h3>
@@ -141,7 +139,7 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
                   {isYearly ? pkg.regularYearlyPrice : pkg.regularPrice}
                 </span>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                  {isYearly ? "১ম বছর ছাড়!" : "১ম মাস ছাড়!"}
+                  {isYearly ? t("pricingCard.firstYearDiscount") : t("pricingCard.firstMonthDiscount")}
                 </span>
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-destructive/10 text-destructive">
                   {discountPercent}% OFF
@@ -152,12 +150,12 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
                 {isYearly ? pkg.firstYearYearlyPrice : pkg.firstYearPrice}
               </span>
               <span className="text-muted-foreground text-sm">
-                /{isYearly ? "year" : "month"}
+                {isYearly ? t("pricingCard.perYear") : t("pricingCard.perMonth")}
               </span>
               <p className="text-xs text-muted-foreground mt-2">
-                রিনিউয়াল: {pkg.currency}
-                {isYearly ? pkg.regularYearlyPrice : pkg.regularPrice}/
-                {isYearly ? "year" : "month"}
+                {t("pricingCard.renewal")}: {pkg.currency}
+                {isYearly ? pkg.regularYearlyPrice : pkg.regularPrice}
+                {isYearly ? t("pricingCard.perYear") : t("pricingCard.perMonth")}
               </p>
             </motion.div>
           </div>
@@ -180,9 +178,8 @@ const PricingCard = ({ pkg, isYearly, onBuy, index }: PricingCardProps) => {
                   : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
               } transition-all`}
             >
-              {/* Shine sweep */}
               <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-              <span className="relative z-10">শুরু করুন</span>
+              <span className="relative z-10">{t("pricingCard.getStarted")}</span>
             </Button>
           </motion.div>
         </div>

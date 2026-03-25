@@ -160,13 +160,13 @@ const ComparisonSection = () => {
 
           <div className="grid grid-cols-[1.2fr_1fr_1fr] border-t-2 border-primary/20 bg-primary/[0.03]">
             <div className="p-3 md:p-5 flex items-center">
-              <span className="text-xs md:text-sm font-bold text-foreground">সিদ্ধান্ত</span>
+              <span className="text-xs md:text-sm font-bold text-foreground">{t("comparison.verdict")}</span>
             </div>
             <div className="p-3 md:p-5 flex items-center justify-center border-l border-border/50">
-              <span className="text-[11px] md:text-xs text-destructive/70 font-medium text-center">বেশি খরচ, কম ফলাফল</span>
+              <span className="text-[11px] md:text-xs text-destructive/70 font-medium text-center">{t("comparison.hiringVerdict")}</span>
             </div>
             <div className="p-3 md:p-5 flex items-center justify-center border-l border-primary/20">
-              <span className="text-[11px] md:text-xs text-primary font-bold text-center">কম খরচে সেরা ফলাফল ✓</span>
+              <span className="text-[11px] md:text-xs text-primary font-bold text-center">{t("comparison.arodxVerdict")}</span>
             </div>
           </div>
         </motion.div>
