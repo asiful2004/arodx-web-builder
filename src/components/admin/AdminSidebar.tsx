@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
-  LayoutDashboard, ShoppingBag, Building2, Users, Settings, LogOut, Shield, Ticket, MessageCircle, UserCog, BarChart3,
+  LayoutDashboard, ShoppingBag, Building2, Users, Settings, LogOut, Shield, Ticket, MessageCircle, UserCog, BarChart3, ScrollText,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -25,6 +25,7 @@ const getMainItems = (t: (k: string) => string) => [
   { title: t("admin.liveChat"), url: "/admin/chat", icon: MessageCircle },
   { title: t("admin.contactSubmissions"), url: "/admin/contacts", icon: Mail },
   { title: t("admin.analytics"), url: "/admin/analytics", icon: BarChart3 },
+  { title: t("admin.logs"), url: "/admin/logs", icon: ScrollText },
 ];
 
 const getStaffItems = (t: (k: string) => string) => [

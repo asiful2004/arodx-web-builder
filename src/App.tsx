@@ -42,6 +42,7 @@ const AdminWebsiteContentPage = lazy(() => import("./components/admin/AdminWebsi
 const AdminChatPage = lazy(() => import("./components/admin/AdminChatPage"));
 const AdminContactSubmissionsPage = lazy(() => import("./components/admin/AdminContactSubmissionsPage"));
 const AdminAnalyticsPage = lazy(() => import("./components/admin/AdminAnalyticsPage"));
+const AdminLogsPage = lazy(() => import("./components/admin/AdminLogsPage"));
 const StaffPanelPage = lazy(() => import("./components/admin/StaffPanelPage"));
 const StaffLayout = lazy(() => import("./components/staff/StaffLayout"));
 const StaffOverviewPage = lazy(() => import("./components/staff/StaffOverviewPage"));
@@ -118,6 +119,7 @@ const App = () => {
                   <Route path="chat" element={<AdminChatPage />} />
                   <Route path="contacts" element={<AdminContactSubmissionsPage />} />
                   <Route path="analytics" element={<AdminAnalyticsPage />} />
+                  <Route path="logs" element={<AdminLogsPage />} />
                   <Route path="staff" element={<StaffPanelPage />} />
                 </Route>
                 <Route path="/staff" element={<StaffLayout />}>
