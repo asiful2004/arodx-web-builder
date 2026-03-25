@@ -32,8 +32,8 @@ const SignUp = () => {
         },
       });
       if (error) throw error;
-      toast({ title: t("auth.accountCreated"), description: t("auth.verifyEmail") });
-      navigate("/signin");
+      toast({ title: t("auth.accountCreated"), description: t("auth.checkEmailForCode") });
+      navigate(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (error: any) {
       toast({ title: t("auth.signUpFailed"), description: error.message, variant: "destructive" });
     } finally {
