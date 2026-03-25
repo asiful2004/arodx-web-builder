@@ -271,7 +271,7 @@ export default function OverviewPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {activeOrders.map((order, i) => {
-              const statusInfo = getStatusInfo(order);
+              const statusInfo = getStatusInfo(order, t);
               const biz = order.business;
 
               return (
