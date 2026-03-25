@@ -15,6 +15,7 @@ import { usePageTracker } from "@/hooks/usePageTracker";
 // Lazy load non-critical routes for performance
 const SignIn = lazy(() => import("./pages/SignIn"));
 const SignUp = lazy(() => import("./pages/SignUp"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const DashboardLayout = lazy(() => import("./components/dashboard/DashboardLayout"));
@@ -91,6 +92,7 @@ const App = () => {
                 <Route path="/" element={<><Index /><Suspense fallback={null}><LiveChat /></Suspense></>} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/dashboard" element={<DashboardLayout />}>
