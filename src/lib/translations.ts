@@ -993,13 +993,7 @@ export const translations: Record<string, Record<string, string>> = {
     "admin.ai.error": "এরর:",
     "admin.ai.unknownError": "অজানা সমস্যা",
 
-    // Admin Businesses
-    "admin.biz.title": "ব্যবসা সমূহ",
-    "admin.biz.subtitle": "রেজিস্টার্ড সকল ব্যবসার তালিকা",
-    "admin.biz.noBusinesses": "এখনো কোনো ব্যবসা নেই",
-    "admin.biz.noName": "নাম নেই",
-    "admin.biz.own": "নিজস্ব",
-    "admin.biz.package": "প্যাকেজ",
+    // Admin Businesses (keys moved to bottom of bn block)
 
     // Admin Staff Panel
     "admin.staff.title": "স্টাফ প্যানেল",
@@ -2117,13 +2111,7 @@ export const translations: Record<string, Record<string, string>> = {
     "admin.ai.error": "Error:",
     "admin.ai.unknownError": "Unknown error",
 
-    // Admin Businesses
-    "admin.biz.title": "Businesses",
-    "admin.biz.subtitle": "List of all registered businesses",
-    "admin.biz.noBusinesses": "No businesses yet",
-    "admin.biz.noName": "No name",
-    "admin.biz.own": "Own",
-    "admin.biz.package": "Package",
+    // Admin Businesses (keys moved to bottom of en block)
 
     // Admin Staff Panel
     "admin.staff.title": "Staff Panel",
