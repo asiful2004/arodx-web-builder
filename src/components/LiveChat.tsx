@@ -389,7 +389,7 @@ export default function LiveChat() {
               }`} style={{ transition: "width 0.3s" }} />
             </div>
             <p className={`text-[9px] mt-0.5 ${isClient ? "text-primary-foreground/60" : "text-muted-foreground/60"}`}>
-              🎤 ভয়েস মেসেজ
+              {t("chat.voiceMessage")}
             </p>
           </div>
         </div>
