@@ -67,7 +67,7 @@ const ContactSection = () => {
   const subtitle = t("contact.subtitle", contact?.subtitle);
   const email = contact?.email || "arodxofficial@gmail.com";
   const phone = contact?.phone || "+880 1XXX-XXXXXX";
-  const address = contact?.address || "ঢাকা, বাংলাদেশ";
+  const address = t("contact.addressValue", contact?.address);
   const officeHours = contact?.office_hours || {};
   const schedule = officeHours?.schedule as any[] | undefined;
 
