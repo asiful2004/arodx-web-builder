@@ -131,7 +131,7 @@ export default function Checkout() {
   // Redirect to signin if not logged in
   useEffect(() => {
     if (!authLoading && !user) {
-      toast.error("প্যাকেজ কিনতে আগে লগইন করুন");
+      toast.error(t("checkout.loginRequired"));
       navigate(`/signin?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
     }
   }, [user, authLoading, navigate]);
