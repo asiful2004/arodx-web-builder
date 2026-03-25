@@ -224,8 +224,8 @@ export default function OverviewPage() {
               </div>
               <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            <p className="text-xs font-semibold text-foreground">অর্ডার দেখুন</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{orderCount}টি অর্ডার</p>
+             <p className="text-xs font-semibold text-foreground">{t("overview.viewOrders")}</p>
+             <p className="text-[10px] text-muted-foreground mt-0.5">{orderCount}{t("overview.ordersCount")}</p>
           </button>
           <button
             onClick={() => navigate("/dashboard/tickets")}
