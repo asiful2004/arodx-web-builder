@@ -591,7 +591,7 @@ export default function LiveChat() {
                           <AvatarFallback className="text-[10px] font-bold bg-accent text-accent-foreground">AX</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col items-start">
-                          <p className="text-[10px] mb-0.5 text-muted-foreground">টাইপ করছে...</p>
+                          <p className="text-[10px] mb-0.5 text-muted-foreground">{t("chat.typing")}</p>
                           <div className="px-4 py-2.5 rounded-xl bg-accent text-accent-foreground rounded-tl-sm">
                             <div className="flex items-center gap-1">
                               <span className="h-2 w-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "0ms", animationDuration: "1s" }} />
