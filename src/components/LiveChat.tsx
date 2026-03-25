@@ -484,10 +484,10 @@ export default function LiveChat() {
                   <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
                     <img src={aiRobotAvatar} alt="Support" className="h-12 w-12 object-contain" />
                   </div>
-                  <h3 className="text-base font-bold text-foreground">আমাদের সাথে চ্যাট করুন</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    যেকোনো প্রশ্ন বা সাহায্যের জন্য আমরা আছি
-                  </p>
+                   <h3 className="text-base font-bold text-foreground">{t("chat.chatWithUs")}</h3>
+                   <p className="text-xs text-muted-foreground leading-relaxed">
+                     {t("chat.helpMessage")}
+                   </p>
                 </div>
 
                 {/* Support info cards */}
