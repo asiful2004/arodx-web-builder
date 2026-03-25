@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import BusinessManageDialog from "./BusinessManageDialog";
+import CreateCustomBusinessDialog from "./CreateCustomBusinessDialog";
 
 const categoryIconMap: Record<string, LucideIcon> = {
   "Fashion & Clothing": Shirt, "E-commerce": ShoppingCart, "Food & Restaurant": UtensilsCrossed,
@@ -77,6 +78,7 @@ export default function AdminBusinessesPage() {
   const [loading, setLoading] = useState(true);
   const [selectedBiz, setSelectedBiz] = useState<Business | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -142,9 +144,14 @@ export default function AdminBusinessesPage() {
           <h1 className="text-xl font-bold font-display text-foreground">{t("admin.businesses")}</h1>
           <p className="text-sm text-muted-foreground">{t("admin.biz.subtitle")}</p>
         </div>
-        <Badge variant="secondary" className="text-xs">
-          {t("admin.biz.total")}: {businesses.length}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setCreateOpen(true)} size="sm" className="gap-1.5">
+            <Plus className="w-4 h-4" /> {t("admin.biz.custom.createBtn")}
+          </Button>
+          <Badge variant="secondary" className="text-xs">
+            {t("admin.biz.total")}: {businesses.length}
+          </Badge>
+        </div>
       </div>
 
       {businesses.length === 0 ? (
@@ -302,6 +309,12 @@ export default function AdminBusinessesPage() {
           if (!val) setSelectedBiz(null);
         }}
         onSaved={fetchData}
+      />
+
+      <CreateCustomBusinessDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={fetchData}
       />
     </div>
   );
