@@ -13,25 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-const dashboardItems = [
-  { title: "ওভারভিউ", url: "/dashboard", icon: LayoutDashboard },
-];
-
-const serviceItems = [
-  { title: "অর্ডার", url: "/dashboard/orders", icon: ShoppingBag },
-  { title: "সাপোর্ট টিকেট", url: "/dashboard/tickets", icon: Ticket },
-];
-
-const accountItems = [
-  { title: "প্রোফাইল", url: "/dashboard/profile", icon: User },
-  { title: "নোটিফিকেশন", url: "/dashboard/notifications", icon: Bell },
-  { title: "সেটিংস", url: "/dashboard/settings", icon: Settings },
-];
-
-const supportItems = [
-  { title: "সাহায্য", url: "/dashboard/help", icon: HelpCircle },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const STAFF_ROLES = ["hr", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
 
@@ -50,6 +32,26 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
+
+  const dashboardItems = [
+    { title: t("dashboard.overview"), url: "/dashboard", icon: LayoutDashboard },
+  ];
+
+  const serviceItems = [
+    { title: t("dashboard.orders"), url: "/dashboard/orders", icon: ShoppingBag },
+    { title: t("dashboard.supportTickets"), url: "/dashboard/tickets", icon: Ticket },
+  ];
+
+  const accountItems = [
+    { title: t("dashboard.profile"), url: "/dashboard/profile", icon: User },
+    { title: t("dashboard.notifications"), url: "/dashboard/notifications", icon: Bell },
+    { title: t("dashboard.settings"), url: "/dashboard/settings", icon: Settings },
+  ];
+
+  const supportItems = [
+    { title: t("dashboard.help"), url: "/dashboard/help", icon: HelpCircle },
+  ];
 
   const closeMobileMenu = () => {
     if (isMobile) setOpenMobile(false);
@@ -71,6 +73,8 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
     await signOut();
     navigate("/");
   };
+
+  const roleLabel = userRole === 'admin' ? t("dashboard.admin") : userRole === 'client' ? t("dashboard.client") : userRole === 'moderator' ? t("dashboard.moderator") : t("dashboard.user");
 
   const renderMenuItems = (items: typeof dashboardItems) =>
     items.map((item) => (
@@ -103,7 +107,7 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-sm font-semibold text-sidebar-foreground truncate flex items-center gap-1">
-                {profile.full_name || "নাম সেট করুন"}
+                {profile.full_name || t("dashboard.setName")}
                 {isAdmin && <BadgeCheck className="w-4 h-4 text-primary shrink-0" />}
               </p>
               <p className="text-[11px] text-muted-foreground truncate">
@@ -111,7 +115,7 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
               </p>
               {userRole && (
                 <span className="inline-block mt-0.5 px-2 py-0.5 text-[10px] font-medium rounded-full bg-primary/10 text-primary capitalize">
-                  {userRole === 'admin' ? 'অ্যাডমিন' : userRole === 'client' ? 'ক্লায়েন্ট' : userRole === 'moderator' ? 'মডারেটর' : 'ইউজার'}
+                  {roleLabel}
                 </span>
               )}
             </div>
@@ -121,28 +125,28 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>ড্যাশবোর্ড</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("dashboard.dashboardLabel")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderMenuItems(dashboardItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>সার্ভিস ও অর্ডার</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("dashboard.servicesAndOrders")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderMenuItems(serviceItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>অ্যাকাউন্ট</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("dashboard.account")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderMenuItems(accountItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>সাপোর্ট</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("dashboard.support")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderMenuItems(supportItems)}</SidebarMenu>
           </SidebarGroupContent>
@@ -150,7 +154,7 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
 
         {(isAdmin || isStaff) && (
           <SidebarGroup>
-            <SidebarGroupLabel>কুইক অ্যাক্সেস</SidebarGroupLabel>
+            <SidebarGroupLabel>{t("dashboard.quickAccess")}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {isAdmin && (
@@ -163,7 +167,7 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
                         onClick={closeMobileMenu}
                       >
                         <Shield className="mr-2 h-4 w-4" />
-                        {!collapsed && <span>অ্যাডমিন প্যানেল</span>}
+                        {!collapsed && <span>{t("dashboard.adminPanel")}</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -178,7 +182,7 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
                         onClick={closeMobileMenu}
                       >
                         <Briefcase className="mr-2 h-4 w-4" />
-                        {!collapsed && <span>স্টাফ প্যানেল</span>}
+                        {!collapsed && <span>{t("dashboard.staffPanel")}</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -197,7 +201,7 @@ export function DashboardSidebar({ profile, isAdmin, userRole, userRoles = [] }:
           className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>লগ আউট</span>}
+          {!collapsed && <span>{t("dashboard.logout")}</span>}
         </Button>
       </SidebarFooter>
     </Sidebar>

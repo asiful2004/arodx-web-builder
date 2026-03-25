@@ -10,6 +10,7 @@ import NotificationBell from "@/components/shared/NotificationBell";
 import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
 import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const STAFF_ROLES = ["admin", "hr", "graphics_designer", "web_developer", "project_manager", "digital_marketer"];
 const SEND_NOTIF_ROLES = ["admin", "hr", "project_manager"];
@@ -20,6 +21,7 @@ export default function StaffLayout() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const presenceValue = useOnlinePresenceProvider();
+  const { t } = useLanguage();
 
   const canSendNotif = userRoles.some(r => SEND_NOTIF_ROLES.includes(r));
 
@@ -29,19 +31,18 @@ export default function StaffLayout() {
     }
   }, [user, authLoading, navigate]);
 
-  // Check staff authorization using cached roles
   useEffect(() => {
     if (!user || authLoading) return;
-    if (userRoles.length === 0) return; // Roles not loaded yet
+    if (userRoles.length === 0) return;
 
     const hasStaffAccess = userRoles.some(r => STAFF_ROLES.includes(r));
     if (!hasStaffAccess) {
       navigate("/dashboard");
-      toast({ title: "অ্যাক্সেস নেই", description: "আপনার স্টাফ প্যানেলে অ্যাক্সেস নেই।", variant: "destructive" });
+      toast({ title: t("staff.noAccess"), description: t("staff.noAccessDesc"), variant: "destructive" });
       return;
     }
     setAuthorized(true);
-  }, [user, authLoading, userRoles, navigate, toast]);
+  }, [user, authLoading, userRoles, navigate, toast, t]);
 
   if (authLoading || !user || authorized === null) {
     return (
@@ -66,7 +67,7 @@ export default function StaffLayout() {
                 className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                ড্যাশবোর্ড
+                {t("staff.dashboard")}
               </Link>
             </div>
             <div className="flex items-center gap-2">

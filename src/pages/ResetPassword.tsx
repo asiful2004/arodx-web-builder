@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -12,15 +13,14 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
-    // Check for recovery token in URL hash
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     if (!hashParams.get("type") || hashParams.get("type") !== "recovery") {
-      // Also check query params
       const queryParams = new URLSearchParams(window.location.search);
       if (!queryParams.get("type") || queryParams.get("type") !== "recovery") {
-        // Allow access anyway for UX, the updateUser call will fail if no session
+        // Allow access anyway for UX
       }
     }
   }, []);
@@ -28,21 +28,21 @@ const ResetPassword = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast({ title: "পাসওয়ার্ড মিলছে না", variant: "destructive" });
+      toast({ title: t("auth.passwordMismatch"), variant: "destructive" });
       return;
     }
     if (password.length < 6) {
-      toast({ title: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে", variant: "destructive" });
+      toast({ title: t("auth.passwordMinLength"), variant: "destructive" });
       return;
     }
     setLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
-      toast({ title: "পাসওয়ার্ড আপডেট হয়েছে!" });
+      toast({ title: t("auth.passwordUpdated") });
       navigate("/signin");
     } catch (error: any) {
-      toast({ title: "ব্যর্থ", description: error.message, variant: "destructive" });
+      toast({ title: t("auth.failed"), description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -61,13 +61,13 @@ const ResetPassword = () => {
             <Link to="/" className="text-3xl font-bold font-display text-gradient">
               Arodx
             </Link>
-            <h1 className="text-2xl font-bold text-foreground mt-4">Reset Password</h1>
-            <p className="text-muted-foreground mt-2">Enter your new password</p>
+            <h1 className="text-2xl font-bold text-foreground mt-4">{t("auth.resetPassword")}</h1>
+            <p className="text-muted-foreground mt-2">{t("auth.enterNewPassword")}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm text-muted-foreground mb-1 block">New Password</label>
+              <label className="text-sm text-muted-foreground mb-1 block">{t("auth.newPassword")}</label>
               <Input
                 type="password"
                 placeholder="••••••••"
@@ -78,7 +78,7 @@ const ResetPassword = () => {
               />
             </div>
             <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Confirm Password</label>
+              <label className="text-sm text-muted-foreground mb-1 block">{t("auth.confirmPassword")}</label>
               <Input
                 type="password"
                 placeholder="••••••••"
@@ -93,13 +93,13 @@ const ResetPassword = () => {
               className="w-full rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90"
               disabled={loading}
             >
-              {loading ? "Updating..." : "Update Password"}
+              {loading ? t("auth.updating") : t("auth.updatePassword")}
             </Button>
           </form>
 
           <p className="text-center text-sm mt-6">
             <Link to="/signin" className="text-muted-foreground hover:text-foreground transition-colors">
-              ← Back to Sign In
+              {t("auth.backToSignIn")}
             </Link>
           </p>
         </div>
