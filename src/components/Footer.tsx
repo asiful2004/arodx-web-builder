@@ -17,7 +17,7 @@ const Footer = () => {
   const description = t("footer.description", footer?.description);
   const email = footer?.email || "arodxofficial@gmail.com";
   const phone = footer?.phone || "+880 1XXX-XXXXXX";
-  const address = footer?.address || "ঢাকা, বাংলাদেশ";
+  const address = t("contact.addressValue", footer?.address);
   const socialLinks = footer?.social_links || [];
   const quickLinks = footer?.quick_links || [];
   const serviceLinks = footer?.service_links || [];
