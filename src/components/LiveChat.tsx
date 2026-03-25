@@ -338,7 +338,7 @@ export default function LiveChat() {
       if (user && m.sender_id === user.id) {
         return { name: clientProfile.full_name || user.user_metadata?.full_name || t("chat.you"), avatar: clientProfile.avatar_url || user.user_metadata?.avatar_url || null };
       }
-      return { name: guestName || "গেস্ট", avatar: null, isGuest: true };
+      return { name: guestName || t("chat.guest"), avatar: null, isGuest: true };
     }
     if (m.sender_type === "admin") {
       const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
