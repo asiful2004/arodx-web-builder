@@ -176,7 +176,7 @@ export default function OverviewPage() {
           </div>
           <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-secondary/50 px-3 py-1.5 rounded-full">
             <Activity className="w-3 h-3 text-green-500" />
-            <span>{isAdmin ? "অ্যাডমিন" : "অ্যাক্টিভ"}</span>
+            <span>{isAdmin ? t("dashboard.admin") : t("overview.active")}</span>
           </div>
         </div>
       </motion.div>
