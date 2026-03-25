@@ -235,7 +235,7 @@ export default function Checkout() {
       goNext();
     } catch (err) {
       console.error(err);
-      toast.error("অর্ডার সাবমিট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+      toast.error(t("checkout.submitError"));
     } finally {
       setLoading(false);
     }
