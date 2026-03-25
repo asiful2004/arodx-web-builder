@@ -3,11 +3,41 @@ import { Link, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+
+// Disposable email domains (common ones)
+const DISPOSABLE_DOMAINS = new Set([
+  "tempmail.com","throwaway.email","guerrillamail.com","mailinator.com",
+  "yopmail.com","10minutemail.com","trashmail.com","fakeinbox.com",
+  "sharklasers.com","guerrillamailblock.com","grr.la","dispostable.com",
+  "maildrop.cc","temp-mail.org","mohmal.com","getnada.com","emailondeck.com",
+  "tempail.com","burnermail.io","mailnesia.com","tmail.ws","tmpmail.net",
+  "tmpmail.org","bupmail.com","discard.email","discardmail.com",
+]);
+
+function isDisposableEmail(email: string): boolean {
+  const domain = email.split("@")[1]?.toLowerCase();
+  if (!domain) return false;
+  return DISPOSABLE_DOMAINS.has(domain);
+}
+
+const SIGNUP_RATE_KEY = "signup_attempts";
+
+function getSignupRateLimit() {
+  try {
+    const stored = localStorage.getItem(SIGNUP_RATE_KEY);
+    if (!stored) return { count: 0, resetAt: 0 };
+    return JSON.parse(stored);
+  } catch { return { count: 0, resetAt: 0 }; }
+}
+
+function setSignupRateLimit(state: { count: number; resetAt: number }) {
+  localStorage.setItem(SIGNUP_RATE_KEY, JSON.stringify(state));
+}
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -15,12 +45,39 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const honeypotRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Honeypot check
+    if (honeypotRef.current?.value) {
+      // Bot detected, silently fail
+      toast({ title: t("auth.accountCreated"), description: t("auth.checkEmailForCode") });
+      return;
+    }
+
+    // Disposable email check
+    if (isDisposableEmail(email)) {
+      toast({ title: t("auth.signUpFailed"), description: t("auth.disposableEmail"), variant: "destructive" });
+      return;
+    }
+
+    // Rate limit signup attempts (max 3 per hour)
+    const rl = getSignupRateLimit();
+    if (rl.resetAt > Date.now() && rl.count >= 3) {
+      toast({ title: t("auth.signUpFailed"), description: t("auth.suspiciousActivity"), variant: "destructive" });
+      return;
+    }
+    if (rl.resetAt <= Date.now()) {
+      setSignupRateLimit({ count: 1, resetAt: Date.now() + 3600000 });
+    } else {
+      setSignupRateLimit({ count: rl.count + 1, resetAt: rl.resetAt });
+    }
+
     setLoading(true);
     try {
       const { error } = await supabase.auth.signUp({
@@ -60,6 +117,10 @@ const SignUp = () => {
 
           <GoogleSignInButton loading={loading} label={t("auth.signUpWithGoogle")} />
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Honeypot - hidden from real users */}
+            <div className="absolute opacity-0 pointer-events-none" aria-hidden="true" style={{ position: "absolute", left: "-9999px" }}>
+              <input type="text" name="website" tabIndex={-1} autoComplete="off" ref={honeypotRef} />
+            </div>
             <div>
               <label className="text-sm text-muted-foreground mb-1 block">{t("auth.fullName")}</label>
               <Input
