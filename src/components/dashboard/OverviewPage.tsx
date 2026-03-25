@@ -87,6 +87,7 @@ const getStatusInfo = (order: ActiveOrder, t: (key: string) => string) => {
 
 export default function OverviewPage() {
   const { user, profile, isAdmin } = useOutletContext<DashboardContext>();
+  const { t, language } = useLanguage();
   const [orderCount, setOrderCount] = useState(0);
   const [activeOrders, setActiveOrders] = useState<ActiveOrder[]>([]);
   const [ticketCount, setTicketCount] = useState(0);
