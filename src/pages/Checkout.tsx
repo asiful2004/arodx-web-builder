@@ -381,7 +381,7 @@ export default function Checkout() {
 
               <div className="flex justify-end">
                 <Button onClick={goNext} className="bg-gradient-primary text-primary-foreground px-8 py-5 font-semibold">
-                  পরবর্তী <ArrowRight className="ml-2 w-4 h-4" />
+                  {t("checkout.next")} <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </div>
             </motion.div>
