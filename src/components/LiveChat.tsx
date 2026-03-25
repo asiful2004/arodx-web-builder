@@ -336,7 +336,7 @@ export default function LiveChat() {
   const getSenderInfo = (m: ChatMessage): { name: string; avatar: string | null; isGuest?: boolean } => {
     if (m.sender_type === "client") {
       if (user && m.sender_id === user.id) {
-        return { name: clientProfile.full_name || user.user_metadata?.full_name || "আপনি", avatar: clientProfile.avatar_url || user.user_metadata?.avatar_url || null };
+        return { name: clientProfile.full_name || user.user_metadata?.full_name || t("chat.you"), avatar: clientProfile.avatar_url || user.user_metadata?.avatar_url || null };
       }
       return { name: guestName || "গেস্ট", avatar: null, isGuest: true };
     }
