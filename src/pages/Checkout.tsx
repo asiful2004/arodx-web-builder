@@ -356,7 +356,7 @@ export default function Checkout() {
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold text-gradient">{currency}{amount}</p>
-                    <p className="text-xs text-muted-foreground">/{billingPeriod === "yearly" ? "বছর" : "মাস"}</p>
+                    <p className="text-xs text-muted-foreground">/{billingPeriod === "yearly" ? t("checkout.year") : t("checkout.month")}</p>
                   </div>
                 </div>
 
