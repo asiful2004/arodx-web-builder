@@ -497,8 +497,8 @@ export default function LiveChat() {
                       <Bot className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-foreground">🤖 AI Agent — 24/7</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">তাৎক্ষণিক উত্তর, যেকোনো সময়</p>
+                      <p className="text-xs font-semibold text-foreground">{t("chat.aiAgent")}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{t("chat.aiAgentDesc")}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
