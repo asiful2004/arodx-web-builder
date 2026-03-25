@@ -519,7 +519,7 @@ export default function LiveChat() {
                 {!user && (
                   <div className="space-y-2">
                     <Input
-                      placeholder="আপনার নাম"
+                      placeholder={t("chat.yourName")}
                       value={guestName}
                       onChange={(e) => setGuestName(e.target.value)}
                       className="text-sm h-9"
