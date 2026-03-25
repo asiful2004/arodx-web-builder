@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import SendNotificationDialog from "@/components/shared/SendNotificationDialog";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
 import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
+import { useDashboardActivityTracker } from "@/hooks/useDashboardActivityTracker";
 
 interface Notification {
   id: string;
@@ -32,6 +33,7 @@ export default function AdminLayout() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const presenceValue = useOnlinePresenceProvider();
+  useDashboardActivityTracker();
 
   // Persistent chat notification state
   const [unansweredSessions, setUnansweredSessions] = useState<Set<string>>(new Set());

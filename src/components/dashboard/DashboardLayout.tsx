@@ -9,12 +9,14 @@ import NotificationBell from "@/components/shared/NotificationBell";
 import OnlineMembersPanel, { OnlineMembersTrigger } from "@/components/shared/OnlineMembersPanel";
 import { OnlinePresenceContext, useOnlinePresenceProvider } from "@/hooks/useOnlinePresence";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useDashboardActivityTracker } from "@/hooks/useDashboardActivityTracker";
 
 export default function DashboardLayout() {
   const { user, loading: authLoading, profile, setProfile, isAdmin, userRoles } = useAuth();
   const navigate = useNavigate();
   const presenceValue = useOnlinePresenceProvider();
   const { t } = useLanguage();
+  useDashboardActivityTracker();
 
   const userRole = userRoles.length > 0 ? userRoles[0] : "";
 
