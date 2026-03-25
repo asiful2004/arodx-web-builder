@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
-  Building2, Globe, Phone, MapPin, Loader2, Mail, Settings, Calendar,
+  Building2, Globe, Phone, MapPin, Loader2, Mail, Settings, Calendar, Plus,
   Clock, CheckCircle2, XCircle, AlertTriangle,
   Shirt, ShoppingCart, UtensilsCrossed, Stethoscope, GraduationCap, Briefcase,
   Palette, Cpu, Car, Plane, Landmark, Dumbbell, Music, Camera, Wrench, Heart,
