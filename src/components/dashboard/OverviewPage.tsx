@@ -329,7 +329,7 @@ export default function OverviewPage() {
                           <div className="flex items-center gap-2">
                             <Globe className="w-3 h-3 shrink-0" /> {biz.domain_name}
                             <Badge variant="secondary" className="text-[10px]">
-                              {biz.domain_type === "own" ? "নিজস্ব" : "প্যাকেজ"}
+                              {biz.domain_type === "own" ? t("overview.own") : t("overview.package")}
                             </Badge>
                           </div>
                         )}
