@@ -175,7 +175,7 @@ export default function Checkout() {
 
   const handleSubmit = async () => {
     if (!transactionId || !selectedMethod) {
-      toast.error("পেমেন্ট তথ্য পূরণ করুন");
+      toast.error(t("checkout.paymentFillAll"));
       return;
     }
     if (!user) return;
