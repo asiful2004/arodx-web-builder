@@ -363,7 +363,7 @@ export default function Checkout() {
                 <div className="h-px bg-border" />
 
                 <div className="space-y-2.5">
-                  <p className="text-sm font-semibold text-foreground">অন্তর্ভুক্ত ফিচারসমূহ:</p>
+                  <p className="text-sm font-semibold text-foreground">{t("checkout.includedFeatures")}</p>
                   {pkg?.features.map((f, i) => (
                     <motion.div
                       key={i}
