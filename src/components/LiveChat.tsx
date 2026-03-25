@@ -627,7 +627,7 @@ export default function LiveChat() {
                         <Image className="h-4 w-4" />
                       </Button>
                       <Input
-                        placeholder="মেসেজ লিখুন..."
+                        placeholder={t("chat.inputPlaceholder")}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         className="flex-1 text-sm h-8 border-0 bg-muted/50 focus-visible:ring-0"
