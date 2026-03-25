@@ -23,6 +23,15 @@ export default function DashboardLayout() {
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/signin");
+      return;
+    }
+    // Block unverified email users (Google OAuth users are always verified)
+    if (!authLoading && user) {
+      const isGoogleUser = user.app_metadata?.provider === "google" || user.app_metadata?.providers?.includes("google");
+      const isEmailConfirmed = !!user.email_confirmed_at;
+      if (!isGoogleUser && !isEmailConfirmed) {
+        navigate(`/verify-email?email=${encodeURIComponent(user.email || "")}`);
+      }
     }
   }, [user, authLoading, navigate]);
 
