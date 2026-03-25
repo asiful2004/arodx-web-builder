@@ -211,7 +211,7 @@ export default function OverviewPage() {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
         <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2 px-1">
           <Activity className="w-4 h-4 text-primary" />
-          দ্রুত অ্যাক্সেস
+          {t("overview.quickAccess")}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <button
