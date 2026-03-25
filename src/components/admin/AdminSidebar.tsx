@@ -12,30 +12,31 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 import { Globe, Mail } from "lucide-react";
 
-const mainItems = [
-  { title: "ওভারভিউ", url: "/admin", icon: LayoutDashboard },
-  { title: "অর্ডার ম্যানেজমেন্ট", url: "/admin/orders", icon: ShoppingBag },
-  { title: "ব্যবসা সমূহ", url: "/admin/businesses", icon: Building2 },
-  { title: "ইউজার ম্যানেজমেন্ট", url: "/admin/users", icon: Users },
-  { title: "টিকেট ম্যানেজমেন্ট", url: "/admin/tickets", icon: Ticket },
-  { title: "লাইভ চ্যাট", url: "/admin/chat", icon: MessageCircle },
-  { title: "কন্টাক্ট সাবমিশন", url: "/admin/contacts", icon: Mail },
-  { title: "অ্যানালিটিক্স", url: "/admin/analytics", icon: BarChart3 },
+const getMainItems = (t: (k: string) => string) => [
+  { title: t("admin.overview"), url: "/admin", icon: LayoutDashboard },
+  { title: t("admin.orderManagement"), url: "/admin/orders", icon: ShoppingBag },
+  { title: t("admin.businesses"), url: "/admin/businesses", icon: Building2 },
+  { title: t("admin.userManagement"), url: "/admin/users", icon: Users },
+  { title: t("admin.ticketManagement"), url: "/admin/tickets", icon: Ticket },
+  { title: t("admin.liveChat"), url: "/admin/chat", icon: MessageCircle },
+  { title: t("admin.contactSubmissions"), url: "/admin/contacts", icon: Mail },
+  { title: t("admin.analytics"), url: "/admin/analytics", icon: BarChart3 },
 ];
 
-const staffItems = [
-  { title: "স্টাফ প্যানেল", url: "/staff", icon: UserCog },
+const getStaffItems = (t: (k: string) => string) => [
+  { title: t("admin.staffPanel"), url: "/staff", icon: UserCog },
 ];
 
-const websiteItems = [
-  { title: "ওয়েবসাইট কনটেন্ট", url: "/admin/website", icon: Globe },
+const getWebsiteItems = (t: (k: string) => string) => [
+  { title: t("admin.websiteContent"), url: "/admin/website", icon: Globe },
 ];
 
-const settingsItems = [
-  { title: "সেটিংস", url: "/admin/settings", icon: Settings },
+const getSettingsItems = (t: (k: string) => string) => [
+  { title: t("admin.settings"), url: "/admin/settings", icon: Settings },
 ];
 
 interface AdminSidebarProps {
@@ -50,6 +51,12 @@ export function AdminSidebar({ profile, isAdmin = true }: AdminSidebarProps) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
+
+  const mainItems = getMainItems(t);
+  const staffItems = getStaffItems(t);
+  const websiteItems = getWebsiteItems(t);
+  const settingsItems = getSettingsItems(t);
 
   const closeMobileMenu = () => {
     if (isMobile) setOpenMobile(false);
@@ -82,10 +89,10 @@ export function AdminSidebar({ profile, isAdmin = true }: AdminSidebarProps) {
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-sm font-bold font-display text-sidebar-foreground">
-                অ্যাডমিন প্যানেল
+                {t("admin.panel")}
               </p>
               <p className="text-[11px] text-muted-foreground">
-                ম্যানেজমেন্ট সিস্টেম
+                {t("admin.managementSystem")}
               </p>
             </div>
           )}
@@ -95,7 +102,7 @@ export function AdminSidebar({ profile, isAdmin = true }: AdminSidebarProps) {
       <SidebarContent>
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>ম্যানেজমেন্ট</SidebarGroupLabel>
+            <SidebarGroupLabel>{t("admin.management")}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {mainItems.map((item) => (
@@ -121,7 +128,7 @@ export function AdminSidebar({ profile, isAdmin = true }: AdminSidebarProps) {
 
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>টিম</SidebarGroupLabel>
+            <SidebarGroupLabel>{t("admin.team")}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {staffItems.map((item) => (
@@ -146,7 +153,7 @@ export function AdminSidebar({ profile, isAdmin = true }: AdminSidebarProps) {
 
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>ওয়েবসাইট</SidebarGroupLabel>
+            <SidebarGroupLabel>{t("admin.website")}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {websiteItems.map((item) => (
@@ -171,7 +178,7 @@ export function AdminSidebar({ profile, isAdmin = true }: AdminSidebarProps) {
 
         {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>সিস্টেম</SidebarGroupLabel>
+            <SidebarGroupLabel>{t("admin.system")}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {settingsItems.map((item) => (
@@ -221,7 +228,7 @@ export function AdminSidebar({ profile, isAdmin = true }: AdminSidebarProps) {
           className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>লগ আউট</span>}
+          {!collapsed && <span>{t("admin.logout")}</span>}
         </Button>
       </SidebarFooter>
     </Sidebar>
