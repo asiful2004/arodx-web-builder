@@ -6,8 +6,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
-
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const SignUp = () => {
   const [name, setName] = useState("");
@@ -17,6 +17,7 @@ const SignUp = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,10 +32,10 @@ const SignUp = () => {
         },
       });
       if (error) throw error;
-      toast({ title: "অ্যাকাউন্ট তৈরি হয়েছে!", description: "ইমেইল চেক করে ভেরিফাই করুন।" });
+      toast({ title: t("auth.accountCreated"), description: t("auth.verifyEmail") });
       navigate("/signin");
     } catch (error: any) {
-      toast({ title: "সাইন আপ ব্যর্থ", description: error.message, variant: "destructive" });
+      toast({ title: t("auth.signUpFailed"), description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -53,17 +54,17 @@ const SignUp = () => {
             <Link to="/" className="text-3xl font-bold font-display text-gradient">
               Arodx
             </Link>
-            <h1 className="text-2xl font-bold text-foreground mt-4">Create Account</h1>
-            <p className="text-muted-foreground mt-2">Sign up to get started</p>
+            <h1 className="text-2xl font-bold text-foreground mt-4">{t("auth.createAccount")}</h1>
+            <p className="text-muted-foreground mt-2">{t("auth.signUpSubtitle")}</p>
           </div>
 
-          <GoogleSignInButton loading={loading} label="Sign up with Google" />
+          <GoogleSignInButton loading={loading} label={t("auth.signUpWithGoogle")} />
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Full Name</label>
+              <label className="text-sm text-muted-foreground mb-1 block">{t("auth.fullName")}</label>
               <Input
                 type="text"
-                placeholder="Your name"
+                placeholder={t("auth.yourName")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="bg-background/50 border-border"
@@ -71,7 +72,7 @@ const SignUp = () => {
               />
             </div>
             <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Email</label>
+              <label className="text-sm text-muted-foreground mb-1 block">{t("auth.email")}</label>
               <Input
                 type="email"
                 placeholder="you@example.com"
@@ -82,7 +83,7 @@ const SignUp = () => {
               />
             </div>
             <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Password</label>
+              <label className="text-sm text-muted-foreground mb-1 block">{t("auth.password")}</label>
               <Input
                 type="password"
                 placeholder="••••••••"
@@ -100,13 +101,13 @@ const SignUp = () => {
                 className="mt-0.5"
               />
               <label htmlFor="terms" className="text-sm text-muted-foreground leading-snug cursor-pointer">
-                I agree to the{" "}
+                {t("auth.agreeTerms").split(t("auth.termsAndConditions"))[0]}
                 <Link to="/terms" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
-                  Terms and Conditions
+                  {t("auth.termsAndConditions")}
                 </Link>{" "}
-                and{" "}
+                {t("auth.and")}{" "}
                 <Link to="/privacy" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>
-                  Privacy Policy
+                  {t("auth.privacyPolicy")}
                 </Link>
               </label>
             </div>
@@ -115,19 +116,19 @@ const SignUp = () => {
               className="w-full rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90"
               disabled={loading || !agreedToTerms}
             >
-              {loading ? "Creating account..." : "Sign Up"}
+              {loading ? t("auth.creatingAccount") : t("auth.signUp")}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
-            Already have an account?{" "}
+            {t("auth.hasAccount")}{" "}
             <Link to="/signin" className="text-primary hover:underline">
-              Sign In
+              {t("auth.signIn")}
             </Link>
           </p>
           <p className="text-center text-sm mt-2">
             <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
-              ← Back to Home
+              {t("auth.backToHome")}
             </Link>
           </p>
         </div>

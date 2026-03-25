@@ -14,27 +14,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
-
-const commonItems = [
-  { title: "ওভারভিউ", url: "/staff", icon: LayoutDashboard },
-  { title: "অ্যাটেন্ডেন্স", url: "/staff/attendance", icon: Clock },
-  { title: "টিকেট সাপোর্ট", url: "/staff/tickets", icon: Ticket },
-  { title: "লাইভ চ্যাট", url: "/staff/chat", icon: MessageCircle },
-];
-
-const hrManagementItems = [
-  { title: "স্টাফ ম্যানেজমেন্ট", url: "/staff/hr", icon: Users },
-  { title: "জব আবেদন", url: "/staff/applications", icon: FileText },
-  { title: "অ্যাটেন্ডেন্স রিপোর্ট", url: "/staff/attendance-report", icon: TrendingUp },
-];
-
-const subRolePanels = [
-  { title: "গ্রাফিক্স ডিজাইনার", url: "/staff/graphics-designer", icon: Palette, role: "graphics_designer" },
-  { title: "ওয়েব ডেভেলপার", url: "/staff/web-developer", icon: Code, role: "web_developer" },
-  { title: "প্রজেক্ট ম্যানেজার", url: "/staff/project-manager", icon: Briefcase, role: "project_manager" },
-  { title: "ডিজিটাল মার্কেটার", url: "/staff/digital-marketer", icon: Megaphone, role: "digital_marketer" },
-];
 
 interface StaffSidebarProps {
   profile: { full_name: string | null; avatar_url: string | null };
@@ -47,9 +28,30 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
   const [isHR, setIsHR] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userRoles, setUserRoles] = useState<string[]>([]);
+
+  const commonItems = [
+    { title: t("staff.overview"), url: "/staff", icon: LayoutDashboard },
+    { title: t("staff.attendance"), url: "/staff/attendance", icon: Clock },
+    { title: t("staff.ticketSupport"), url: "/staff/tickets", icon: Ticket },
+    { title: t("staff.liveChat"), url: "/staff/chat", icon: MessageCircle },
+  ];
+
+  const hrManagementItems = [
+    { title: t("staff.staffManagement"), url: "/staff/hr", icon: Users },
+    { title: t("staff.jobApplications"), url: "/staff/applications", icon: FileText },
+    { title: t("staff.attendanceReport"), url: "/staff/attendance-report", icon: TrendingUp },
+  ];
+
+  const subRolePanels = [
+    { title: t("staff.graphicsDesigner"), url: "/staff/graphics-designer", icon: Palette, role: "graphics_designer" },
+    { title: t("staff.webDeveloper"), url: "/staff/web-developer", icon: Code, role: "web_developer" },
+    { title: t("staff.projectManager"), url: "/staff/project-manager", icon: Briefcase, role: "project_manager" },
+    { title: t("staff.digitalMarketer"), url: "/staff/digital-marketer", icon: Megaphone, role: "digital_marketer" },
+  ];
 
   useEffect(() => {
     if (!user) return;
@@ -87,7 +89,6 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
 
   const canManage = isHR || isAdmin;
 
-  // HR/Admin sees all sub-role panels; others see only their assigned ones
   const visiblePanels = canManage
     ? subRolePanels
     : subRolePanels.filter((p) => userRoles.includes(p.role));
@@ -102,10 +103,10 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-sm font-bold font-display text-sidebar-foreground">
-                স্টাফ প্যানেল
+                {t("staff.panel")}
               </p>
               <p className="text-[11px] text-muted-foreground">
-                {canManage ? "এইচআর ম্যানেজমেন্ট" : "সাপোর্ট সিস্টেম"}
+                {canManage ? t("staff.hrManagement") : t("staff.supportSystem")}
               </p>
             </div>
           )}
@@ -113,9 +114,8 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Common menu */}
         <SidebarGroup>
-          <SidebarGroupLabel>মেনু</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("staff.menu")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {commonItems.map((item) => (
@@ -138,10 +138,9 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* HR Management - only for HR/Admin */}
         {canManage && (
           <SidebarGroup>
-            <SidebarGroupLabel>এইচআর</SidebarGroupLabel>
+            <SidebarGroupLabel>{t("staff.hr")}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {hrManagementItems.map((item) => (
@@ -164,10 +163,9 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
           </SidebarGroup>
         )}
 
-        {/* Sub-role panels */}
         {visiblePanels.length > 0 && (
           <SidebarGroup>
-            <SidebarGroupLabel>প্যানেল</SidebarGroupLabel>
+            <SidebarGroupLabel>{t("staff.panels")}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {visiblePanels.map((item) => (
@@ -217,7 +215,7 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
           className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>লগ আউট</span>}
+          {!collapsed && <span>{t("staff.logout")}</span>}
         </Button>
       </SidebarFooter>
     </Sidebar>

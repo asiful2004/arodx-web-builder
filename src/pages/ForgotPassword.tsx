@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,9 +23,9 @@ const ForgotPassword = () => {
       });
       if (error) throw error;
       setSent(true);
-      toast({ title: "ইমেইল পাঠানো হয়েছে!", description: "ইমেইল চেক করে পাসওয়ার্ড রিসেট করুন।" });
+      toast({ title: t("auth.emailSent"), description: t("auth.checkEmailReset") });
     } catch (error: any) {
-      toast({ title: "ব্যর্থ", description: error.message, variant: "destructive" });
+      toast({ title: t("auth.failed"), description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -42,9 +44,9 @@ const ForgotPassword = () => {
             <Link to="/" className="text-3xl font-bold font-display text-gradient">
               Arodx
             </Link>
-            <h1 className="text-2xl font-bold text-foreground mt-4">Forgot Password</h1>
+            <h1 className="text-2xl font-bold text-foreground mt-4">{t("auth.forgotPasswordTitle")}</h1>
             <p className="text-muted-foreground mt-2">
-              Enter your email to receive a password reset link
+              {t("auth.forgotPasswordSubtitle")}
             </p>
           </div>
 
@@ -56,16 +58,16 @@ const ForgotPassword = () => {
                 </svg>
               </div>
               <p className="text-muted-foreground">
-                আমরা আপনার ইমেইলে একটি পাসওয়ার্ড রিসেট লিংক পাঠিয়েছি। অনুগ্রহ করে ইমেইল চেক করুন।
+                {t("auth.resetEmailSentDesc")}
               </p>
               <Link to="/signin" className="text-primary hover:underline text-sm">
-                ← Back to Sign In
+                {t("auth.backToSignIn")}
               </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Email</label>
+                <label className="text-sm text-muted-foreground mb-1 block">{t("auth.email")}</label>
                 <Input
                   type="email"
                   placeholder="you@example.com"
@@ -80,7 +82,7 @@ const ForgotPassword = () => {
                 className="w-full rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90"
                 disabled={loading}
               >
-                {loading ? "Sending..." : "Send Reset Link"}
+                {loading ? t("auth.sending") : t("auth.sendResetLink")}
               </Button>
             </form>
           )}
@@ -88,7 +90,7 @@ const ForgotPassword = () => {
           {!sent && (
             <p className="text-center text-sm mt-6">
               <Link to="/signin" className="text-muted-foreground hover:text-foreground transition-colors">
-                ← Back to Sign In
+                {t("auth.backToSignIn")}
               </Link>
             </p>
           )}
