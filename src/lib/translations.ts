@@ -1156,6 +1156,11 @@ export const translations: Record<string, Record<string, string>> = {
     "admin.biz.custom.selectUserRequired": "অনুগ্রহ করে একজন ইউজার সিলেক্ট করুন",
     "admin.biz.custom.nameRequired": "ব্যবসার নাম দিতে হবে",
     "admin.biz.custom.createSuccess": "কাস্টম বিজনেস সফলভাবে তৈরি হয়েছে",
+    "admin.biz.delivered": "ডেলিভারি সম্পন্ন",
+    "admin.biz.markDelivered": "ডেলিভারি সম্পন্ন হিসেবে চিহ্নিত করুন",
+    "admin.biz.deliverSuccess": "সার্ভিস ডেলিভারি সম্পন্ন হিসেবে চিহ্নিত হয়েছে। ৭ দিন পর অটো-ডিলিট হবে।",
+    "admin.biz.deliverFailed": "ডেলিভারি চিহ্নিত করতে সমস্যা হয়েছে",
+    "admin.biz.deletingSoon": "শীঘ্রই ডিলিট হবে",
   },
 
   en: {
@@ -2315,5 +2320,10 @@ export const translations: Record<string, Record<string, string>> = {
     "admin.biz.custom.selectUserRequired": "Please select a user",
     "admin.biz.custom.nameRequired": "Business name is required",
     "admin.biz.custom.createSuccess": "Custom business created successfully",
+    "admin.biz.delivered": "Delivered",
+    "admin.biz.markDelivered": "Mark as Delivered",
+    "admin.biz.deliverSuccess": "Service marked as delivered. Will auto-delete after 7 days.",
+    "admin.biz.deliverFailed": "Failed to mark as delivered",
+    "admin.biz.deletingSoon": "Deleting soon",
   },
 };
