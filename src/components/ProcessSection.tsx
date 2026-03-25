@@ -114,11 +114,7 @@ const ProcessSection = () => {
           <div className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl border border-primary/20 bg-primary/[0.03]">
             <Sparkles className="h-5 w-5 text-primary" />
             <p className="text-sm font-medium text-foreground">
-              {bottomCta.includes("এক টিমে") ? (
-                <>
-                  সবকিছু <span className="text-primary font-bold">এক টিমে</span>। {bottomCta.split("এক টিমে")[1]?.replace(/^[।. ]+/, "") || "আপনি শুধু ব্যবসায় ফোকাস করুন, বাকিটা আমাদের দায়িত্ব।"}
-                </>
-              ) : bottomCta}
+              {bottomCta}
             </p>
           </div>
         </motion.div>

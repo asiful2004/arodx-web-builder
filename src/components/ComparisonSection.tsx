@@ -12,11 +12,11 @@ const ComparisonSection = () => {
   const cmp = settings?.comparison;
 
   const badge = t("comparison.badge", cmp?.badge);
-  const titlePrefix = cmp?.title_prefix || "লোক নিয়োগ vs";
-  const titleHighlight = cmp?.title_highlight || "Arodx টিম";
-  const subtitle = cmp?.subtitle || "";
-  const hiringTitle = cmp?.hiring_title || "আলাদা লোক নিয়োগ দিলে";
-  const arodxTitle = cmp?.arodx_title || "আমাদের প্যাকেজ কিনলে";
+  const titlePrefix = t("comparison.titlePrefix", cmp?.title_prefix);
+  const titleHighlight = t("comparison.titleHighlight", cmp?.title_highlight);
+  const subtitle = t("comparison.subtitle", cmp?.subtitle);
+  const hiringTitle = t("comparison.hiringTitle", cmp?.hiring_title);
+  const arodxTitle = t("comparison.arodxTitle", cmp?.arodx_title);
   const hiringProblems = cmp?.hiring_problems || [];
   const arodxBenefits = cmp?.arodx_benefits || [];
   const comparisonPoints = cmp?.comparison_points || [];

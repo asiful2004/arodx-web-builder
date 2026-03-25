@@ -39,15 +39,24 @@ const AboutSection = () => {
   const badge = t("about.badge", about?.badge);
   const title = t("about.title", about?.title);
   const titleBrand = about?.title_brand || "Arodx";
-  const desc1 = about?.description1 || "";
-  const desc2 = about?.description2 || "";
-  const stats = about?.stats || [
+  const desc1 = t("about.description1", about?.description1);
+  const desc2 = t("about.description2", about?.description2);
+  const rawStats = about?.stats || [
     { number: "50+", label: "সম্পন্ন প্রজেক্ট" },
     { number: "30+", label: "সন্তুষ্ট ক্লায়েন্ট" },
     { number: "3+", label: "বছরের অভিজ্ঞতা" },
     { number: "24/7", label: "সাপোর্ট" },
   ];
-  const values = about?.values || [];
+  const stats = rawStats.map((s: any, i: number) => ({
+    ...s,
+    label: t(`about.stat.${i}.label`, s.label),
+  }));
+  const rawValues = about?.values || [];
+  const values = rawValues.map((v: any, i: number) => ({
+    ...v,
+    title: t(`about.value.${i}.title`, v.title),
+    description: t(`about.value.${i}.description`, v.description),
+  }));
 
   return (
     <section id="about" className="py-24 px-4">

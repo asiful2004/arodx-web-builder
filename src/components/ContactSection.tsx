@@ -199,7 +199,7 @@ const ContactSection = () => {
                           <span className="text-destructive">{t("contact.closedLabel")}</span>
                         )}
                       </div>
-                    ));
+                    );});
                   })()
                 ) : (
                   <>
