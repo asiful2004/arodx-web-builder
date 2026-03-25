@@ -397,9 +397,9 @@ export default function Checkout() {
               className="space-y-6"
             >
               <div>
-                <h2 className="text-2xl font-bold font-display">ব্যবসার তথ্য</h2>
+                <h2 className="text-2xl font-bold font-display">{t("checkout.businessInfo")}</h2>
                 <p className="text-muted-foreground text-sm mt-1">
-                  আপনার ব্যবসা সম্পর্কে কিছু প্রয়োজনীয় তথ্য দিন
+                  {t("checkout.businessInfoDesc")}
                 </p>
               </div>
 
