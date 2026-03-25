@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import arodxLogo from "@/assets/arodx-logo.png";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ServicesSection = lazy(() => import("@/components/ServicesSection"));
 const ComparisonSection = lazy(() => import("@/components/ComparisonSection"));
@@ -14,11 +15,13 @@ const ContactSection = lazy(() => import("@/components/ContactSection"));
 const Footer = lazy(() => import("@/components/Footer"));
 
 const Index = () => {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Arodx - বাংলাদেশের সেরা Digital Agency | Web Development, Marketing & Design</title>
-        <meta name="description" content="Arodx হলো বাংলাদেশের অন্যতম সেরা ডিজিটাল এজেন্সি। Web Development, Digital Marketing, Graphics Design, Video Editing, Business Automation সবকিছু এক ছাদের নিচে।" />
+        <title>{t("seo.home.title")}</title>
+        <meta name="description" content={t("seo.home.description")} />
         <link rel="canonical" href="https://arodx-web-builder.lovable.app/" />
       </Helmet>
       <Navbar logo={arodxLogo} />
