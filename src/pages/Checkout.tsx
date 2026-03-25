@@ -153,7 +153,7 @@ export default function Checkout() {
 
   const copyNumber = (number: string) => {
     navigator.clipboard.writeText(number);
-    toast.success("নম্বর কপি হয়েছে!");
+    toast.success(t("checkout.numberCopied"));
   };
 
   const checkDomain = useCallback(async (domainName: string) => {
