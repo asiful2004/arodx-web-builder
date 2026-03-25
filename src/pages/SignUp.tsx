@@ -68,7 +68,7 @@ const SignUp = () => {
 
     // Rate limit signup attempts (max 3 per hour)
     const rl = getSignupRateLimit();
-    if (rl.resetAt > Date.now() && rl.count >= 3) {
+    if (rl.resetAt > Date.now() && rl.count >= 30) {
       toast({ title: t("auth.signUpFailed"), description: t("auth.suspiciousActivity"), variant: "destructive" });
       return;
     }
