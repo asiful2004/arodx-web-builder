@@ -256,8 +256,8 @@ export default function OverviewPage() {
               )}
               <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            <p className="text-xs font-semibold text-foreground">নোটিফিকেশন</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{unreadNotifs > 0 ? `${unreadNotifs}টি অপঠিত` : "কোনো নতুন নোটিফিকেশন নেই"}</p>
+             <p className="text-xs font-semibold text-foreground">{t("overview.notification")}</p>
+             <p className="text-[10px] text-muted-foreground mt-0.5">{unreadNotifs > 0 ? `${unreadNotifs}${t("overview.unread")}` : t("overview.noNewNotifs")}</p>
           </button>
         </div>
       </motion.div>
