@@ -525,7 +525,7 @@ export default function LiveChat() {
                       className="text-sm h-9"
                     />
                     <Input
-                      placeholder="ফোন নম্বর (যেমন: 01XXXXXXXXX)"
+                      placeholder={t("chat.phonePlaceholder")}
                       value={guestPhone}
                       onChange={(e) => setGuestPhone(e.target.value)}
                       className="text-sm h-9"
