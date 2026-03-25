@@ -196,7 +196,7 @@ export default function LiveChat() {
       setStarted(true);
       await supabase.from("chat_messages").insert({
         session_id: data.id, sender_type: "system",
-        message: "আমাদের লাইভ চ্যাটে স্বাগতম! একজন প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন।",
+        message: t("chat.welcome"),
       });
       // Trigger AI greeting immediately
       setShowTyping(true);
