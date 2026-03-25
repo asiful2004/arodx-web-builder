@@ -70,19 +70,19 @@ interface ActiveOrder {
   business?: BusinessInfo;
 }
 
-const getStatusInfo = (order: ActiveOrder) => {
+const getStatusInfo = (order: ActiveOrder, t: (key: string) => string) => {
   if (order.status === 'confirmed' && order.is_active) {
     if (order.renewal_date) {
       const daysLeft = Math.ceil((new Date(order.renewal_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-      if (daysLeft <= 0) return { label: "মেয়াদ শেষ", icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
-      if (daysLeft <= 7) return { label: `${daysLeft} দিন বাকি`, icon: AlertTriangle, color: "text-yellow-500", bg: "bg-yellow-500/10" };
+      if (daysLeft <= 0) return { label: t("overview.statusExpired"), icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
+      if (daysLeft <= 7) return { label: `${daysLeft} ${t("overview.daysLeft")}`, icon: AlertTriangle, color: "text-yellow-500", bg: "bg-yellow-500/10" };
     }
-    return { label: "সক্রিয়", icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/10" };
+    return { label: t("overview.statusActive"), icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/10" };
   }
-  if (order.refund_status === 'approved') return { label: "রিফান্ডেড", icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
-  if (order.refund_status === 'pending') return { label: "রিফান্ড পেন্ডিং", icon: AlertTriangle, color: "text-yellow-500", bg: "bg-yellow-500/10" };
-  if (!order.is_active || order.status === 'cancelled') return { label: "নিষ্ক্রিয়", icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
-  return { label: "পেন্ডিং", icon: Clock, color: "text-yellow-500", bg: "bg-yellow-500/10" };
+  if (order.refund_status === 'approved') return { label: t("overview.statusRefunded"), icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
+  if (order.refund_status === 'pending') return { label: t("overview.statusRefundPending"), icon: AlertTriangle, color: "text-yellow-500", bg: "bg-yellow-500/10" };
+  if (!order.is_active || order.status === 'cancelled') return { label: t("overview.statusInactive"), icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" };
+  return { label: t("overview.statusPending"), icon: Clock, color: "text-yellow-500", bg: "bg-yellow-500/10" };
 };
 
 export default function OverviewPage() {
