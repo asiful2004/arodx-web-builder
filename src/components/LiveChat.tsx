@@ -348,7 +348,7 @@ export default function LiveChat() {
       }
       return { name: profile?.full_name || "ArodX Support Team", avatar: profile?.avatar_url || aiRobotAvatar };
     }
-    return { name: "সিস্টেম", avatar: null };
+    return { name: t("chat.system"), avatar: null };
   };
 
   const getInitials = (name: string) => name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) || "?";
