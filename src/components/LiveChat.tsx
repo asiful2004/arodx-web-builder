@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { MessageCircle, X, Send, Minimize2, User, Image, Mic, Square, Pause, Play, Bot, Headphones, Clock } from "lucide-react";
+import { MessageCircle, X, Send, Minimize2, User, Image, Mic, Square, Pause, Play, HelpCircle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,9 +26,36 @@ interface SenderProfile {
   avatar_url: string | null;
 }
 
+interface ChatWidgetConfig {
+  ai_agent_name: string;
+  ai_agent_avatar: string;
+  chat_position: "left" | "right";
+  welcome_title: string;
+  welcome_description: string;
+  faq_questions: string[];
+  header_title: string;
+  show_agent_profiles: boolean;
+}
+
+interface OnlineAgent {
+  user_id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+}
+
 const SESSION_KEY = "live_chat_session_id";
 const NOTIF_SOUND_URL = "https://cdn.pixabay.com/audio/2022/12/12/audio_e6a8ede5b1.mp3";
 
+const DEFAULT_CONFIG: ChatWidgetConfig = {
+  ai_agent_name: "ArodX AI",
+  ai_agent_avatar: "",
+  chat_position: "left",
+  welcome_title: "আমাদের সাথে চ্যাট করুন",
+  welcome_description: "আমরা আপনাকে সাহায্য করতে প্রস্তুত। যেকোনো প্রশ্ন বা সহায়তার জন্য আমাদের সাথে কথা বলুন।",
+  faq_questions: [],
+  header_title: "ArodX Support",
+  show_agent_profiles: true,
+};
 
 export default function LiveChat() {
   const { user } = useAuth();
@@ -48,6 +75,8 @@ export default function LiveChat() {
   const [unread, setUnread] = useState(0);
   const [senderProfiles, setSenderProfiles] = useState<Map<string, SenderProfile>>(new Map());
   const [clientProfile, setClientProfile] = useState<SenderProfile>({ full_name: null, avatar_url: null });
+  const [config, setConfig] = useState<ChatWidgetConfig>(DEFAULT_CONFIG);
+  const [onlineAgents, setOnlineAgents] = useState<OnlineAgent[]>([]);
 
   // Speech-to-text
   const [isListening, setIsListening] = useState(false);
@@ -70,6 +99,45 @@ export default function LiveChat() {
 
   // File input ref
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch chat widget config
+  useEffect(() => {
+    supabase
+      .from("site_settings" as any)
+      .select("value")
+      .eq("key", "chat_widget_config")
+      .single()
+      .then(({ data }) => {
+        if (data?.value) {
+          setConfig({ ...DEFAULT_CONFIG, ...(data.value as any) });
+        }
+      });
+  }, []);
+
+  // Fetch online agents (admin/staff with recent activity)
+  useEffect(() => {
+    const fetchAgents = async () => {
+      // Get admin/staff role users
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .in("role", ["admin", "staff", "hr"]);
+      if (!roleData || roleData.length === 0) return;
+      const userIds = roleData.map(r => r.user_id);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url")
+        .in("user_id", userIds);
+      if (profiles) {
+        setOnlineAgents(profiles.map(p => ({
+          user_id: p.user_id,
+          full_name: p.full_name,
+          avatar_url: p.avatar_url,
+        })));
+      }
+    };
+    fetchAgents();
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -96,7 +164,6 @@ export default function LiveChat() {
         .then(({ data }) => {
           if (data?.guest_name) setGuestName(data.guest_name);
           if (data?.status) setSessionStatus(data.status);
-          // If session was deleted (no data), clear it
           if (!data) {
             localStorage.removeItem(SESSION_KEY);
             setSessionId(null);
@@ -178,9 +245,9 @@ export default function LiveChat() {
     if (!user && (!name || !phone)) return;
     const { data, error } = await supabase
       .from("chat_sessions")
-      .insert({ 
-        user_id: user?.id || null, 
-        guest_name: user ? null : name, 
+      .insert({
+        user_id: user?.id || null,
+        guest_name: user ? null : name,
         guest_email: user?.email || null,
         guest_phone: user ? null : phone || null,
       } as any)
@@ -198,7 +265,6 @@ export default function LiveChat() {
         session_id: data.id, sender_type: "system",
         message: t("chat.welcome"),
       });
-      // Trigger AI greeting immediately
       setShowTyping(true);
       supabase.functions.invoke("chat-ai-reply", {
         body: { session_id: data.id, greeting_mode: true },
@@ -210,6 +276,43 @@ export default function LiveChat() {
     }
   };
 
+  const startChatWithFaq = async (question: string) => {
+    const name = user?.user_metadata?.full_name || guestName.trim();
+    const phone = guestPhone.trim();
+    if (!user && (!name || !phone)) return;
+    const { data, error } = await supabase
+      .from("chat_sessions")
+      .insert({
+        user_id: user?.id || null,
+        guest_name: user ? null : name,
+        guest_email: user?.email || null,
+        guest_phone: user ? null : phone || null,
+      } as any)
+      .select("id")
+      .single();
+    if (data && !error) {
+      setSessionId(data.id);
+      localStorage.setItem(SESSION_KEY, data.id);
+      if (!user) setGuestName(name);
+      setStarted(true);
+      await supabase.from("chat_messages").insert({
+        session_id: data.id, sender_type: "system",
+        message: t("chat.welcome"),
+      });
+      await supabase.from("chat_messages").insert({
+        session_id: data.id,
+        sender_type: "client",
+        sender_id: user?.id || null,
+        message: question,
+        message_type: "text",
+      });
+      setShowTyping(true);
+      supabase.functions.invoke("chat-ai-reply", {
+        body: { session_id: data.id },
+      }).then(() => setShowTyping(false)).catch(() => setShowTyping(false));
+    }
+  };
+
   const uploadFile = async (file: Blob, ext: string): Promise<string | null> => {
     const fileName = `${sessionId}/${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from("chat-attachments").upload(fileName, file);
@@ -218,12 +321,9 @@ export default function LiveChat() {
     return data.publicUrl;
   };
 
-  // Trigger AI auto-reply after a default delay, let edge function handle settings check
   const triggerAiReply = useCallback(async (sid: string) => {
     if (aiReplyTimerRef.current) clearTimeout(aiReplyTimerRef.current);
-
-    const delay = 10 * 1000; // default 10s delay
-
+    const delay = 10 * 1000;
     aiReplyTimerRef.current = setTimeout(async () => {
       try {
         await supabase.functions.invoke("chat-ai-reply", {
@@ -235,7 +335,6 @@ export default function LiveChat() {
     }, delay);
   }, []);
 
-  // Cancel AI timer when admin replies
   useEffect(() => {
     const lastMsg = messages[messages.length - 1];
     if (lastMsg?.sender_type === "admin") {
@@ -263,11 +362,9 @@ export default function LiveChat() {
     });
     setSending(false);
     setShowTyping(true);
-    // Start AI auto-reply timer
     if (sessionId) triggerAiReply(sessionId);
   };
 
-  // Image upload
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !sessionId) return;
@@ -277,7 +374,6 @@ export default function LiveChat() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Speech-to-text
   const startListening = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) return;
@@ -331,7 +427,7 @@ export default function LiveChat() {
     setOpen(false);
   };
 
-  const formatTime = (s: number) => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`;
+  const aiAvatar = config.ai_agent_avatar || aiRobotAvatar;
 
   const getSenderInfo = (m: ChatMessage): { name: string; avatar: string | null; isGuest?: boolean } => {
     if (m.sender_type === "client") {
@@ -342,11 +438,10 @@ export default function LiveChat() {
     }
     if (m.sender_type === "admin") {
       const profile = m.sender_id ? senderProfiles.get(m.sender_id) : null;
-      // If no sender_id, it's AI auto-reply — use robot avatar
       if (!m.sender_id) {
-        return { name: "ArodX Support Team", avatar: aiRobotAvatar };
+        return { name: config.ai_agent_name, avatar: aiAvatar };
       }
-      return { name: profile?.full_name || "ArodX Support Team", avatar: profile?.avatar_url || aiRobotAvatar };
+      return { name: profile?.full_name || "ArodX Support", avatar: profile?.avatar_url || aiAvatar };
     }
     return { name: t("chat.system"), avatar: null };
   };
@@ -359,11 +454,11 @@ export default function LiveChat() {
         <div className="space-y-1">
           <img
             src={m.attachment_url}
-            alt="ছবি"
+            alt="Image"
             className="max-w-full rounded-lg cursor-pointer max-h-48 object-cover"
             onClick={() => window.open(m.attachment_url!, "_blank")}
           />
-          {m.message && m.message !== t("chat.image") && m.message !== "📷 ছবি" && <p>{m.message}</p>}
+          {m.message && m.message !== t("chat.image") && <p>{m.message}</p>}
         </div>
       );
     }
@@ -398,23 +493,23 @@ export default function LiveChat() {
     return <>{m.message}</>;
   };
 
+  const isLeft = config.chat_position === "left";
+  const positionClasses = isLeft ? "left-5" : "right-5";
+
   return (
     <>
-      {/* Hidden file input */}
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
 
       {/* Floating Button */}
       <AnimatePresence>
         {!open && (
           <motion.div
-            initial={{ scale: 0, x: -40, opacity: 0 }}
-            animate={{ scale: 1, x: 0, opacity: 1 }}
-            exit={{ scale: 0, x: -40, opacity: 0 }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.5 }}
-            className="fixed bottom-5 left-5 z-50 flex flex-col items-start"
+            className={`fixed bottom-5 ${positionClasses} z-50`}
           >
-
-            {/* Classic round chat button */}
             <motion.button
               onClick={() => setOpen(true)}
               whileHover={{ scale: 1.1 }}
@@ -438,25 +533,25 @@ export default function LiveChat() {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, x: -30, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            exit={{ opacity: 0, x: -30, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed bottom-5 left-5 z-50 w-[340px] sm:w-[380px] h-[480px] rounded-2xl border border-border bg-card shadow-2xl flex flex-col overflow-hidden"
+            className={`fixed bottom-5 ${positionClasses} z-50 w-[340px] sm:w-[380px] h-[520px] rounded-2xl border border-border bg-card shadow-2xl flex flex-col overflow-hidden`}
           >
-            {/* Header - Enhanced */}
+            {/* Header */}
             <div className="relative overflow-hidden px-4 py-3" style={{ background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))" }}>
-              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+              <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
               <div className="relative flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                      <MessageCircle className="h-5 w-5 text-primary-foreground" />
+                    <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden">
+                      <img src={aiAvatar} alt="" className="h-8 w-8 object-contain rounded-full" />
                     </div>
                     <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 border-2 border-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-primary-foreground">{t("chat.support")}</p>
+                    <p className="text-sm font-bold text-primary-foreground">{config.header_title}</p>
                     <div className="flex items-center gap-1">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                       <p className="text-[10px] text-primary-foreground/80">{t("chat.onlineStatus")}</p>
@@ -479,41 +574,32 @@ export default function LiveChat() {
             {/* Body */}
             {!started ? (
               <div className="flex-1 flex flex-col p-5 gap-4 overflow-auto">
-                {/* Welcome */}
+                {/* Welcome area */}
                 <div className="text-center space-y-2">
-                  <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                    <img src={aiRobotAvatar} alt="Support" className="h-12 w-12 object-contain" />
-                  </div>
-                   <h3 className="text-base font-bold text-foreground">{t("chat.chatWithUs")}</h3>
-                   <p className="text-xs text-muted-foreground leading-relaxed">
-                     {t("chat.helpMessage")}
-                   </p>
+                  <h3 className="text-base font-bold text-foreground">{config.welcome_title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {config.welcome_description}
+                  </p>
                 </div>
 
-                {/* Support info cards */}
-                <div className="space-y-2">
-                  <div className="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                    <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <Bot className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                {/* Online agent avatars */}
+                {config.show_agent_profiles && onlineAgents.length > 0 && (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="flex -space-x-2">
+                      {onlineAgents.slice(0, 5).map((agent) => (
+                        <Avatar key={agent.user_id} className="h-9 w-9 border-2 border-card">
+                          <AvatarImage src={agent.avatar_url || undefined} />
+                          <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                            {getInitials(agent.full_name || "A")}
+                          </AvatarFallback>
+                        </Avatar>
+                      ))}
                     </div>
-                    <div>
-                      <p className="text-xs font-semibold text-foreground">{t("chat.aiAgent")}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{t("chat.aiAgentDesc")}</p>
-                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      {onlineAgents.length} জন সাপোর্ট এজেন্ট উপলব্ধ
+                    </p>
                   </div>
-                  <div className="flex items-start gap-3 p-3 rounded-xl bg-primary/5 border border-primary/10">
-                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <Headphones className="h-4 w-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-foreground">{t("chat.humanAgent")}</p>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <Clock className="h-3 w-3 text-muted-foreground" />
-                        <p className="text-[10px] text-muted-foreground">{t("chat.humanAgentHours")}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                )}
 
                 {/* Guest form */}
                 {!user && (
@@ -533,6 +619,32 @@ export default function LiveChat() {
                     />
                   </div>
                 )}
+
+                {/* FAQ quick questions */}
+                {config.faq_questions && config.faq_questions.length > 0 && (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <HelpCircle className="h-3.5 w-3.5" />
+                      <p className="text-[11px] font-medium">সাধারণ প্রশ্নসমূহ</p>
+                    </div>
+                    {config.faq_questions.map((q, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          if (user || (guestName.trim() && guestPhone.trim())) {
+                            startChatWithFaq(q);
+                          }
+                        }}
+                        disabled={!user && (!guestName.trim() || !guestPhone.trim())}
+                        className="w-full text-left flex items-center justify-between gap-2 p-2.5 rounded-lg border border-border hover:bg-accent/50 transition-colors text-xs text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <span className="line-clamp-1">{q}</span>
+                        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
                 <Button onClick={startChat} className="w-full font-semibold" disabled={!user && (!guestName.trim() || !guestPhone.trim())}>
                   {t("chat.startChat")}
                 </Button>
@@ -587,8 +699,8 @@ export default function LiveChat() {
                         className="flex gap-2 flex-row"
                       >
                         <Avatar className="h-7 w-7 shrink-0 mt-0.5">
-                          <AvatarImage src={aiRobotAvatar} />
-                          <AvatarFallback className="text-[10px] font-bold bg-accent text-accent-foreground">AX</AvatarFallback>
+                          <AvatarImage src={aiAvatar} />
+                          <AvatarFallback className="text-[10px] font-bold bg-accent text-accent-foreground">AI</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col items-start">
                           <p className="text-[10px] mb-0.5 text-muted-foreground">{t("chat.typing")}</p>
@@ -608,9 +720,9 @@ export default function LiveChat() {
                 {/* Input Area */}
                 {sessionStatus === "closed" ? (
                   <div className="border-t border-border p-3 text-center space-y-2">
-                     <p className="text-xs text-muted-foreground">{t("chat.chatClosed")}</p>
-                     <Button size="sm" variant="outline" className="text-xs" onClick={endChat}>
-                       {t("chat.newChat")}
+                    <p className="text-xs text-muted-foreground">{t("chat.chatClosed")}</p>
+                    <Button size="sm" variant="outline" className="text-xs" onClick={endChat}>
+                      {t("chat.newChat")}
                     </Button>
                   </div>
                 ) : (
