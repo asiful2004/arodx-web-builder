@@ -363,7 +363,7 @@ export default function LiveChat() {
             className="max-w-full rounded-lg cursor-pointer max-h-48 object-cover"
             onClick={() => window.open(m.attachment_url!, "_blank")}
           />
-          {m.message && m.message !== "📷 ছবি" && <p>{m.message}</p>}
+          {m.message && m.message !== t("chat.image") && m.message !== "📷 ছবি" && <p>{m.message}</p>}
         </div>
       );
     }
