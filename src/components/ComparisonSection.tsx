@@ -118,7 +118,7 @@ const ComparisonSection = () => {
                 <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-destructive/10 flex items-center justify-center">
                   <UserRound className="h-3 w-3 md:h-4 md:w-4 text-destructive" />
                 </div>
-                <span className="text-xs md:text-sm font-bold text-destructive">লোক নিয়োগ</span>
+                <span className="text-xs md:text-sm font-bold text-destructive">{t("comparison.hiring")}</span>
               </div>
             </div>
             <div className="p-3 md:p-5 text-center border-l border-primary/20 bg-primary/5">
