@@ -608,9 +608,9 @@ export default function LiveChat() {
                 {/* Input Area */}
                 {sessionStatus === "closed" ? (
                   <div className="border-t border-border p-3 text-center space-y-2">
-                    <p className="text-xs text-muted-foreground">এই চ্যাট বন্ধ হয়ে গেছে।</p>
-                    <Button size="sm" variant="outline" className="text-xs" onClick={endChat}>
-                      নতুন চ্যাট শুরু করুন
+                     <p className="text-xs text-muted-foreground">{t("chat.chatClosed")}</p>
+                     <Button size="sm" variant="outline" className="text-xs" onClick={endChat}>
+                       {t("chat.newChat")}
                     </Button>
                   </div>
                 ) : (
