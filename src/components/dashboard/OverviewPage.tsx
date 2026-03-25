@@ -359,7 +359,7 @@ export default function OverviewPage() {
                           <span className={`text-[10px] font-medium ${
                             isExpired ? "text-destructive" : isUrgent ? "text-yellow-500" : "text-muted-foreground"
                           }`}>
-                            {isExpired ? "মেয়াদ শেষ!" : `${daysLeft} দিন বাকি`}
+                            {isExpired ? `${t("overview.statusExpired")}!` : `${daysLeft} ${t("overview.daysLeft")}`}
                           </span>
                         );
                       })()}
