@@ -568,7 +568,7 @@ export default function LiveChat() {
                           }`}>
                             {renderMessageContent(m, isClient)}
                             <p className={`text-[9px] mt-1 ${isClient ? "text-primary-foreground/60" : "text-muted-foreground/60"}`}>
-                              {new Date(m.created_at).toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" })}
+                              {new Date(m.created_at).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
                             </p>
                           </div>
                         </div>
