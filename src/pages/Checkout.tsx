@@ -288,7 +288,7 @@ export default function Checkout() {
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            হোমে ফিরুন
+            {t("checkout.backHome")}
           </button>
           <span className="text-sm font-display font-bold text-gradient">Arodx</span>
         </div>
