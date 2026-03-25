@@ -12,8 +12,8 @@ const Footer = () => {
   const footer = settings?.footer;
 
   const brandName = footer?.brand_name || "Arodx";
-  const tagline = footer?.tagline || "Your Digital Growth Partner";
-  const copyrightText = footer?.copyright_text || "Arodx. All rights reserved.";
+  const tagline = t("footer.tagline", footer?.tagline || "Your Digital Growth Partner");
+  const copyrightText = t("footer.copyrightText", footer?.copyright_text || "Arodx. All rights reserved.");
   const description = t("footer.description", footer?.description);
   const email = footer?.email || "arodxofficial@gmail.com";
   const phone = footer?.phone || "+880 1XXX-XXXXXX";
