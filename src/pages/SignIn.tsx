@@ -227,6 +227,16 @@ const SignIn = () => {
       const user = data.user;
       if (!user) throw new Error("User not found");
 
+      // Check email verification for non-Google users
+      const isGoogleUser = user.app_metadata?.provider === "google" || user.app_metadata?.providers?.includes("google");
+      if (!isGoogleUser && !user.email_confirmed_at) {
+        await supabase.auth.signOut();
+        toast({ title: t("auth.verifyYourEmail"), description: t("auth.checkEmailForCode"), variant: "destructive" });
+        navigate(`/verify-email?email=${encodeURIComponent(user.email || "")}`);
+        setLoading(false);
+        return;
+      }
+
       const alreadyRegistered = await isDeviceRegistered(user.id);
       if (!alreadyRegistered) {
         const deviceCount = await checkDeviceCount(user.id);
