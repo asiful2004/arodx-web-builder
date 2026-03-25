@@ -309,7 +309,7 @@ export default function OverviewPage() {
                         className="text-xs text-primary hover:text-primary/80 gap-1 h-7 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity"
                         onClick={() => navigate(`/dashboard/business/${order.id}`)}
                       >
-                        বিস্তারিত
+                         বিস্তারিত
                         <ExternalLink className="w-3 h-3" />
                       </Button>
                     </div>
