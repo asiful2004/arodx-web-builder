@@ -86,7 +86,7 @@ const Footer = () => {
                             className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-1.5 group"
                           >
                             <span className="w-1 h-1 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
-                            {link.label}
+                            {t(`footer.link.${link.label}`, link.label)}
                           </Comp>
                         </motion.div>
                       </li>
