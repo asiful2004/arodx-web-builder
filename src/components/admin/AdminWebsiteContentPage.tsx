@@ -217,6 +217,65 @@ function FooterPreview({ data }: { data: any }) {
   );
 }
 
+function BrandingPreview({ data }: { data: any }) {
+  return (
+    <div className="p-5 flex items-center gap-6">
+      {data?.logo_url ? (
+        <div className="flex flex-col items-center gap-1.5">
+          <img src={data.logo_url} alt="Logo" className="h-12 w-12 object-contain rounded-lg border border-border bg-background p-1" />
+          <span className="text-[10px] text-muted-foreground">লোগো</span>
+        </div>
+      ) : (
+        <div className="h-12 w-12 rounded-lg border border-dashed border-border flex items-center justify-center">
+          <Image className="h-5 w-5 text-muted-foreground/40" />
+        </div>
+      )}
+      {data?.favicon_url ? (
+        <div className="flex flex-col items-center gap-1.5">
+          <img src={data.favicon_url} alt="Favicon" className="h-8 w-8 object-contain rounded border border-border bg-background p-0.5" />
+          <span className="text-[10px] text-muted-foreground">ফেভিকন</span>
+        </div>
+      ) : (
+        <div className="h-8 w-8 rounded border border-dashed border-border flex items-center justify-center">
+          <Globe className="h-3.5 w-3.5 text-muted-foreground/40" />
+        </div>
+      )}
+      {data?.preloader_logo_url ? (
+        <div className="flex flex-col items-center gap-1.5">
+          <img src={data.preloader_logo_url} alt="Preloader" className="h-12 w-12 object-contain rounded-lg border border-border bg-background p-1" />
+          <span className="text-[10px] text-muted-foreground">লোডিং লোগো</span>
+        </div>
+      ) : (
+        <div className="h-12 w-12 rounded-lg border border-dashed border-border flex items-center justify-center">
+          <Loader2 className="h-5 w-5 text-muted-foreground/40" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function brandingEditor(data: any, setData: (d: any) => void) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground">লোগো URL (Navbar-এ দেখাবে)</Label>
+        <Input value={data.logo_url || ""} onChange={(e) => setData({ ...data, logo_url: e.target.value })} placeholder="https://example.com/logo.png" className="text-sm" />
+        {data.logo_url && <img src={data.logo_url} alt="Preview" className="h-10 w-10 object-contain rounded border border-border mt-2" />}
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground">ফেভিকন URL (ব্রাউজার ট্যাবে দেখাবে)</Label>
+        <Input value={data.favicon_url || ""} onChange={(e) => setData({ ...data, favicon_url: e.target.value })} placeholder="https://example.com/favicon.png" className="text-sm" />
+        {data.favicon_url && <img src={data.favicon_url} alt="Preview" className="h-8 w-8 object-contain rounded border border-border mt-2" />}
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground">লোডিং অ্যানিমেশন লোগো URL (Preloader-এ দেখাবে, GIF/PNG)</Label>
+        <Input value={data.preloader_logo_url || ""} onChange={(e) => setData({ ...data, preloader_logo_url: e.target.value })} placeholder="https://example.com/loading-logo.gif" className="text-sm" />
+        {data.preloader_logo_url && <img src={data.preloader_logo_url} alt="Preview" className="h-14 w-14 object-contain rounded border border-border mt-2" />}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Editor renderers ─── */
 
 function heroEditor(data: any, setData: (d: any) => void) {
@@ -479,6 +538,7 @@ function footerEditor(data: any, setData: (d: any) => void) {
 /* ─── Section definitions ─── */
 
 const SECTIONS: SectionConfig[] = [
+  { key: "branding", title: "ব্র্যান্ডিং (লোগো, ফেভিকন, লোডিং)", icon: Image, color: "from-orange-500/20 to-orange-600/10", previewRender: (d) => <BrandingPreview data={d} />, editorRender: brandingEditor },
   { key: "hero", title: "Hero Section", icon: Layout, color: "from-blue-500/20 to-blue-600/10", previewRender: (d) => <HeroPreview data={d} />, editorRender: heroEditor },
   { key: "about", title: "About Section", icon: Users, color: "from-violet-500/20 to-violet-600/10", previewRender: (d) => <AboutPreview data={d} />, editorRender: aboutEditor },
   { key: "services", title: "Services Section", icon: Briefcase, color: "from-emerald-500/20 to-emerald-600/10", previewRender: (d) => <ServicesPreview data={d} />, editorRender: servicesEditor },
