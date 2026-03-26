@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import arodxLogo from "@/assets/arodx-logo.png";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useBranding } from "@/hooks/useBranding";
 
 const ServicesSection = lazy(() => import("@/components/ServicesSection"));
 const ComparisonSection = lazy(() => import("@/components/ComparisonSection"));
@@ -16,6 +17,8 @@ const Footer = lazy(() => import("@/components/Footer"));
 
 const Index = () => {
   const { t } = useLanguage();
+  const branding = useBranding();
+  const logoSrc = branding.logo_url || arodxLogo;
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,8 +26,9 @@ const Index = () => {
         <title>{t("seo.home.title")}</title>
         <meta name="description" content={t("seo.home.description")} />
         <link rel="canonical" href="https://arodx-web-builder.lovable.app/" />
+        {branding.favicon_url && <link rel="icon" href={branding.favicon_url} type="image/png" />}
       </Helmet>
-      <Navbar logo={arodxLogo} />
+      <Navbar logo={logoSrc} />
       <main>
         <HeroSection />
         <Suspense fallback={null}>
