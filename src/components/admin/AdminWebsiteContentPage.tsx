@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Globe, Save, Loader2, Plus, Trash2, Pencil, X, ChevronRight,
-  Layout, DollarSign, Users, Briefcase, Mail, Image, FileText, Settings, Eye, Check
+  Layout, DollarSign, Users, Briefcase, Mail, Image, FileText, Settings, Eye, Check, Upload
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -254,24 +255,72 @@ function BrandingPreview({ data }: { data: any }) {
   );
 }
 
+function BrandingUploadField({ label, hint, currentUrl, fieldKey, data, setData, previewSize = "h-14 w-14" }: {
+  label: string; hint: string; currentUrl: string | null; fieldKey: string; data: any; setData: (d: any) => void; previewSize?: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${fieldKey}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("site-assets").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("site-assets").getPublicUrl(path);
+      setData({ ...data, [fieldKey]: urlData.publicUrl });
+    } catch (err) {
+      console.error("Upload error:", err);
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  const handleRemove = () => setData({ ...data, [fieldKey]: "" });
+
+  return (
+    <div className="space-y-2">
+      <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+      <p className="text-[11px] text-muted-foreground/70">{hint}</p>
+      <div className="flex items-center gap-4">
+        <div className={cn("rounded-xl border-2 border-dashed border-border bg-secondary/30 flex items-center justify-center overflow-hidden shrink-0", previewSize)}>
+          {currentUrl ? (
+            <img src={currentUrl} alt={label} className="w-full h-full object-contain p-1" />
+          ) : (
+            <Image className="h-5 w-5 text-muted-foreground/30" />
+          )}
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => inputRef.current?.click()} disabled={uploading}>
+              {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+              {currentUrl ? "পরিবর্তন" : "আপলোড"}
+            </Button>
+            {currentUrl && (
+              <Button variant="ghost" size="sm" className="gap-1 text-xs text-destructive hover:text-destructive" onClick={handleRemove}>
+                <Trash2 className="h-3 w-3" /> সরান
+              </Button>
+            )}
+          </div>
+          <span className="text-[10px] text-muted-foreground">PNG, JPG, SVG, GIF, WEBP • সর্বোচ্চ ৫MB</span>
+        </div>
+        <input ref={inputRef} type="file" accept=".png,.jpg,.jpeg,.svg,.gif,.webp,.ico" className="hidden" onChange={handleUpload} />
+      </div>
+    </div>
+  );
+}
+
 function brandingEditor(data: any, setData: (d: any) => void) {
   return (
-    <div className="space-y-5">
-      <div className="space-y-1.5">
-        <Label className="text-xs font-medium text-muted-foreground">লোগো URL (Navbar-এ দেখাবে)</Label>
-        <Input value={data.logo_url || ""} onChange={(e) => setData({ ...data, logo_url: e.target.value })} placeholder="https://example.com/logo.png" className="text-sm" />
-        {data.logo_url && <img src={data.logo_url} alt="Preview" className="h-10 w-10 object-contain rounded border border-border mt-2" />}
-      </div>
-      <div className="space-y-1.5">
-        <Label className="text-xs font-medium text-muted-foreground">ফেভিকন URL (ব্রাউজার ট্যাবে দেখাবে)</Label>
-        <Input value={data.favicon_url || ""} onChange={(e) => setData({ ...data, favicon_url: e.target.value })} placeholder="https://example.com/favicon.png" className="text-sm" />
-        {data.favicon_url && <img src={data.favicon_url} alt="Preview" className="h-8 w-8 object-contain rounded border border-border mt-2" />}
-      </div>
-      <div className="space-y-1.5">
-        <Label className="text-xs font-medium text-muted-foreground">লোডিং অ্যানিমেশন লোগো URL (Preloader-এ দেখাবে, GIF/PNG)</Label>
-        <Input value={data.preloader_logo_url || ""} onChange={(e) => setData({ ...data, preloader_logo_url: e.target.value })} placeholder="https://example.com/loading-logo.gif" className="text-sm" />
-        {data.preloader_logo_url && <img src={data.preloader_logo_url} alt="Preview" className="h-14 w-14 object-contain rounded border border-border mt-2" />}
-      </div>
+    <div className="space-y-6">
+      <BrandingUploadField label="সাইট লোগো" hint="Navbar-এ দেখাবে" currentUrl={data.logo_url} fieldKey="logo_url" data={data} setData={setData} />
+      <BrandingUploadField label="ফেভিকন" hint="ব্রাউজার ট্যাবে দেখাবে" currentUrl={data.favicon_url} fieldKey="favicon_url" data={data} setData={setData} previewSize="h-10 w-10" />
+      <BrandingUploadField label="লোডিং অ্যানিমেশন লোগো" hint="Preloader-এ দেখাবে (GIF/PNG)" currentUrl={data.preloader_logo_url} fieldKey="preloader_logo_url" data={data} setData={setData} />
     </div>
   );
 }
