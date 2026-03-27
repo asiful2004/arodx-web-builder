@@ -52,15 +52,26 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
               transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
             />
 
-            {/* Animated logo GIF */}
-            <motion.img
-              src={preloaderSrc}
-              alt="Arodx"
-              className="relative w-24 h-24 md:w-32 md:h-32 object-contain z-10"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 15 }}
-            />
+            {/* Animated logo GIF or text fallback */}
+            {preloaderSrc ? (
+              <motion.img
+                src={preloaderSrc}
+                alt="Loading"
+                className="relative w-24 h-24 md:w-32 md:h-32 object-contain z-10"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 15 }}
+              />
+            ) : (
+              <motion.span
+                className="relative text-3xl md:text-4xl font-bold font-display text-gradient z-10"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 15 }}
+              >
+                Arodx
+              </motion.span>
+            )}
 
             {/* Orbiting particles */}
             {[0, 1, 2, 3].map((i) => (
