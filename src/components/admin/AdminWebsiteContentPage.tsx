@@ -584,6 +584,131 @@ function footerEditor(data: any, setData: (d: any) => void) {
   );
 }
 
+/* ─── Payment Methods Preview & Editor ─── */
+
+function PaymentMethodsPreview({ data }: { data: any }) {
+  const methods = data?.methods || [];
+  return (
+    <div className="p-4 space-y-2">
+      <h3 className="text-base font-bold font-display">পেমেন্ট মেথড ({methods.length}টি)</h3>
+      <div className="flex gap-3 flex-wrap">
+        {methods.map((m: any, i: number) => (
+          <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-card">
+            {m.logo_url ? (
+              <img src={m.logo_url} alt={m.name} className="h-6 w-6 object-contain" />
+            ) : (
+              <div className="h-6 w-6 rounded bg-muted flex items-center justify-center text-[8px] font-bold">{(m.name || "?")[0]}</div>
+            )}
+            <div>
+              <div className="text-xs font-semibold">{m.name || "Unnamed"}</div>
+              <div className="text-[10px] text-muted-foreground">{m.number || "—"}</div>
+            </div>
+          </div>
+        ))}
+        {methods.length === 0 && <p className="text-xs text-muted-foreground">কোনো পেমেন্ট মেথড নেই</p>}
+      </div>
+    </div>
+  );
+}
+
+function PaymentMethodIconUpload({ index, method, methods, setMethods }: {
+  index: number; method: any; methods: any[]; setMethods: (m: any[]) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `payment-icon-${index}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("site-assets").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("site-assets").getPublicUrl(path);
+      const updated = [...methods];
+      updated[index] = { ...updated[index], logo_url: urlData.publicUrl };
+      setMethods(updated);
+    } catch (err) {
+      console.error("Upload error:", err);
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="h-12 w-12 rounded-lg border-2 border-dashed border-border bg-secondary/30 flex items-center justify-center overflow-hidden shrink-0">
+        {method.logo_url ? (
+          <img src={method.logo_url} alt={method.name} className="w-full h-full object-contain p-1" />
+        ) : (
+          <Image className="h-5 w-5 text-muted-foreground/30" />
+        )}
+      </div>
+      <div className="flex flex-col gap-1">
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => inputRef.current?.click()} disabled={uploading}>
+            {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+            {method.logo_url ? "পরিবর্তন" : "আইকন আপলোড"}
+          </Button>
+          {method.logo_url && (
+            <Button variant="ghost" size="sm" className="gap-1 text-xs text-destructive hover:text-destructive" onClick={() => {
+              const updated = [...methods];
+              updated[index] = { ...updated[index], logo_url: "" };
+              setMethods(updated);
+            }}>
+              <Trash2 className="h-3 w-3" /> সরান
+            </Button>
+          )}
+        </div>
+        <span className="text-[10px] text-muted-foreground">PNG, JPG, SVG • সর্বোচ্চ ৫MB</span>
+      </div>
+      <input ref={inputRef} type="file" accept=".png,.jpg,.jpeg,.svg,.gif,.webp" className="hidden" onChange={handleUpload} />
+    </div>
+  );
+}
+
+function paymentMethodsEditor(data: any, setData: (d: any) => void) {
+  const methods = data?.methods || [];
+  const setMethods = (m: any[]) => setData({ ...data, methods: m });
+
+  return (
+    <div className="space-y-6">
+      <FieldInput label="পেমেন্ট সেকশন টাইটেল" value={data?.title || ""} onChange={(v) => setData({ ...data, title: v })} />
+      <FieldInput label="কাস্টম ইন্সট্রাকশন (সবার জন্য)" value={data?.global_instruction || ""} onChange={(v) => setData({ ...data, global_instruction: v })} multiline />
+
+      {methods.map((method: any, i: number) => (
+        <div key={i} className="p-4 rounded-xl border border-border bg-muted/30 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-bold text-primary">{method.name || `মেথড #${i + 1}`}</span>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setMethods(methods.filter((_: any, idx: number) => idx !== i))}>
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+
+          <PaymentMethodIconUpload index={i} method={method} methods={methods} setMethods={setMethods} />
+
+          <div className="grid grid-cols-2 gap-3">
+            <FieldInput label="নাম" value={method.name || ""} onChange={(v) => { const u = [...methods]; u[i] = { ...u[i], name: v }; setMethods(u); }} />
+            <FieldInput label="নম্বর" value={method.number || ""} onChange={(v) => { const u = [...methods]; u[i] = { ...u[i], number: v }; setMethods(u); }} />
+          </div>
+          <FieldInput label="ব্র্যান্ড কালার (HEX)" value={method.color || ""} onChange={(v) => { const u = [...methods]; u[i] = { ...u[i], color: v }; setMethods(u); }} />
+          <FieldInput label="কাস্টম ইন্সট্রাকশন (এই মেথডের জন্য)" value={method.instruction || ""} onChange={(v) => { const u = [...methods]; u[i] = { ...u[i], instruction: v }; setMethods(u); }} multiline />
+        </div>
+      ))}
+
+      <Button variant="outline" size="sm" className="gap-2 w-full" onClick={() => {
+        setMethods([...methods, { name: "", number: "", color: "#000000", logo_url: "", instruction: "" }]);
+      }}>
+        <Plus className="h-4 w-4" /> নতুন পেমেন্ট মেথড যোগ করুন
+      </Button>
+    </div>
+  );
+}
+
 /* ─── Section definitions ─── */
 
 const SECTIONS: SectionConfig[] = [
@@ -592,6 +717,7 @@ const SECTIONS: SectionConfig[] = [
   { key: "about", title: "About Section", icon: Users, color: "from-violet-500/20 to-violet-600/10", previewRender: (d) => <AboutPreview data={d} />, editorRender: aboutEditor },
   { key: "services", title: "Services Section", icon: Briefcase, color: "from-emerald-500/20 to-emerald-600/10", previewRender: (d) => <ServicesPreview data={d} />, editorRender: servicesEditor },
   { key: "pricing", title: "Pricing Section", icon: DollarSign, color: "from-amber-500/20 to-amber-600/10", previewRender: (d) => <PricingPreview data={d} />, editorRender: pricingEditor },
+  { key: "payment_methods", title: "পেমেন্ট মেথড", icon: DollarSign, color: "from-lime-500/20 to-lime-600/10", previewRender: (d) => <PaymentMethodsPreview data={d} />, editorRender: paymentMethodsEditor },
   { key: "comparison", title: "Comparison Section", icon: Users, color: "from-rose-500/20 to-rose-600/10", previewRender: (d) => <ComparisonPreview data={d} />, editorRender: comparisonEditor },
   { key: "process", title: "Process Section", icon: Settings, color: "from-cyan-500/20 to-cyan-600/10", previewRender: (d) => <ProcessPreview data={d} />, editorRender: processEditor },
   { key: "portfolio", title: "Portfolio Section", icon: Image, color: "from-pink-500/20 to-pink-600/10", previewRender: (d) => <PortfolioPreview data={d} />, editorRender: portfolioEditor },
