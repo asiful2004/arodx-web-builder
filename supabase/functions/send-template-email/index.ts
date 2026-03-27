@@ -375,9 +375,9 @@ Deno.serve(async (req) => {
     const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     const textEncoder = new TextEncoder();
 
-    const htmlBase64 = base64Encode(textEncoder.encode(rendered.html));
-    const textBase64 = base64Encode(textEncoder.encode(rendered.text));
-    const subjectEncoded = `=?UTF-8?B?${base64Encode(textEncoder.encode(rendered.subject))}?=`;
+    const htmlBase64 = encodeBase64(textEncoder.encode(rendered.html));
+    const textBase64 = encodeBase64(textEncoder.encode(rendered.text));
+    const subjectEncoded = `=?UTF-8?B?${encodeBase64(textEncoder.encode(rendered.subject))}?=`;
 
     const mimeMessage = [
       `From: ${senderEmail}`,
@@ -442,8 +442,8 @@ Deno.serve(async (req) => {
 
     // AUTH LOGIN
     await sendCmd("AUTH LOGIN");
-    await sendCmd(base64Encode(encoder.encode(smtp.username)));
-    const authResp = await sendCmd(base64Encode(encoder.encode(smtp.password)));
+    await sendCmd(encodeBase64(encoder.encode(smtp.username)));
+    const authResp = await sendCmd(encodeBase64(encoder.encode(smtp.password)));
     if (!authResp.startsWith("235")) {
       conn.close();
       throw new Error("SMTP Authentication failed: " + authResp.trim());
