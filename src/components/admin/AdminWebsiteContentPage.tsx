@@ -729,9 +729,6 @@ function paymentMethodsEditor(data: any, setData: (d: any) => void) {
 
   return (
     <div className="space-y-6">
-      <FieldInput label="পেমেন্ট সেকশন টাইটেল" value={data?.title || ""} onChange={(v) => setData({ ...data, title: v })} />
-      <FieldInput label="কাস্টম ইন্সট্রাকশন (সবার জন্য)" value={data?.global_instruction || ""} onChange={(v) => setData({ ...data, global_instruction: v })} multiline />
-
       {methods.map((method: any, i: number) => (
         <div key={i} className="p-4 rounded-xl border border-border bg-muted/30 space-y-4">
           <div className="flex items-center justify-between">
@@ -747,7 +744,23 @@ function paymentMethodsEditor(data: any, setData: (d: any) => void) {
             <FieldInput label="নাম" value={method.name || ""} onChange={(v) => { const u = [...methods]; u[i] = { ...u[i], name: v }; setMethods(u); }} />
             <FieldInput label="নম্বর" value={method.number || ""} onChange={(v) => { const u = [...methods]; u[i] = { ...u[i], number: v }; setMethods(u); }} />
           </div>
-          <FieldInput label="ব্র্যান্ড কালার (HEX)" value={method.color || ""} onChange={(v) => { const u = [...methods]; u[i] = { ...u[i], color: v }; setMethods(u); }} />
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium text-muted-foreground">ব্র্যান্ড কালার</Label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={method.color || "#000000"}
+                onChange={(e) => { const u = [...methods]; u[i] = { ...u[i], color: e.target.value }; setMethods(u); }}
+                className="w-10 h-10 rounded-lg border border-border cursor-pointer p-0.5 bg-background"
+              />
+              <Input
+                value={method.color || ""}
+                onChange={(e) => { const u = [...methods]; u[i] = { ...u[i], color: e.target.value }; setMethods(u); }}
+                placeholder="#E2136E"
+                className="text-sm font-mono flex-1"
+              />
+            </div>
+          </div>
           <FieldInput label="কাস্টম ইন্সট্রাকশন (এই মেথডের জন্য)" value={method.instruction || ""} onChange={(v) => { const u = [...methods]; u[i] = { ...u[i], instruction: v }; setMethods(u); }} multiline />
         </div>
       ))}
