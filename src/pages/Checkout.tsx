@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, ArrowRight, Check, Package, Building2, CreditCard,
-  CheckCircle, Copy, Loader2, Globe, Search, X, AlertCircle, Upload, ImageIcon
+  CheckCircle, Copy, Loader2, Globe, Search, X, AlertCircle, Upload, ImageIcon, Phone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,6 +116,7 @@ export default function Checkout() {
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [transactionId, setTransactionId] = useState("");
+  const [senderNumber, setSenderNumber] = useState("");
 
   const [businessData, setBusinessData] = useState({
     businessName: "",
@@ -199,7 +200,7 @@ export default function Checkout() {
   }, []);
 
   const handleSubmit = async () => {
-    if (!transactionId || !selectedMethod) {
+    if (!transactionId || !selectedMethod || senderNumber.length !== 11) {
       toast.error(t("checkout.paymentFillAll"));
       return;
     }
@@ -769,28 +770,26 @@ export default function Checkout() {
                 >
                   {/* Send Money Header */}
                   <div
-                    className="relative p-6 text-center overflow-hidden"
-                    style={{ background: `linear-gradient(135deg, ${selectedPayment.color || 'hsl(var(--primary))'}, ${selectedPayment.color || 'hsl(var(--primary))'}dd)` }}
+                    className="relative p-6 text-center overflow-hidden rounded-t-2xl"
+                    style={{ backgroundColor: selectedPayment.color || 'hsl(var(--primary))' }}
                   >
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_50%)]" />
                     <div className="relative z-10">
-                      <p className="text-white/80 text-sm font-medium mb-3">
+                      <p className="text-white/80 text-sm font-medium mb-2">
                         {selectedPayment.name} Send Money
                       </p>
-                      <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-xl px-5 py-3 mb-3">
-                        <p className="text-white text-2xl font-bold tracking-wide font-mono">
-                          {selectedPayment.number}
-                        </p>
-                        <button
-                          onClick={() => copyNumber(selectedPayment.number)}
-                          className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition-all hover:scale-105 active:scale-95"
-                        >
-                          <Copy className="h-4 w-4 text-white" />
-                        </button>
-                      </div>
-                      <div className="flex items-center justify-center gap-2">
-                        <span className="text-white/70 text-sm">Amount</span>
-                        <span className="text-white text-xl font-bold">{currency}{amount}</span>
+                      <p className="text-white text-3xl font-bold tracking-wider font-mono">
+                        {selectedPayment.number}
+                      </p>
+                      <button
+                        onClick={() => copyNumber(selectedPayment.number)}
+                        className="mt-2 inline-flex items-center gap-1.5 text-white/70 hover:text-white text-xs transition-colors"
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                        Copy Number
+                      </button>
+                      <div className="mt-3 pt-3 border-t border-white/20">
+                        <span className="text-white/60 text-xs">Amount</span>
+                        <p className="text-white text-2xl font-bold">{currency}{amount}</p>
                       </div>
                     </div>
                   </div>
@@ -810,18 +809,40 @@ export default function Checkout() {
                     </div>
                   )}
 
-                  {/* Transaction ID */}
-                  <div className="p-5 space-y-2">
-                    <label className="text-sm font-semibold text-foreground flex items-center gap-1">
-                      Transaction ID / TrxID
-                      <span className="text-destructive">*</span>
-                    </label>
-                    <Input
-                      placeholder={t("checkout.transactionPlaceholder")}
-                      value={transactionId}
-                      onChange={(e) => setTransactionId(e.target.value)}
-                      className="bg-background border-border h-12 rounded-xl text-base"
-                    />
+                  {/* Sender Number & Transaction ID */}
+                  <div className="p-5 space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground flex items-center gap-1">
+                        <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                        Your {selectedPayment.name} Account Number
+                        <span className="text-destructive">*</span>
+                      </label>
+                      <Input
+                        placeholder="01XXXXXXXXX"
+                        value={senderNumber}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "").slice(0, 11);
+                          setSenderNumber(val);
+                        }}
+                        maxLength={11}
+                        className="bg-background border-border h-12 rounded-xl text-base font-mono tracking-wide"
+                      />
+                      {senderNumber.length > 0 && senderNumber.length < 11 && (
+                        <p className="text-xs text-destructive">{11 - senderNumber.length} digit remaining</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-foreground flex items-center gap-1">
+                        Transaction ID / TrxID
+                        <span className="text-destructive">*</span>
+                      </label>
+                      <Input
+                        placeholder={t("checkout.transactionPlaceholder")}
+                        value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value)}
+                        className="bg-background border-border h-12 rounded-xl text-base"
+                      />
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -856,7 +877,7 @@ export default function Checkout() {
                 </Button>
                 <Button
                   onClick={handleSubmit}
-                  disabled={loading || !selectedMethod || !transactionId}
+                  disabled={loading || !selectedMethod || !transactionId || senderNumber.length !== 11}
                   className="bg-gradient-primary text-primary-foreground px-8 py-5 font-semibold"
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("checkout.payAndConfirm")}
