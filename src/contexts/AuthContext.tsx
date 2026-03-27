@@ -84,13 +84,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setTimeout(() => {
             fetchUserData(session.user.id);
             registerDeviceIfNeeded(session.user.id);
-            // Send login alert email for existing users
-            sendLoginAlertEmail(session.user);
+            // Send login alert email (fire and forget)
+            const info = getSimpleDeviceInfo();
+            supabase.functions.invoke("send-template-email", {
+              body: {
+                templateName: "login-alert",
+                recipientEmail: session.user.email,
+                data: { name: session.user.user_metadata?.full_name || session.user.email, email: session.user.email, device: info.deviceName, browser: info.browser, os: info.os },
+              },
+            }).catch(() => {});
           }, 0);
-        }
-        if (_event === "USER_UPDATED" && session?.user) {
-          // Password changed notification
-          sendPasswordChangedEmail(session.user);
         }
         if (_event === "SIGNED_OUT") {
           setProfile(defaultProfile);
