@@ -168,7 +168,7 @@ export default function BusinessManageDialog({ business, open, onOpenChange, onS
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {t("admin.biz.manage")} — {business.business_name}
+            {t("admin.biz.manage")} - {business.business_name}
           </DialogTitle>
           <DialogDescription>{t("admin.biz.manageDesc")}</DialogDescription>
         </DialogHeader>

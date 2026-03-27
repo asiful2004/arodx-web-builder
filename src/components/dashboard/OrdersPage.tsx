@@ -338,7 +338,7 @@ export default function OrdersPage() {
                     <div>
                       <p className="text-xs font-semibold text-foreground">{inv.invoice_number}</p>
                       <p className="text-[10px] text-muted-foreground">
-                        {formatDate(inv.period_start)} — {formatDate(inv.period_end)}
+                        {formatDate(inv.period_start)} - {formatDate(inv.period_end)}
                       </p>
                     </div>
                   </div>

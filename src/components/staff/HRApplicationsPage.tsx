@@ -364,7 +364,7 @@ export default function HRApplicationsPage() {
                   {selectedApp.job_category === "other" && (
                     <div className="flex items-center gap-2 p-2 bg-amber-50 dark:bg-amber-500/10 rounded text-xs text-amber-700 dark:text-amber-400">
                       <AlertCircle className="h-4 w-4 shrink-0" />
-                      <span>অন্যান্য ক্যাটাগরি — অ্যাপ্রুভ হলেও অটোমেটিক স্টাফ প্যানেল অ্যাক্সেস পাবে না</span>
+                      <span>অন্যান্য ক্যাটাগরি - অ্যাপ্রুভ হলেও অটোমেটিক স্টাফ প্যানেল অ্যাক্সেস পাবে না</span>
                     </div>
                   )}
                 </div>
