@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Building2, Globe, Phone, MapPin, Loader2, Mail, Settings, Calendar, Plus,
-  Clock, CheckCircle2, XCircle, AlertTriangle, PackageCheck,
+  Clock, CheckCircle2, XCircle, AlertTriangle, PackageCheck, Trash2,
   Shirt, ShoppingCart, UtensilsCrossed, Stethoscope, GraduationCap, Briefcase,
   Palette, Cpu, Car, Plane, Landmark, Dumbbell, Music, Camera, Wrench, Heart,
   type LucideIcon,
@@ -13,6 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import BusinessManageDialog from "./BusinessManageDialog";
 import CreateCustomBusinessDialog from "./CreateCustomBusinessDialog";
 import { toast } from "sonner";
