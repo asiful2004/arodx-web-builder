@@ -366,29 +366,109 @@ Deno.serve(async (req) => {
     // Generate email
     const rendered = templateFn(data || {});
 
-    // Send via SMTP
-    const client = new SMTPClient({
-      connection: {
-        hostname: smtp.host,
-        port: smtp.port || 587,
-        tls: smtp.port === 465,
-        auth: { username: smtp.username, password: smtp.password },
-      },
-    });
-
     const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
     const rawFrom = smtp.from_email?.trim();
     const senderEmail = (rawFrom && isValidEmail(rawFrom)) ? rawFrom : smtp.username;
+    const smtpPort = smtp.port || 587;
 
-    await client.send({
-      from: senderEmail,
-      to: recipientEmail,
-      subject: rendered.subject,
-      content: rendered.text,
-      html: rendered.html,
-    });
+    // Build MIME message with base64 encoding for proper UTF-8 support
+    const boundary = `----=_Part_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const textEncoder = new TextEncoder();
 
-    await client.close();
+    const htmlBase64 = base64Encode(textEncoder.encode(rendered.html));
+    const textBase64 = base64Encode(textEncoder.encode(rendered.text));
+    const subjectEncoded = `=?UTF-8?B?${base64Encode(textEncoder.encode(rendered.subject))}?=`;
+
+    const mimeMessage = [
+      `From: ${senderEmail}`,
+      `To: ${recipientEmail}`,
+      `Subject: ${subjectEncoded}`,
+      `MIME-Version: 1.0`,
+      `Content-Type: multipart/alternative; boundary="${boundary}"`,
+      ``,
+      `--${boundary}`,
+      `Content-Type: text/plain; charset="utf-8"`,
+      `Content-Transfer-Encoding: base64`,
+      ``,
+      textBase64,
+      ``,
+      `--${boundary}`,
+      `Content-Type: text/html; charset="utf-8"`,
+      `Content-Transfer-Encoding: base64`,
+      ``,
+      htmlBase64,
+      ``,
+      `--${boundary}--`,
+    ].join("\r\n");
+
+    // Send via raw SMTP
+    const useImplicitTLS = smtpPort === 465;
+    let conn: Deno.Conn;
+
+    if (useImplicitTLS) {
+      conn = await Deno.connectTls({ hostname: smtp.host, port: smtpPort });
+    } else {
+      conn = await Deno.connect({ hostname: smtp.host, port: smtpPort });
+    }
+
+    const decoder = new TextDecoder();
+    const encoder = new TextEncoder();
+
+    async function readResponse(): Promise<string> {
+      const buf = new Uint8Array(4096);
+      const n = await conn.read(buf);
+      return n ? decoder.decode(buf.subarray(0, n)) : "";
+    }
+
+    async function sendCmd(cmd: string): Promise<string> {
+      await conn.write(encoder.encode(cmd + "\r\n"));
+      return await readResponse();
+    }
+
+    // Greeting
+    await readResponse();
+
+    // EHLO
+    await sendCmd(`EHLO localhost`);
+
+    // STARTTLS for port 587
+    if (!useImplicitTLS) {
+      const starttlsResp = await sendCmd("STARTTLS");
+      if (starttlsResp.startsWith("220")) {
+        conn = await Deno.startTls(conn as Deno.TcpConn, { hostname: smtp.host });
+        await sendCmd(`EHLO localhost`);
+      }
+    }
+
+    // AUTH LOGIN
+    await sendCmd("AUTH LOGIN");
+    await sendCmd(base64Encode(encoder.encode(smtp.username)));
+    const authResp = await sendCmd(base64Encode(encoder.encode(smtp.password)));
+    if (!authResp.startsWith("235")) {
+      conn.close();
+      throw new Error("SMTP Authentication failed: " + authResp.trim());
+    }
+
+    // MAIL FROM
+    await sendCmd(`MAIL FROM:<${senderEmail}>`);
+
+    // RCPT TO
+    await sendCmd(`RCPT TO:<${recipientEmail}>`);
+
+    // DATA
+    await sendCmd("DATA");
+
+    // Send message body + terminator
+    await conn.write(encoder.encode(mimeMessage + "\r\n.\r\n"));
+    const dataResp = await readResponse();
+    if (!dataResp.startsWith("250")) {
+      conn.close();
+      throw new Error("SMTP DATA failed: " + dataResp.trim());
+    }
+
+    // QUIT
+    await sendCmd("QUIT");
+    try { conn.close(); } catch { /* ignore */ }
 
     console.log(`Email sent: ${templateName} -> ${recipientEmail}`);
 
