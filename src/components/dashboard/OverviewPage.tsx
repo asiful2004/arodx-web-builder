@@ -133,7 +133,8 @@ export default function OverviewPage() {
         });
       }
 
-      const visibleOrders = orders.filter(o => o.refund_status !== 'approved');
+      // Only show orders that have an associated business AND are not refunded
+      const visibleOrders = orders.filter(o => o.refund_status !== 'approved' && o.business);
       setActiveOrders(visibleOrders);
     };
     fetchData();
