@@ -89,7 +89,8 @@ export default function AdminBusinessesPage() {
   const [selectedBiz, setSelectedBiz] = useState<Business | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-
+  const [deleteTarget, setDeleteTarget] = useState<Business | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const fetchData = useCallback(async () => {
     setLoading(true);
     const { data: bizData } = await supabase
@@ -152,6 +153,25 @@ export default function AdminBusinessesPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      // Delete associated order first if exists
+      if (deleteTarget.order_id) {
+        await supabase.from("orders").delete().eq("id", deleteTarget.order_id);
+      }
+      const { error } = await supabase.from("businesses").delete().eq("id", deleteTarget.id);
+      if (error) throw error;
+      toast.success(t("admin.biz.deleteSuccess", "Business deleted successfully"));
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete");
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
