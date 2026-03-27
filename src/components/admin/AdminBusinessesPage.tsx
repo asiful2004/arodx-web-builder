@@ -280,6 +280,20 @@ export default function AdminBusinessesPage() {
                         <TooltipContent>{t("admin.biz.manage")}</TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="icon" variant="ghost"
+                            className="w-8 h-8 opacity-60 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => setDeleteTarget(biz)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{t("admin.biz.delete", "Delete")}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
 
