@@ -258,6 +258,17 @@ export default function Checkout() {
 
       if (bizError) throw bizError;
 
+      // Send subscription confirmation email (fire and forget)
+      if (user?.email) {
+        supabase.functions.invoke("send-template-email", {
+          body: {
+            templateName: "subscription-confirmation",
+            recipientEmail: user.email,
+            data: { name: profile?.full_name || user.email, package: packageName, billingPeriod, amount: `${currency}${amount}`, paymentMethod: selectedPayment?.name || selectedMethod, transactionId, dashboardUrl: window.location.origin + "/dashboard" },
+          },
+        }).catch(() => {});
+      }
+
       goNext();
     } catch (err) {
       console.error(err);
