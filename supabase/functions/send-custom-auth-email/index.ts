@@ -84,45 +84,104 @@ async function sendViaSMTP(smtp: any, senderEmail: string, recipientEmail: strin
     `--${boundary}--`,
   ].join("\r\n");
 
-  const conn = await Deno.connect({ hostname: smtp.host, port: smtpPort });
+  let conn: Deno.Conn = await Deno.connect({ hostname: smtp.host, port: smtpPort });
   const decoder = new TextDecoder();
+  let carry = "";
 
   async function readLine(): Promise<string> {
+    if (carry.includes("\n")) {
+      const idx = carry.indexOf("\n");
+      const line = carry.slice(0, idx + 1);
+      carry = carry.slice(idx + 1);
+      return line.replace(/\r?\n$/, "");
+    }
+
     const buf = new Uint8Array(4096);
-    let result = "";
     while (true) {
       const n = await conn.read(buf);
       if (n === null) break;
-      result += decoder.decode(buf.subarray(0, n));
-      if (result.includes("\r\n")) break;
+      carry += decoder.decode(buf.subarray(0, n));
+      if (carry.includes("\n")) {
+        const idx = carry.indexOf("\n");
+        const line = carry.slice(0, idx + 1);
+        carry = carry.slice(idx + 1);
+        return line.replace(/\r?\n$/, "");
+      }
     }
-    return result.trim();
+
+    const rest = carry;
+    carry = "";
+    return rest.trim();
+  }
+
+  async function readResponse(): Promise<string> {
+    const first = await readLine();
+    if (!first) return "";
+
+    const lines = [first];
+    const match = first.match(/^(\d{3})([\s-])/);
+    if (!match) return first;
+
+    const code = match[1];
+    const sep = match[2];
+    if (sep === "-") {
+      while (true) {
+        const line = await readLine();
+        if (!line) break;
+        lines.push(line);
+        if (line.startsWith(`${code} `)) break;
+      }
+    }
+
+    return lines.join("\n");
+  }
+
+  function assertCode(response: string, expected: number[], step: string) {
+    const code = Number(response.slice(0, 3));
+    if (!Number.isFinite(code) || !expected.includes(code)) {
+      throw new Error(`SMTP ${step} failed: ${response || "No response"}`);
+    }
   }
 
   async function sendCmd(cmd: string): Promise<string> {
     await conn.write(te.encode(cmd + "\r\n"));
-    return await readLine();
+    return await readResponse();
   }
 
-  await readLine();
+  const greeting = await readResponse();
+  assertCode(greeting, [220], "greeting");
+
   const ehlo = await sendCmd("EHLO localhost");
+  assertCode(ehlo, [250], "EHLO");
+
   if (ehlo.toLowerCase().includes("starttls") && smtpPort !== 465) {
-    await sendCmd("STARTTLS");
-    const tlsConn = await Deno.startTls(conn, { hostname: smtp.host });
-    conn.read = tlsConn.read.bind(tlsConn);
-    conn.write = tlsConn.write.bind(tlsConn);
-    (conn as any)._tls = tlsConn;
-    await sendCmd("EHLO localhost");
+    const tlsResp = await sendCmd("STARTTLS");
+    assertCode(tlsResp, [220], "STARTTLS");
+    conn = await Deno.startTls(conn, { hostname: smtp.host });
+    const ehloTls = await sendCmd("EHLO localhost");
+    assertCode(ehloTls, [250], "EHLO after STARTTLS");
   }
 
   const authStr = encodeBase64(te.encode(`\x00${smtp.username}\x00${smtp.password}`));
-  await sendCmd(`AUTH PLAIN ${authStr}`);
-  await sendCmd(`MAIL FROM:<${senderEmail}>`);
-  await sendCmd(`RCPT TO:<${recipientEmail}>`);
-  await sendCmd("DATA");
+  const authResp = await sendCmd(`AUTH PLAIN ${authStr}`);
+  assertCode(authResp, [235, 503], "AUTH");
+
+  const mailFromResp = await sendCmd(`MAIL FROM:<${senderEmail}>`);
+  assertCode(mailFromResp, [250], "MAIL FROM");
+
+  const rcptResp = await sendCmd(`RCPT TO:<${recipientEmail}>`);
+  assertCode(rcptResp, [250, 251], "RCPT TO");
+
+  const dataResp = await sendCmd("DATA");
+  assertCode(dataResp, [354], "DATA");
+
   await conn.write(te.encode(mime + "\r\n.\r\n"));
-  await readLine();
-  await sendCmd("QUIT");
+  const queuedResp = await readResponse();
+  assertCode(queuedResp, [250], "message body");
+
+  const quitResp = await sendCmd("QUIT");
+  assertCode(quitResp, [221], "QUIT");
+
   try { conn.close(); } catch { /* ok */ }
 }
 
