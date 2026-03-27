@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -14,16 +14,19 @@ const ResetPassword = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
+  const email = searchParams.get("email");
 
   useEffect(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    if (!hashParams.get("type") || hashParams.get("type") !== "recovery") {
-      const queryParams = new URLSearchParams(window.location.search);
-      if (!queryParams.get("type") || queryParams.get("type") !== "recovery") {
+    // If no custom token/email, check for Supabase hash-based recovery (legacy)
+    if (!token || !email) {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      if (!hashParams.get("type") || hashParams.get("type") !== "recovery") {
         // Allow access anyway for UX
       }
     }
-  }, []);
+  }, [token, email]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,10 +40,29 @@ const ResetPassword = () => {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) throw error;
-      toast({ title: t("auth.passwordUpdated") });
-      navigate("/signin");
+      if (token && email) {
+        // Custom SMTP-based reset flow
+        const { data, error } = await supabase.functions.invoke("send-custom-auth-email", {
+          body: {
+            type: "reset_verify",
+            email: decodeURIComponent(email),
+            code: token,
+            newPassword: password,
+          },
+        });
+
+        if (error) throw error;
+        if (data?.error) throw new Error(data.error);
+
+        toast({ title: t("auth.passwordUpdated") });
+        navigate("/signin");
+      } else {
+        // Legacy Supabase hash-based reset
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) throw error;
+        toast({ title: t("auth.passwordUpdated") });
+        navigate("/signin");
+      }
     } catch (error: any) {
       toast({ title: t("auth.failed"), description: error.message, variant: "destructive" });
     } finally {

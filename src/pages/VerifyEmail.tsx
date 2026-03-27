@@ -35,12 +35,14 @@ const VerifyEmail = () => {
     if (otp.length !== 6) return;
     setLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: "signup",
+      // Verify OTP via our custom edge function
+      const { data, error } = await supabase.functions.invoke("send-custom-auth-email", {
+        body: { type: "verify_otp", email, code: otp },
       });
+
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
       toast({ title: t("auth.emailVerified"), description: t("auth.emailVerifiedDesc") });
       navigate("/dashboard");
     } catch (error: any) {
@@ -58,11 +60,14 @@ const VerifyEmail = () => {
     if (cooldown > 0) return;
     setResending(true);
     try {
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email,
+      // Resend OTP via our custom edge function
+      const { data, error } = await supabase.functions.invoke("send-custom-auth-email", {
+        body: { type: "resend_otp", email },
       });
+
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
       setCooldown(60);
       toast({ title: t("auth.codeSent"), description: t("auth.codeSentDesc") });
     } catch (error: any) {
