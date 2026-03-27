@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@lovable.dev/webhooks-js": "npm:@lovable.dev/webhooks-js@latest",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+  }
+}
