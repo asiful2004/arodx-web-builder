@@ -84,7 +84,9 @@ async function sendViaSMTP(smtp: any, senderEmail: string, recipientEmail: strin
     `--${boundary}--`,
   ].join("\r\n");
 
-  let conn: Deno.Conn = await Deno.connect({ hostname: smtp.host, port: smtpPort });
+  let conn: Deno.Conn = smtpPort === 465
+    ? await Deno.connectTls({ hostname: smtp.host, port: smtpPort })
+    : await Deno.connect({ hostname: smtp.host, port: smtpPort });
   const decoder = new TextDecoder();
   let carry = "";
 
