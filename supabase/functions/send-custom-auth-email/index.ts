@@ -29,39 +29,83 @@ function baseLayout(title: string, content: string): string {
   return `<!DOCTYPE html>
 <html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>${title}</title></head>
-<body style="margin:0;padding:0;background:${BRAND.bgColor};font-family:'Segoe UI',Roboto,Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:${BRAND.bgColor};padding:40px 16px;">
+<body style="margin:0;padding:0;background:${BRAND.bgColor};font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:${BRAND.bgColor};padding:48px 16px;">
 <tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(38,89,255,0.08);">
-<tr><td style="background:linear-gradient(135deg,${BRAND.gradientStart},${BRAND.gradientEnd});padding:28px 32px;text-align:center;">
-<h1 style="margin:0;font-size:26px;font-weight:800;color:#ffffff;letter-spacing:1.5px;">${BRAND.name}</h1>
-<p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.8);">${BRAND.tagline}</p>
+<table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
+
+<!-- Logo / Header -->
+<tr><td style="padding:0 0 24px;text-align:center;">
+<table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+<tr>
+<td style="background:linear-gradient(135deg,${BRAND.gradientStart},${BRAND.gradientEnd});width:44px;height:44px;border-radius:12px;text-align:center;vertical-align:middle;">
+<span style="color:#ffffff;font-size:22px;font-weight:800;line-height:44px;">A</span>
+</td>
+<td style="padding-left:12px;">
+<span style="font-size:22px;font-weight:800;color:${BRAND.textDark};letter-spacing:0.5px;">${BRAND.name}</span>
+</td>
+</tr>
+</table>
 </td></tr>
-<tr><td style="padding:32px;">${content}</td></tr>
-<tr><td style="background:#f8fafc;padding:20px 32px;border-top:1px solid ${BRAND.borderColor};text-align:center;">
-<p style="margin:0 0 2px;font-size:12px;color:${BRAND.textDark};font-weight:600;">${BRAND.name}</p>
-<p style="margin:0;font-size:11px;color:${BRAND.textLight};"><a href="mailto:${BRAND.email}" style="color:${BRAND.primaryColor};text-decoration:none;">${BRAND.email}</a></p>
+
+<!-- Card Body -->
+<tr><td>
+<table width="100%" cellpadding="0" cellspacing="0" style="background:${BRAND.cardBg};border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(38,89,255,0.06);border:1px solid ${BRAND.borderColor};">
+
+<!-- Blue accent bar -->
+<tr><td style="height:4px;background:linear-gradient(90deg,${BRAND.gradientStart},${BRAND.gradientEnd});font-size:0;line-height:0;">&nbsp;</td></tr>
+
+<!-- Content -->
+<tr><td style="padding:40px 36px 32px;">${content}</td></tr>
+
+</table>
 </td></tr>
-</table></td></tr></table>
+
+<!-- Footer -->
+<tr><td style="padding:28px 16px 0;text-align:center;">
+<p style="margin:0 0 6px;font-size:13px;color:${BRAND.textMuted};">${BRAND.name} &middot; ${BRAND.tagline}</p>
+<p style="margin:0 0 4px;font-size:12px;color:${BRAND.textLight};">
+<a href="mailto:${BRAND.email}" style="color:${BRAND.accentColor};text-decoration:none;">${BRAND.email}</a>
+</p>
+<p style="margin:12px 0 0;font-size:11px;color:${BRAND.textLight};">&copy; ${BRAND.year} ${BRAND.name}. All rights reserved.</p>
+</td></tr>
+
+</table>
+</td></tr></table>
 </body></html>`;
 }
 
 function otpBlock(code: string): string {
-  return `<div style="text-align:center;margin:24px 0;">
-<div style="display:inline-block;background:${BRAND.bgColor};border:2px dashed ${BRAND.primaryColor};border-radius:12px;padding:16px 32px;">
-<p style="margin:0 0 4px;font-size:12px;color:${BRAND.textMuted};text-transform:uppercase;letter-spacing:1px;">ভেরিফিকেশন কোড</p>
-<p style="margin:0;font-size:36px;font-weight:800;color:${BRAND.primaryColor};letter-spacing:8px;">${code}</p>
-</div></div>`;
-}
-
-function ctaButton(text: string, url: string): string {
-  return `<div style="text-align:center;margin:24px 0;">
-<a href="${url}" style="display:inline-block;background:linear-gradient(135deg,${BRAND.gradientStart},${BRAND.gradientEnd});color:#ffffff;font-size:14px;font-weight:600;padding:12px 32px;border-radius:8px;text-decoration:none;box-shadow:0 4px 12px rgba(38,89,255,0.25);">${text}</a>
+  return `<div style="text-align:center;margin:28px 0;">
+<table cellpadding="0" cellspacing="0" style="margin:0 auto;background:linear-gradient(135deg,rgba(38,89,255,0.06),rgba(71,137,255,0.1));border:1px solid rgba(38,89,255,0.15);border-radius:14px;padding:20px 40px;">
+<tr><td style="text-align:center;">
+<p style="margin:0 0 6px;font-size:11px;color:${BRAND.textMuted};text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">ভেরিফিকেশন কোড</p>
+<p style="margin:0;font-size:38px;font-weight:800;color:${BRAND.primaryColor};letter-spacing:10px;font-family:'Courier New',monospace;">${code}</p>
+</td></tr>
+</table>
 </div>`;
 }
 
+function ctaButton(text: string, url: string): string {
+  return `<div style="text-align:center;margin:28px 0;">
+<a href="${url}" style="display:inline-block;background:linear-gradient(135deg,${BRAND.gradientStart},${BRAND.gradientEnd});color:#ffffff;font-size:15px;font-weight:600;padding:14px 36px;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(38,89,255,0.3);letter-spacing:0.3px;">${text}</a>
+</div>`;
+}
+
+function heading(text: string): string {
+  return `<h2 style="margin:0 0 20px;font-size:22px;font-weight:700;color:${BRAND.textDark};line-height:1.3;">${text}</h2>`;
+}
+
 function p(text: string): string {
-  return `<p style="margin:0 0 16px;font-size:14px;color:${BRAND.textMuted};line-height:1.7;">${text}</p>`;
+  return `<p style="margin:0 0 16px;font-size:15px;color:${BRAND.textBody};line-height:1.7;">${text}</p>`;
+}
+
+function divider(): string {
+  return `<hr style="border:none;border-top:1px solid ${BRAND.borderColor};margin:24px 0;">`;
+}
+
+function smallNote(text: string): string {
+  return `<p style="margin:0 0 8px;font-size:12px;color:${BRAND.textLight};line-height:1.6;">${text}</p>`;
 }
 
 async function sendViaSMTP(smtp: any, senderEmail: string, recipientEmail: string, subject: string, html: string, text: string) {
