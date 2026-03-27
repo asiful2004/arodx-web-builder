@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Settings, Loader2, Save, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil, FileText, Bot, Mail, Eye, EyeOff, Send, ChevronLeft, ChevronRight, Database, HardDrive, Server, Activity } from "lucide-react";
+import { Settings, Loader2, Save, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil, FileText, Bot, Mail, Eye, EyeOff, Send, ChevronLeft, ChevronRight, Database, HardDrive, Server, Activity, Webhook, Bell, MessageSquare, ShoppingCart, TicketCheck } from "lucide-react";
 import { toast as sonnerToast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -994,7 +994,7 @@ export default function AdminSettingsPage() {
           <Settings className="h-5 w-5 text-primary" />
           সিস্টেম সেটিংস
         </h1>
-        <p className="text-sm text-muted-foreground">সিকিউরিটি, ইমেইল, AI চ্যাট, অটোমেশন এবং সিস্টেম তথ্য</p>
+        <p className="text-sm text-muted-foreground">সিকিউরিটি, ইমেইল, AI চ্যাট, অটোমেশন, ওয়েবহুক এবং সিস্টেম তথ্য</p>
       </div>
 
       <Tabs defaultValue="auth" className="w-full">
@@ -1014,6 +1014,10 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="automation" className="text-xs gap-1.5 flex-1 min-w-[100px]">
             <Clock className="h-3.5 w-3.5" />
             অটোমেশন
+          </TabsTrigger>
+          <TabsTrigger value="webhooks" className="text-xs gap-1.5 flex-1 min-w-[100px]">
+            <Webhook className="h-3.5 w-3.5" />
+            ওয়েবহুক
           </TabsTrigger>
           <TabsTrigger value="system" className="text-xs gap-1.5 flex-1 min-w-[100px]">
             <Server className="h-3.5 w-3.5" />
@@ -1051,6 +1055,10 @@ export default function AdminSettingsPage() {
 
         <TabsContent value="automation" className="mt-6">
           <CronJobsSection />
+        </TabsContent>
+
+        <TabsContent value="webhooks" className="mt-6">
+          <DiscordWebhookSection />
         </TabsContent>
 
         <TabsContent value="system" className="mt-6">
