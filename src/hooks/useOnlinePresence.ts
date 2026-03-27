@@ -51,7 +51,7 @@ export function useOnlinePresenceProvider() {
   const [onlineMembers, setOnlineMembers] = useState<OnlineMember[]>([]);
   const channelRef = useRef<RealtimeChannel | null>(null);
 
-  // Realtime Presence — uses cached profile+roles from AuthContext
+  // Realtime Presence - uses cached profile+roles from AuthContext
   useEffect(() => {
     if (!user || !profile.full_name && !profile.avatar_url) return;
 
@@ -97,7 +97,7 @@ export function useOnlinePresenceProvider() {
   return { onlineMembers };
 }
 
-// Consumer hook — reads from context
+// Consumer hook - reads from context
 export function useOnlinePresence() {
   return useContext(OnlinePresenceContext);
 }

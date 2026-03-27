@@ -37,15 +37,15 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
         />
 
         <div className="relative flex flex-col items-center">
-          {/* Morphing shape — the star of the show */}
+          {/* Morphing shape - the star of the show */}
           <motion.div className="relative w-40 h-40 md:w-52 md:h-52 flex items-center justify-center">
-            {/* Ring 1 — outer rotating ring */}
+            {/* Ring 1 - outer rotating ring */}
             <motion.div
               className="absolute inset-0 rounded-full border-2 border-primary/20"
               animate={{ rotate: 360, scale: [1, 1.1, 1] }}
               transition={{ rotate: { duration: 4, repeat: Infinity, ease: "linear" }, scale: { duration: 2, repeat: Infinity, ease: "easeInOut" } }}
             />
-            {/* Ring 2 — counter-rotating */}
+            {/* Ring 2 - counter-rotating */}
             <motion.div
               className="absolute inset-3 rounded-full border border-accent/15"
               animate={{ rotate: -360 }}
