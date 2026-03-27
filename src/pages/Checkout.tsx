@@ -11,18 +11,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 const steps_data = [
   { id: 1, labelKey: "checkout.stepPackage", icon: Package },
   { id: 2, labelKey: "checkout.stepBusiness", icon: Building2 },
   { id: 3, labelKey: "checkout.stepPayment", icon: CreditCard },
   { id: 4, labelKey: "checkout.stepDone", icon: CheckCircle },
-];
-
-const paymentMethods = [
-  { id: "bkash", name: "bKash", number: "01XXXXXXXXX", color: "#E2136E" },
-  { id: "nagad", name: "Nagad", number: "01XXXXXXXXX", color: "#F6921E" },
-  { id: "upay", name: "Upay", number: "01XXXXXXXXX", color: "#00A651" },
-  { id: "rocket", name: "Rocket", number: "01XXXXXXXXX", color: "#8B2F8B" },
 ];
 
 const businessCategories = [
