@@ -383,7 +383,7 @@ export default function CreateCustomBusinessDialog({ open, onOpenChange, onCreat
                           </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
-                          <p className="text-xs font-medium text-foreground truncate">{u.full_name || "—"}</p>
+                          <p className="text-xs font-medium text-foreground truncate">{u.full_name || "-"}</p>
                           <p className="text-[11px] text-muted-foreground truncate">{u.email}</p>
                         </div>
                       </button>
@@ -398,7 +398,7 @@ export default function CreateCustomBusinessDialog({ open, onOpenChange, onCreat
               <p className="font-semibold text-foreground text-sm">{t("admin.biz.custom.summary")}</p>
               <div className="grid grid-cols-2 gap-y-1.5 gap-x-4">
                 <span className="text-muted-foreground">{t("admin.biz.name")}:</span>
-                <span className="text-foreground font-medium">{bizName || "—"}</span>
+                <span className="text-foreground font-medium">{bizName || "-"}</span>
                 <span className="text-muted-foreground">{t("admin.biz.category")}:</span>
                 <span className="text-foreground">{bizCategory}</span>
                 <span className="text-muted-foreground">{t("admin.biz.custom.packageName")}:</span>

@@ -659,14 +659,14 @@ export default function Checkout() {
                                   <>
                                     <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
                                     <span className="text-green-500 font-medium">
-                                      {domainCheck.result.domain} — {t("checkout.domainAvailable")}
+                                      {domainCheck.result.domain} - {t("checkout.domainAvailable")}
                                     </span>
                                   </>
                                 ) : (
                                   <>
                                     <X className="w-4 h-4 text-destructive shrink-0" />
                                     <span className="text-destructive font-medium">
-                                      {domainCheck.result.domain} — {t("checkout.domainTaken")}
+                                      {domainCheck.result.domain} - {t("checkout.domainTaken")}
                                     </span>
                                   </>
                                 )}
@@ -755,7 +755,7 @@ export default function Checkout() {
                       </div>
                       <div className="text-left">
                         <p className="font-semibold text-sm text-foreground">{method.name}</p>
-                        <p className="text-xs text-muted-foreground">{method.number || "—"}</p>
+                        <p className="text-xs text-muted-foreground">{method.number || "-"}</p>
                       </div>
                     </button>
                   ))}

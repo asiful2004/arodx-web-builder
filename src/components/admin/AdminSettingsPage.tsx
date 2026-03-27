@@ -505,7 +505,7 @@ function SmtpConfigSection() {
                 <SelectContent>
                   <SelectItem value="25">25 (SMTP)</SelectItem>
                   <SelectItem value="465">465 (SSL)</SelectItem>
-                  <SelectItem value="587">587 (TLS — recommended)</SelectItem>
+                  <SelectItem value="587">587 (TLS - recommended)</SelectItem>
                   <SelectItem value="2525">2525 (Alternative)</SelectItem>
                 </SelectContent>
               </Select>
