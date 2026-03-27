@@ -742,11 +742,17 @@ export default function Checkout() {
                           : "border-border bg-card hover:border-primary/20"
                       }`}
                     >
-                      <div
-                        className="w-9 h-9 rounded-lg flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0"
-                        style={{ backgroundColor: method.color || "hsl(var(--primary))" }}
-                      >
-                        {String(method.name || "?").charAt(0)}
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden bg-white p-0.5 shrink-0">
+                        {method.logo_url ? (
+                          <img src={method.logo_url} alt={method.name} className="w-full h-full object-contain" />
+                        ) : (
+                          <div
+                            className="w-full h-full rounded flex items-center justify-center text-white font-bold text-sm"
+                            style={{ backgroundColor: method.color || "hsl(var(--primary))" }}
+                          >
+                            {String(method.name || "?").charAt(0)}
+                          </div>
+                        )}
                       </div>
                       <div className="text-left">
                         <p className="font-semibold text-sm text-foreground">{method.name}</p>
@@ -776,7 +782,12 @@ export default function Checkout() {
                     </div>
                     <p className="text-lg font-bold mt-2">Amount: {currency}{amount}</p>
                   </div>
-                  <div className="p-5 bg-card border border-t-0 border-border rounded-b-xl space-y-3">
+                  {selectedPayment.instruction && (
+                    <div className="p-3 bg-accent/50 border border-t-0 border-accent text-xs text-foreground">
+                      {selectedPayment.instruction}
+                    </div>
+                  )}
+                  <div className={`p-5 bg-card border border-t-0 border-border rounded-b-xl space-y-3 ${selectedPayment.instruction ? '' : ''}`}>
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium text-foreground">Transaction ID / TrxID *</label>
                       <Input
