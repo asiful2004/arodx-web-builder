@@ -85,19 +85,27 @@ export default function CreateTicketPage() {
       return;
     }
     setSubmitting(true);
-    const { error } = await supabase.from("tickets").insert({
+    const { data: ticketData, error } = await supabase.from("tickets").insert({
       user_id: user.id,
-      ticket_number: "TMP", // will be overridden by trigger
+      ticket_number: "TMP",
       subject: subject.trim(),
       description: description.trim(),
       category: category as any,
       priority: priority as any,
       order_id: orderId || null,
-    });
+    }).select("ticket_number").single();
     setSubmitting(false);
     if (error) {
       toast({ title: "টিকেট তৈরি করতে সমস্যা হয়েছে", description: error.message, variant: "destructive" });
     } else {
+      // Send ticket received email (fire and forget)
+      supabase.functions.invoke("send-template-email", {
+        body: {
+          templateName: "ticket-received",
+          recipientEmail: user.email,
+          data: { name: user.user_metadata?.full_name || user.email, ticketNumber: ticketData?.ticket_number, subject: subject.trim(), category, priority, ticketUrl: window.location.origin + "/dashboard/tickets" },
+        },
+      }).catch(() => {});
       toast({ title: "টিকেট সফলভাবে তৈরি হয়েছে" });
       navigate("/dashboard/tickets");
     }
