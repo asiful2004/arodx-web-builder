@@ -229,12 +229,21 @@ const SignIn = () => {
 
       // Check email verification for non-Google users
       const isGoogleUser = user.app_metadata?.provider === "google" || user.app_metadata?.providers?.includes("google");
-      if (!isGoogleUser && !user.email_confirmed_at) {
-        await supabase.auth.signOut();
-        toast({ title: t("auth.verifyYourEmail"), description: t("auth.checkEmailForCode"), variant: "destructive" });
-        navigate(`/verify-email?email=${encodeURIComponent(user.email || "")}`);
-        setLoading(false);
-        return;
+      if (!isGoogleUser) {
+        // Check our custom email_verified flag in profiles
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("email_verified")
+          .eq("user_id", user.id)
+          .single();
+
+        if (!profile?.email_verified) {
+          await supabase.auth.signOut();
+          toast({ title: t("auth.verifyYourEmail"), description: t("auth.checkEmailForCode"), variant: "destructive" });
+          navigate(`/verify-email?email=${encodeURIComponent(user.email || "")}`);
+          setLoading(false);
+          return;
+        }
       }
 
       const alreadyRegistered = await isDeviceRegistered(user.id);
