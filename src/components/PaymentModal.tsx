@@ -6,12 +6,16 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import bkashLogo from "@/assets/bkash-logo.png";
+import nagadLogo from "@/assets/nagad-logo.png";
+import upayLogo from "@/assets/upay-logo.png";
+import rocketLogo from "@/assets/rocket-logo.png";
 
 const paymentMethods = [
-  { id: "bkash", name: "bKash", number: "01XXXXXXXXX", color: "#E2136E" },
-  { id: "nagad", name: "Nagad", number: "01XXXXXXXXX", color: "#F6921E" },
-  { id: "upay", name: "Upay", number: "01XXXXXXXXX", color: "#00A651" },
-  { id: "rocket", name: "Rocket", number: "01XXXXXXXXX", color: "#8B2F8B" },
+  { id: "bkash", name: "bKash", number: "01XXXXXXXXX", color: "#E2136E", logo: bkashLogo },
+  { id: "nagad", name: "Nagad", number: "01XXXXXXXXX", color: "#F6921E", logo: nagadLogo },
+  { id: "upay", name: "Upay", number: "01XXXXXXXXX", color: "#00A651", logo: upayLogo },
+  { id: "rocket", name: "Rocket", number: "01XXXXXXXXX", color: "#8B2F8B", logo: rocketLogo },
 ];
 
 interface PaymentModalProps {
@@ -146,11 +150,8 @@ const PaymentModal = ({
                         }}
                         className="w-full flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/30 bg-background hover:bg-muted/50 transition-all group"
                       >
-                        <div
-                          className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm"
-                          style={{ backgroundColor: method.color }}
-                        >
-                          {method.name.charAt(0)}
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white p-1">
+                          <img src={method.logo} alt={method.name} className="w-full h-full object-contain" />
                         </div>
                         <div className="text-left flex-1">
                           <p className="font-semibold text-foreground">{method.name}</p>
