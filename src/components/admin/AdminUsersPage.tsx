@@ -486,6 +486,17 @@ export default function AdminUsersPage() {
                             <KeyRound className="w-3.5 h-3.5" />
                             পাসওয়ার্ড
                           </Button>
+                          {!isCurrentUser && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeletingUser(u)}
+                              className="gap-1.5 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              ডিলিট
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
