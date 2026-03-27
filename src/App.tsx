@@ -45,7 +45,10 @@ const AdminContactSubmissionsPage = lazy(() => import("./components/admin/AdminC
 const AdminAnalyticsPage = lazy(() => import("./components/admin/AdminAnalyticsPage"));
 const AdminLogsPage = lazy(() => import("./components/admin/AdminLogsPage"));
 const AdminSEOPage = lazy(() => import("./components/admin/AdminSEOPage"));
+const AdminLegalPagesEditor = lazy(() => import("./components/admin/AdminLegalPagesEditor"));
 const StaffPanelPage = lazy(() => import("./components/admin/StaffPanelPage"));
+const TermsPage = lazy(() => import("./pages/TermsPage"));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
 const StaffLayout = lazy(() => import("./components/staff/StaffLayout"));
 const StaffOverviewPage = lazy(() => import("./components/staff/StaffOverviewPage"));
 const StaffHRPage = lazy(() => import("./components/staff/StaffHRPage"));
@@ -124,8 +127,11 @@ const App = () => {
                   <Route path="analytics" element={<AdminAnalyticsPage />} />
                   <Route path="logs" element={<AdminLogsPage />} />
                   <Route path="seo" element={<AdminSEOPage />} />
+                  <Route path="legal" element={<AdminLegalPagesEditor />} />
                   <Route path="staff" element={<StaffPanelPage />} />
                 </Route>
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/staff" element={<StaffLayout />}>
                   <Route index element={<StaffOverviewPage />} />
                   <Route path="tickets" element={<AdminTicketsPage />} />
