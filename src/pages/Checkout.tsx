@@ -877,7 +877,7 @@ export default function Checkout() {
                 </Button>
                 <Button
                   onClick={handleSubmit}
-                  disabled={loading || !selectedMethod || !transactionId}
+                  disabled={loading || !selectedMethod || !transactionId || senderNumber.length !== 11}
                   className="bg-gradient-primary text-primary-foreground px-8 py-5 font-semibold"
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("checkout.payAndConfirm")}
