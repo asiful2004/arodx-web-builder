@@ -11,18 +11,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 const steps_data = [
   { id: 1, labelKey: "checkout.stepPackage", icon: Package },
   { id: 2, labelKey: "checkout.stepBusiness", icon: Building2 },
   { id: 3, labelKey: "checkout.stepPayment", icon: CreditCard },
   { id: 4, labelKey: "checkout.stepDone", icon: CheckCircle },
-];
-
-const paymentMethods = [
-  { id: "bkash", name: "bKash", number: "01XXXXXXXXX", color: "#E2136E" },
-  { id: "nagad", name: "Nagad", number: "01XXXXXXXXX", color: "#F6921E" },
-  { id: "upay", name: "Upay", number: "01XXXXXXXXX", color: "#00A651" },
-  { id: "rocket", name: "Rocket", number: "01XXXXXXXXX", color: "#8B2F8B" },
 ];
 
 const businessCategories = [
@@ -101,6 +95,7 @@ export default function Checkout() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { data: siteSettings } = useSiteSettings();
 
   const packageName = searchParams.get("package") || "Starter";
   const amount = searchParams.get("amount") || "0";
@@ -139,7 +134,24 @@ export default function Checkout() {
     result: null | { domain: string; available: boolean; checked: boolean };
   }>({ checking: false, result: null });
 
-  const selectedPayment = paymentMethods.find((m) => m.id === selectedMethod);
+  const paymentSettings = siteSettings?.payment_methods as any;
+  const paymentMethods = (Array.isArray(paymentSettings?.methods) ? paymentSettings.methods : [])
+    .filter((method: any) => method && typeof method.name === "string" && method.name.trim().length > 0)
+    .map((method: any, index: number) => ({
+      ...method,
+      id:
+        typeof method.id === "string" && method.id.trim().length > 0
+          ? method.id
+          : `method-${index}-${method.name.trim().toLowerCase().replace(/\s+/g, "-")}`,
+    }));
+
+  const selectedPayment = paymentMethods.find((m: any) => m.id === selectedMethod) || null;
+
+  useEffect(() => {
+    if (selectedMethod && !paymentMethods.some((m: any) => m.id === selectedMethod)) {
+      setSelectedMethod(null);
+    }
+  }, [paymentMethods, selectedMethod]);
 
   // Redirect to signin if not logged in
   useEffect(() => {
@@ -210,7 +222,7 @@ export default function Checkout() {
         package_name: packageName,
         billing_period: billingPeriod,
         amount: `${currency}${amount}`,
-        payment_method: selectedMethod,
+        payment_method: selectedPayment?.name || selectedMethod,
         transaction_id: transactionId,
         user_id: user.id,
       }).select("id").single();
@@ -714,30 +726,36 @@ export default function Checkout() {
                 <p className="text-muted-foreground text-sm mt-1">{t("checkout.paymentInfoDesc")}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                {paymentMethods.map((method) => (
-                  <button
-                    key={method.id}
-                    onClick={() => setSelectedMethod(method.id)}
-                    className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
-                      selectedMethod === method.id
-                        ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                        : "border-border bg-card hover:border-primary/20"
-                    }`}
-                  >
-                    <div
-                      className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0"
-                      style={{ backgroundColor: method.color }}
+              {paymentMethods.length === 0 ? (
+                <div className="rounded-xl border border-border bg-card/50 p-6 text-center text-sm text-muted-foreground">
+                  কোনো পেমেন্ট মেথড সেট করা নেই। অনুগ্রহ করে অ্যাডমিন প্যানেল থেকে মেথড যোগ করুন।
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {paymentMethods.map((method: any) => (
+                    <button
+                      key={method.id}
+                      onClick={() => setSelectedMethod(method.id)}
+                      className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
+                        selectedMethod === method.id
+                          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                          : "border-border bg-card hover:border-primary/20"
+                      }`}
                     >
-                      {method.name.charAt(0)}
-                    </div>
-                    <div className="text-left">
-                      <p className="font-semibold text-sm text-foreground">{method.name}</p>
-                      <p className="text-xs text-muted-foreground">{method.number}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+                      <div
+                        className="w-9 h-9 rounded-lg flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0"
+                        style={{ backgroundColor: method.color || "hsl(var(--primary))" }}
+                      >
+                        {String(method.name || "?").charAt(0)}
+                      </div>
+                      <div className="text-left">
+                        <p className="font-semibold text-sm text-foreground">{method.name}</p>
+                        <p className="text-xs text-muted-foreground">{method.number || "—"}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {selectedPayment && (
                 <motion.div
