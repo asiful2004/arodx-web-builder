@@ -95,6 +95,7 @@ export default function Checkout() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { data: siteSettings } = useSiteSettings();
 
   const packageName = searchParams.get("package") || "Starter";
   const amount = searchParams.get("amount") || "0";
@@ -133,7 +134,18 @@ export default function Checkout() {
     result: null | { domain: string; available: boolean; checked: boolean };
   }>({ checking: false, result: null });
 
-  const selectedPayment = paymentMethods.find((m) => m.id === selectedMethod);
+  const paymentSettings = siteSettings?.payment_methods as any;
+  const paymentMethods = (Array.isArray(paymentSettings?.methods) ? paymentSettings.methods : [])
+    .filter((method: any) => method && typeof method.name === "string" && method.name.trim().length > 0)
+    .map((method: any, index: number) => ({
+      ...method,
+      id:
+        typeof method.id === "string" && method.id.trim().length > 0
+          ? method.id
+          : `method-${index}-${method.name.trim().toLowerCase().replace(/\s+/g, "-")}`,
+    }));
+
+  const selectedPayment = paymentMethods.find((m: any) => m.id === selectedMethod) || null;
 
   // Redirect to signin if not logged in
   useEffect(() => {
