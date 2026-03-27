@@ -48,11 +48,9 @@ const PaymentModal = ({
   });
   const [loading, setLoading] = useState(false);
 
-  // Use admin-configured payment methods or fallback to defaults
+  // Use ONLY admin-configured payment methods — no fallback
   const paymentSettings = siteSettings?.payment_methods as any;
-  const paymentMethods = paymentSettings?.methods?.length > 0
-    ? paymentSettings.methods
-    : defaultPaymentMethods;
+  const paymentMethods: any[] = Array.isArray(paymentSettings?.methods) ? paymentSettings.methods : [];
   const globalInstruction = paymentSettings?.global_instruction || "";
 
   const selectedPayment = selectedIndex !== null ? paymentMethods[selectedIndex] : null;
@@ -143,39 +141,45 @@ const PaymentModal = ({
                     exit={{ opacity: 0, x: 20 }}
                     className="space-y-3"
                   >
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {t("payment.selectMethod")}
-                    </p>
-                    {globalInstruction && (
-                      <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs text-foreground mb-3">
-                        {globalInstruction}
-                      </div>
-                    )}
-                    {paymentMethods.map((method: any, index: number) => (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          setSelectedIndex(index);
-                          setStep("details");
-                        }}
-                        className="w-full flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/30 bg-background hover:bg-muted/50 transition-all group"
-                      >
-                        <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white p-1">
-                          {method.logo_url ? (
-                            <img src={method.logo_url} alt={method.name} className="w-full h-full object-contain" />
-                          ) : (
-                            <div className="w-full h-full rounded flex items-center justify-center text-xs font-bold" style={{ backgroundColor: method.color || "#888", color: "#fff" }}>
-                              {(method.name || "?")[0]}
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-left flex-1">
-                          <p className="font-semibold text-foreground">{method.name}</p>
-                          <p className="text-xs text-muted-foreground">{method.number}</p>
-                        </div>
-                        <Phone className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                      </button>
-                    ))}
+                     <p className="text-sm text-muted-foreground mb-4">
+                       {t("payment.selectMethod")}
+                     </p>
+                     {globalInstruction && (
+                       <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs text-foreground mb-3">
+                         {globalInstruction}
+                       </div>
+                     )}
+                     {paymentMethods.length === 0 ? (
+                       <div className="py-8 text-center text-sm text-muted-foreground">
+                         কোনো পেমেন্ট মেথড সেট করা নেই। অনুগ্রহ করে অ্যাডমিনের সাথে যোগাযোগ করুন।
+                       </div>
+                     ) : (
+                       paymentMethods.map((method: any, index: number) => (
+                         <button
+                           key={index}
+                           onClick={() => {
+                             setSelectedIndex(index);
+                             setStep("details");
+                           }}
+                           className="w-full flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/30 bg-background hover:bg-muted/50 transition-all group"
+                         >
+                           <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white p-1">
+                             {method.logo_url ? (
+                               <img src={method.logo_url} alt={method.name} className="w-full h-full object-contain" />
+                             ) : (
+                               <div className="w-full h-full rounded flex items-center justify-center text-xs font-bold" style={{ backgroundColor: method.color || "#888", color: "#fff" }}>
+                                 {(method.name || "?")[0]}
+                               </div>
+                             )}
+                           </div>
+                           <div className="text-left flex-1">
+                             <p className="font-semibold text-foreground">{method.name}</p>
+                             <p className="text-xs text-muted-foreground">{method.number}</p>
+                           </div>
+                           <Phone className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                         </button>
+                       ))
+                     )}
                   </motion.div>
                 )}
 
