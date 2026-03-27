@@ -315,12 +315,64 @@ function BrandingUploadField({ label, hint, currentUrl, fieldKey, data, setData,
   );
 }
 
+function PreloaderIpRulesEditor({ data, setData }: { data: any; setData: (d: any) => void }) {
+  const ipRules: { ip: string; enabled: boolean }[] = data?.preloader_ip_rules || [];
+  const setRules = (rules: any[]) => setData({ ...data, preloader_ip_rules: rules });
+
+  return (
+    <div className="space-y-3">
+      <Label className="text-xs font-medium text-muted-foreground">নির্দিষ্ট IP-তে লোডিং অ্যানিমেশন কন্ট্রোল</Label>
+      <p className="text-[11px] text-muted-foreground/70">নির্দিষ্ট IP address-এ আলাদাভাবে preloader on/off করতে পারবেন। এটি গ্লোবাল সেটিং ওভাররাইড করবে।</p>
+      {ipRules.map((rule: any, i: number) => (
+        <div key={i} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
+          <Input
+            value={rule.ip}
+            onChange={(e) => { const u = [...ipRules]; u[i] = { ...u[i], ip: e.target.value }; setRules(u); }}
+            placeholder="যেমন: 103.123.45.67"
+            className="text-sm flex-1"
+          />
+          <div className="flex items-center gap-2 shrink-0">
+            <Label className="text-xs text-muted-foreground">চালু</Label>
+            <Switch
+              checked={rule.enabled}
+              onCheckedChange={(v) => { const u = [...ipRules]; u[i] = { ...u[i], enabled: v }; setRules(u); }}
+            />
+          </div>
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0" onClick={() => setRules(ipRules.filter((_, idx) => idx !== i))}>
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      ))}
+      <Button variant="outline" size="sm" className="gap-2 w-full" onClick={() => setRules([...ipRules, { ip: "", enabled: false }])}>
+        <Plus className="h-4 w-4" /> নতুন IP রুল যোগ করুন
+      </Button>
+    </div>
+  );
+}
+
 function brandingEditor(data: any, setData: (d: any) => void) {
   return (
     <div className="space-y-6">
       <BrandingUploadField label="সাইট লোগো" hint="Navbar-এ দেখাবে" currentUrl={data.logo_url} fieldKey="logo_url" data={data} setData={setData} />
       <BrandingUploadField label="ফেভিকন" hint="ব্রাউজার ট্যাবে দেখাবে" currentUrl={data.favicon_url} fieldKey="favicon_url" data={data} setData={setData} previewSize="h-10 w-10" />
       <BrandingUploadField label="লোডিং অ্যানিমেশন লোগো" hint="Preloader-এ দেখাবে (GIF/PNG)" currentUrl={data.preloader_logo_url} fieldKey="preloader_logo_url" data={data} setData={setData} />
+
+      {/* Preloader on/off toggle */}
+      <div className="p-4 rounded-xl border border-border bg-muted/30 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <Label className="text-sm font-semibold">লোডিং অ্যানিমেশন</Label>
+            <p className="text-[11px] text-muted-foreground mt-0.5">ওয়েবসাইট খোলার সময় loading animation দেখানো হবে কিনা</p>
+          </div>
+          <Switch
+            checked={data.preloader_enabled !== false}
+            onCheckedChange={(v) => setData({ ...data, preloader_enabled: v })}
+          />
+        </div>
+
+        {/* IP-specific rules */}
+        <PreloaderIpRulesEditor data={data} setData={setData} />
+      </div>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { useState, useCallback, lazy, Suspense } from "react";
+import { useState, useCallback, useEffect, lazy, Suspense } from "react";
 import Preloader from "@/components/Preloader";
 import Index from "./pages/Index";
 const LiveChat = lazy(() => import("./components/LiveChat"));
@@ -75,11 +75,74 @@ const LazyFallback = () => (
 
 const PageTracker = () => { usePageTracker(); return null; };
 
+const usePreloaderCheck = () => {
+  const [showPreloader, setShowPreloader] = useState(true);
+  const [checked, setChecked] = useState(false);
+  const [userIp, setUserIp] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch user IP
+    fetch("https://api.ipify.org?format=json")
+      .then(r => r.json())
+      .then(d => setUserIp(d.ip))
+      .catch(() => setUserIp(null));
+  }, []);
+
+  useEffect(() => {
+    // Check branding settings from supabase
+    const checkSettings = async () => {
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data } = await supabase.from("site_settings").select("key, value").eq("key", "branding").single();
+        if (data) {
+          const branding = data.value as any;
+          const globalEnabled = branding?.preloader_enabled !== false;
+          const ipRules: { ip: string; enabled: boolean }[] = branding?.preloader_ip_rules || [];
+
+          // Check if user IP matches any rule
+          if (userIp && ipRules.length > 0) {
+            const matchedRule = ipRules.find(r => r.ip === userIp);
+            if (matchedRule) {
+              setShowPreloader(matchedRule.enabled);
+              setChecked(true);
+              return;
+            }
+          }
+
+          setShowPreloader(globalEnabled);
+        }
+      } catch {
+        // Default: show preloader
+      }
+      setChecked(true);
+    };
+
+    // Wait a bit for IP to load, then check
+    if (userIp !== null) {
+      checkSettings();
+    } else {
+      // If IP fetch takes too long, proceed after 1s
+      const timeout = setTimeout(() => { checkSettings(); }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [userIp]);
+
+  return { showPreloader, checked };
+};
+
 const App = () => {
+  const { showPreloader, checked } = usePreloaderCheck();
   const [loading, setLoading] = useState(true);
   const handleComplete = useCallback(() => {
     setLoading(false);
   }, []);
+
+  // If preloader disabled, skip it
+  useEffect(() => {
+    if (checked && !showPreloader) {
+      setLoading(false);
+    }
+  }, [checked, showPreloader]);
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="app-theme">
@@ -87,7 +150,7 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
         <Sonner />
-        {loading && <Preloader onComplete={handleComplete} />}
+        {loading && showPreloader && <Preloader onComplete={handleComplete} />}
         <BrowserRouter>
           <AuthProvider>
             <PageTracker />
