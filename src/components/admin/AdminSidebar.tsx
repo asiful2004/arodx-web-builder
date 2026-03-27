@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-import { Globe, Mail, Search } from "lucide-react";
+import { Globe, Mail, Search, FileText } from "lucide-react";
 
 const getMainItems = (t: (k: string) => string) => [
   { title: t("admin.overview"), url: "/admin", icon: LayoutDashboard },
@@ -35,6 +35,7 @@ const getStaffItems = (t: (k: string) => string) => [
 const getWebsiteItems = (t: (k: string) => string) => [
   { title: t("admin.websiteContent"), url: "/admin/website", icon: Globe },
   { title: "SEO", url: "/admin/seo", icon: Search },
+  { title: "Legal Pages", url: "/admin/legal", icon: FileText },
 ];
 
 const getSettingsItems = (t: (k: string) => string) => [

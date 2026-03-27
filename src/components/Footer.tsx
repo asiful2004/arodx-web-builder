@@ -145,6 +145,17 @@ const Footer = () => {
             </div>
           </div>
 
+          {/* Terms & Privacy */}
+          <div className="flex justify-center gap-4 mb-4">
+            <Link to="/terms" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+              Terms & Conditions
+            </Link>
+            <span className="text-xs text-muted-foreground">•</span>
+            <Link to="/privacy" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+              Privacy Policy
+            </Link>
+          </div>
+
           <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-6" />
 
           {/* Bottom bar */}
