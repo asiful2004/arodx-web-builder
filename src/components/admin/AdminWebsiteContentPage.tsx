@@ -653,7 +653,7 @@ function PaymentMethodsPreview({ data }: { data: any }) {
             )}
             <div>
               <div className="text-xs font-semibold">{m.name || "Unnamed"}</div>
-              <div className="text-[10px] text-muted-foreground">{m.number || "—"}</div>
+              <div className="text-[10px] text-muted-foreground">{m.number || "-"}</div>
             </div>
           </div>
         ))}

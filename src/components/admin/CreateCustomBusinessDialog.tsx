@@ -402,13 +402,13 @@ export default function CreateCustomBusinessDialog({ open, onOpenChange, onCreat
                 <span className="text-muted-foreground">{t("admin.biz.category")}:</span>
                 <span className="text-foreground">{bizCategory}</span>
                 <span className="text-muted-foreground">{t("admin.biz.custom.packageName")}:</span>
-                <span className="text-foreground">{packageName || "—"}</span>
+                <span className="text-foreground">{packageName || "-"}</span>
                 <span className="text-muted-foreground">{t("admin.biz.amount")}:</span>
                 <span className="text-foreground">৳{amount || "0"}</span>
                 <span className="text-muted-foreground">{t("admin.biz.custom.servicesIncluded")}:</span>
                 <span className="text-foreground">{services.filter(s => s.trim()).length} {t("admin.biz.custom.items")}</span>
                 <span className="text-muted-foreground">{t("admin.biz.custom.assignedTo")}:</span>
-                <span className="text-foreground font-medium">{selectedUser ? (selectedUser.full_name || selectedUser.email) : "—"}</span>
+                <span className="text-foreground font-medium">{selectedUser ? (selectedUser.full_name || selectedUser.email) : "-"}</span>
               </div>
             </div>
           </div>
