@@ -147,6 +147,12 @@ export default function Checkout() {
 
   const selectedPayment = paymentMethods.find((m: any) => m.id === selectedMethod) || null;
 
+  useEffect(() => {
+    if (selectedMethod && !paymentMethods.some((m: any) => m.id === selectedMethod)) {
+      setSelectedMethod(null);
+    }
+  }, [paymentMethods, selectedMethod]);
+
   // Redirect to signin if not logged in
   useEffect(() => {
     if (!authLoading && !user) {
@@ -216,7 +222,7 @@ export default function Checkout() {
         package_name: packageName,
         billing_period: billingPeriod,
         amount: `${currency}${amount}`,
-        payment_method: selectedMethod,
+        payment_method: selectedPayment?.name || selectedMethod,
         transaction_id: transactionId,
         user_id: user.id,
       }).select("id").single();
@@ -720,30 +726,36 @@ export default function Checkout() {
                 <p className="text-muted-foreground text-sm mt-1">{t("checkout.paymentInfoDesc")}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                {paymentMethods.map((method) => (
-                  <button
-                    key={method.id}
-                    onClick={() => setSelectedMethod(method.id)}
-                    className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
-                      selectedMethod === method.id
-                        ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                        : "border-border bg-card hover:border-primary/20"
-                    }`}
-                  >
-                    <div
-                      className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0"
-                      style={{ backgroundColor: method.color }}
+              {paymentMethods.length === 0 ? (
+                <div className="rounded-xl border border-border bg-card/50 p-6 text-center text-sm text-muted-foreground">
+                  কোনো পেমেন্ট মেথড সেট করা নেই। অনুগ্রহ করে অ্যাডমিন প্যানেল থেকে মেথড যোগ করুন।
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {paymentMethods.map((method: any) => (
+                    <button
+                      key={method.id}
+                      onClick={() => setSelectedMethod(method.id)}
+                      className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
+                        selectedMethod === method.id
+                          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                          : "border-border bg-card hover:border-primary/20"
+                      }`}
                     >
-                      {method.name.charAt(0)}
-                    </div>
-                    <div className="text-left">
-                      <p className="font-semibold text-sm text-foreground">{method.name}</p>
-                      <p className="text-xs text-muted-foreground">{method.number}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+                      <div
+                        className="w-9 h-9 rounded-lg flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0"
+                        style={{ backgroundColor: method.color || "hsl(var(--primary))" }}
+                      >
+                        {String(method.name || "?").charAt(0)}
+                      </div>
+                      <div className="text-left">
+                        <p className="font-semibold text-sm text-foreground">{method.name}</p>
+                        <p className="text-xs text-muted-foreground">{method.number || "—"}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {selectedPayment && (
                 <motion.div
