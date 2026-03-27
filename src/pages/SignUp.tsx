@@ -55,7 +55,6 @@ const SignUp = () => {
 
     // Honeypot check
     if (honeypotRef.current?.value) {
-      // Bot detected, silently fail
       toast({ title: t("auth.accountCreated"), description: t("auth.checkEmailForCode") });
       return;
     }
@@ -66,7 +65,7 @@ const SignUp = () => {
       return;
     }
 
-    // Rate limit signup attempts (max 3 per hour)
+    // Rate limit signup attempts (max 30 per hour)
     const rl = getSignupRateLimit();
     if (rl.resetAt > Date.now() && rl.count >= 30) {
       toast({ title: t("auth.signUpFailed"), description: t("auth.suspiciousActivity"), variant: "destructive" });
@@ -80,15 +79,24 @@ const SignUp = () => {
 
     setLoading(true);
     try {
+      // Sign up (auto-confirm is ON, so no Supabase verification email)
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: { full_name: name },
-          emailRedirectTo: window.location.origin,
         },
       });
       if (error) throw error;
+
+      // Send OTP via our custom SMTP edge function
+      const { error: smtpError } = await supabase.functions.invoke("send-custom-auth-email", {
+        body: { type: "signup", email },
+      });
+      if (smtpError) {
+        console.error("SMTP send error:", smtpError);
+      }
+
       toast({ title: t("auth.accountCreated"), description: t("auth.checkEmailForCode") });
       navigate(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (error: any) {

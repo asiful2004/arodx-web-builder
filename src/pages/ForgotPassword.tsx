@@ -18,10 +18,18 @@ const ForgotPassword = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      // Send password reset email via our custom SMTP edge function
+      const { data, error } = await supabase.functions.invoke("send-custom-auth-email", {
+        body: {
+          type: "reset",
+          email,
+          siteUrl: window.location.origin,
+        },
       });
+
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
       setSent(true);
       toast({ title: t("auth.emailSent"), description: t("auth.checkEmailReset") });
     } catch (error: any) {
