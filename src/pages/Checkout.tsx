@@ -742,16 +742,14 @@ export default function Checkout() {
                           : "border-border bg-card hover:border-primary/20"
                       }`}
                     >
-                      <div className="w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden bg-white p-0.5 shrink-0">
+                      <div
+                        className="w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden shrink-0"
+                        style={{ backgroundColor: method.logo_url ? "transparent" : (method.color || "hsl(var(--primary))") }}
+                      >
                         {method.logo_url ? (
                           <img src={method.logo_url} alt={method.name} className="w-full h-full object-contain" />
                         ) : (
-                          <div
-                            className="w-full h-full rounded flex items-center justify-center text-white font-bold text-sm"
-                            style={{ backgroundColor: method.color || "hsl(var(--primary))" }}
-                          >
-                            {String(method.name || "?").charAt(0)}
-                          </div>
+                          <span className="text-primary-foreground font-bold text-sm">{String(method.name || "?").charAt(0)}</span>
                         )}
                       </div>
                       <div className="text-left">
