@@ -20,9 +20,13 @@ import {
 import {
   Users, Loader2, Search, Shield, ShieldCheck, UserCog,
   RefreshCw, Calendar, UserPlus, Trash2, Crown, User as UserIcon,
-  KeyRound, Eye, EyeOff, Palette, Code, Briefcase, Megaphone,
+  KeyRound, Eye, EyeOff, Palette, Code, Briefcase, Megaphone, AlertTriangle,
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type AppRole = "admin" | "moderator" | "user" | "client" | "hr" | "graphics_designer" | "web_developer" | "project_manager" | "digital_marketer";
 
