@@ -137,12 +137,12 @@ function PanelContent({ members, onNavigate }: { members: OnlineMember[]; onNavi
   );
 }
 
-// No longer renders a permanent sidebar — just a placeholder for layout compatibility
+// No longer renders a permanent sidebar - just a placeholder for layout compatibility
 export default function OnlineMembersPanel() {
   return null;
 }
 
-// Trigger button + Sheet — works on ALL screen sizes
+// Trigger button + Sheet - works on ALL screen sizes
 export function OnlineMembersTrigger() {
   const { onlineMembers } = useOnlinePresence();
   const [open, setOpen] = useState(false);

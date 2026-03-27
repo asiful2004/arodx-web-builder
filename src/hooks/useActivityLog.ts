@@ -31,7 +31,7 @@ export function useActivityLog() {
         page_path: window.location.pathname,
       } as any);
     } catch (err) {
-      // Silent fail — logging should never break the app
+      // Silent fail - logging should never break the app
       console.error("Activity log failed:", err);
     }
   }, [user, profile]);

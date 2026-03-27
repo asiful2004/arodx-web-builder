@@ -103,7 +103,7 @@ export default function RenewalPage() {
         newRenewalDate.setFullYear(newRenewalDate.getFullYear() + 1);
       }
 
-      // Update order — also update billing_period and amount if switched
+      // Update order - also update billing_period and amount if switched
       const { error: updateErr } = await supabase.from("orders").update({
         renewal_date: newRenewalDate.toISOString(),
         is_active: true,
