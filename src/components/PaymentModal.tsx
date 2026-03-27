@@ -6,12 +6,16 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import bkashLogo from "@/assets/bkash-logo.png";
+import nagadLogo from "@/assets/nagad-logo.png";
+import upayLogo from "@/assets/upay-logo.png";
+import rocketLogo from "@/assets/rocket-logo.png";
 
 const paymentMethods = [
-  { id: "bkash", name: "bKash", number: "01XXXXXXXXX", color: "#E2136E" },
-  { id: "nagad", name: "Nagad", number: "01XXXXXXXXX", color: "#F6921E" },
-  { id: "upay", name: "Upay", number: "01XXXXXXXXX", color: "#00A651" },
-  { id: "rocket", name: "Rocket", number: "01XXXXXXXXX", color: "#8B2F8B" },
+  { id: "bkash", name: "bKash", number: "01XXXXXXXXX", color: "#E2136E", logo: bkashLogo },
+  { id: "nagad", name: "Nagad", number: "01XXXXXXXXX", color: "#F6921E", logo: nagadLogo },
+  { id: "upay", name: "Upay", number: "01XXXXXXXXX", color: "#00A651", logo: upayLogo },
+  { id: "rocket", name: "Rocket", number: "01XXXXXXXXX", color: "#8B2F8B", logo: rocketLogo },
 ];
 
 interface PaymentModalProps {
