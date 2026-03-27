@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Building2, Globe, Phone, MapPin, Loader2, Mail, Settings, Calendar, Plus,
-  Clock, CheckCircle2, XCircle, AlertTriangle, PackageCheck,
+  Clock, CheckCircle2, XCircle, AlertTriangle, PackageCheck, Trash2,
   Shirt, ShoppingCart, UtensilsCrossed, Stethoscope, GraduationCap, Briefcase,
   Palette, Cpu, Car, Plane, Landmark, Dumbbell, Music, Camera, Wrench, Heart,
   type LucideIcon,
@@ -13,6 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import BusinessManageDialog from "./BusinessManageDialog";
 import CreateCustomBusinessDialog from "./CreateCustomBusinessDialog";
 import { toast } from "sonner";
@@ -85,7 +89,8 @@ export default function AdminBusinessesPage() {
   const [selectedBiz, setSelectedBiz] = useState<Business | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-
+  const [deleteTarget, setDeleteTarget] = useState<Business | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const fetchData = useCallback(async () => {
     setLoading(true);
     const { data: bizData } = await supabase
@@ -148,6 +153,25 @@ export default function AdminBusinessesPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      // Delete associated order first if exists
+      if (deleteTarget.order_id) {
+        await supabase.from("orders").delete().eq("id", deleteTarget.order_id);
+      }
+      const { error } = await supabase.from("businesses").delete().eq("id", deleteTarget.id);
+      if (error) throw error;
+      toast.success(t("admin.biz.deleteSuccess", "Business deleted successfully"));
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete");
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
+    }
+  };
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -254,6 +278,20 @@ export default function AdminBusinessesPage() {
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>{t("admin.biz.manage")}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="icon" variant="ghost"
+                            className="w-8 h-8 opacity-60 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => setDeleteTarget(biz)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{t("admin.biz.delete", "Delete")}</TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>
@@ -368,6 +406,28 @@ export default function AdminBusinessesPage() {
         onOpenChange={setCreateOpen}
         onCreated={fetchData}
       />
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("admin.biz.deleteConfirmTitle", "Delete Business?")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("admin.biz.deleteConfirmDesc", `"${deleteTarget?.business_name}" and its associated order will be permanently deleted. This action cannot be undone.`)}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>{t("admin.biz.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Trash2 className="w-4 h-4 mr-1" />}
+              {t("admin.biz.delete", "Delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
