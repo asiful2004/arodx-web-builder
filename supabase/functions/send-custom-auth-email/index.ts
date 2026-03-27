@@ -7,17 +7,22 @@ const corsHeaders = {
 };
 
 const BRAND = {
-  name: "ArodX",
+  name: "Arodx",
   tagline: "Web Development Agency",
   primaryColor: "#2659FF",
-  gradientStart: "#2659FF",
+  gradientStart: "#1a3a8a",
   gradientEnd: "#4789FF",
+  accentColor: "#3b82f6",
   bgColor: "#f0f4ff",
-  textDark: "#1a1a2e",
+  cardBg: "#ffffff",
+  textDark: "#0f172a",
+  textBody: "#334155",
   textMuted: "#64748b",
   textLight: "#94a3b8",
   borderColor: "#e2e8f0",
   email: "arodxofficial@gmail.com",
+  website: "https://arodx.com",
+  year: new Date().getFullYear(),
 };
 
 function baseLayout(title: string, content: string): string {
