@@ -1,11 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import arodxLogoAnim from "@/assets/arodx-logo-anim.gif";
 import { useBranding } from "@/hooks/useBranding";
 
 const Preloader = ({ onComplete }: { onComplete: () => void }) => {
   const branding = useBranding();
-  const preloaderSrc = branding.preloader_logo_url || arodxLogoAnim;
+  const preloaderSrc = branding.preloader_logo_url || "";
   const [phase, setPhase] = useState<"morph" | "logo" | "exit">("morph");
 
   useEffect(() => {

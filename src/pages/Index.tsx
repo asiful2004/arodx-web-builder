@@ -2,7 +2,6 @@ import { Helmet } from "react-helmet-async";
 import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import arodxLogo from "@/assets/arodx-logo.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBranding } from "@/hooks/useBranding";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
@@ -20,7 +19,7 @@ const Index = () => {
   const { t } = useLanguage();
   const branding = useBranding();
   const { data: settings } = useSiteSettings();
-  const logoSrc = branding.logo_url || arodxLogo;
+  const logoSrc = branding.logo_url || undefined;
 
   // Pull SEO config from DB, fallback to translations
   const seo = (settings?.seo_config as any) || {};
