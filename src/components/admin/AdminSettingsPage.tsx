@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Settings, Loader2, Save, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil, FileText, Bot, Mail, Eye, EyeOff, Send, ChevronLeft, ChevronRight, Database, HardDrive, Server, Activity } from "lucide-react";
+import { Settings, Loader2, Save, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil, FileText, Bot, Mail, Eye, EyeOff, Send, ChevronLeft, ChevronRight, Database, HardDrive, Server, Activity, Webhook, Bell, MessageSquare, ShoppingCart, TicketCheck } from "lucide-react";
 import { toast as sonnerToast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -985,7 +985,193 @@ function SystemInfoSection() {
   );
 }
 
-// ===== Main Settings Page with Tabs =====
+// ===== Discord Webhook Section =====
+function DiscordWebhookSection() {
+  const { data: settings, isLoading } = useSiteSettings();
+  const updateMutation = useUpdateSiteSetting();
+  const [webhooks, setWebhooks] = useState<{
+    ticket_webhook: string;
+    ticket_enabled: boolean;
+    chat_webhook: string;
+    chat_enabled: boolean;
+    order_webhook: string;
+    order_enabled: boolean;
+  }>({
+    ticket_webhook: "",
+    ticket_enabled: false,
+    chat_webhook: "",
+    chat_enabled: false,
+    order_webhook: "",
+    order_enabled: false,
+  });
+  const [testing, setTesting] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (settings?.discord_webhooks) {
+      setWebhooks((prev) => ({ ...prev, ...(settings.discord_webhooks as any) }));
+    }
+  }, [settings]);
+
+  const handleSave = () => {
+    updateMutation.mutate(
+      { key: "discord_webhooks", value: webhooks },
+      {
+        onSuccess: () => sonnerToast.success("Discord ওয়েবহুক সেটিংস সেভ হয়েছে!"),
+        onError: () => sonnerToast.error("সেভ করতে সমস্যা হয়েছে"),
+      }
+    );
+  };
+
+  const handleTest = async (type: string) => {
+    const urlMap: Record<string, string> = {
+      ticket: webhooks.ticket_webhook,
+      chat: webhooks.chat_webhook,
+      order: webhooks.order_webhook,
+    };
+    const url = urlMap[type];
+    if (!url) {
+      sonnerToast.error("ওয়েবহুক URL দিন");
+      return;
+    }
+    setTesting(type);
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          embeds: [{
+            title: "Test Notification",
+            description: type === "ticket"
+              ? "এটি একটি টেস্ট সাপোর্ট টিকেট নোটিফিকেশন।"
+              : type === "chat"
+              ? "এটি একটি টেস্ট লাইভ চ্যাট নোটিফিকেশন।"
+              : "এটি একটি টেস্ট অর্ডার নোটিফিকেশন।",
+            color: type === "ticket" ? 0x3b82f6 : type === "chat" ? 0x10b981 : 0xf59e0b,
+            timestamp: new Date().toISOString(),
+            footer: { text: "Arodx Webhook Test" },
+          }],
+        }),
+      });
+      if (res.ok) {
+        sonnerToast.success("টেস্ট মেসেজ পাঠানো হয়েছে!");
+      } else {
+        sonnerToast.error("ওয়েবহুক URL ভুল বা Discord এ সমস্যা");
+      }
+    } catch {
+      sonnerToast.error("ওয়েবহুক কল ব্যর্থ হয়েছে");
+    } finally {
+      setTesting(null);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const webhookCards = [
+    {
+      key: "ticket",
+      icon: TicketCheck,
+      title: "সাপোর্ট টিকেট",
+      desc: "নতুন টিকেট open হলে Discord-এ নোটিফিকেশন যাবে",
+      urlField: "ticket_webhook" as const,
+      enabledField: "ticket_enabled" as const,
+      color: "text-blue-500",
+      bgColor: "bg-blue-500/10",
+    },
+    {
+      key: "chat",
+      icon: MessageSquare,
+      title: "লাইভ চ্যাট",
+      desc: "নতুন চ্যাট সেশন শুরু বা বন্ধ হলে নোটিফিকেশন",
+      urlField: "chat_webhook" as const,
+      enabledField: "chat_enabled" as const,
+      color: "text-emerald-500",
+      bgColor: "bg-emerald-500/10",
+    },
+    {
+      key: "order",
+      icon: ShoppingCart,
+      title: "নতুন অর্ডার",
+      desc: "নতুন অর্ডার আসলে Discord-এ নোটিফিকেশন যাবে",
+      urlField: "order_webhook" as const,
+      enabledField: "order_enabled" as const,
+      color: "text-amber-500",
+      bgColor: "bg-amber-500/10",
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Webhook className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Discord ওয়েবহুক</CardTitle>
+              <CardDescription>Discord চ্যানেলে রিয়েল-টাইম নোটিফিকেশন পাঠান</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {webhookCards.map((card) => (
+            <div key={card.key} className="rounded-xl border border-border p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-lg ${card.bgColor} flex items-center justify-center`}>
+                    <card.icon className={`h-4.5 w-4.5 ${card.color}`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{card.title}</p>
+                    <p className="text-xs text-muted-foreground">{card.desc}</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={webhooks[card.enabledField]}
+                  onCheckedChange={(v) => setWebhooks((prev) => ({ ...prev, [card.enabledField]: v }))}
+                />
+              </div>
+              {webhooks[card.enabledField] && (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://discord.com/api/webhooks/..."
+                    value={webhooks[card.urlField]}
+                    onChange={(e) => setWebhooks((prev) => ({ ...prev, [card.urlField]: e.target.value }))}
+                    className="flex-1 text-xs bg-background border-border h-10"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-10 px-3"
+                    onClick={() => handleTest(card.key)}
+                    disabled={testing === card.key || !webhooks[card.urlField]}
+                  >
+                    {testing === card.key ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+
+          <Button onClick={handleSave} disabled={updateMutation.isPending} className="w-full bg-gradient-primary text-primary-foreground">
+            {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+            সেভ করুন
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+
 export default function AdminSettingsPage() {
   return (
     <div className="space-y-6">
@@ -994,7 +1180,7 @@ export default function AdminSettingsPage() {
           <Settings className="h-5 w-5 text-primary" />
           সিস্টেম সেটিংস
         </h1>
-        <p className="text-sm text-muted-foreground">সিকিউরিটি, ইমেইল, AI চ্যাট, অটোমেশন এবং সিস্টেম তথ্য</p>
+        <p className="text-sm text-muted-foreground">সিকিউরিটি, ইমেইল, AI চ্যাট, অটোমেশন, ওয়েবহুক এবং সিস্টেম তথ্য</p>
       </div>
 
       <Tabs defaultValue="auth" className="w-full">
@@ -1014,6 +1200,10 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="automation" className="text-xs gap-1.5 flex-1 min-w-[100px]">
             <Clock className="h-3.5 w-3.5" />
             অটোমেশন
+          </TabsTrigger>
+          <TabsTrigger value="webhooks" className="text-xs gap-1.5 flex-1 min-w-[100px]">
+            <Webhook className="h-3.5 w-3.5" />
+            ওয়েবহুক
           </TabsTrigger>
           <TabsTrigger value="system" className="text-xs gap-1.5 flex-1 min-w-[100px]">
             <Server className="h-3.5 w-3.5" />
@@ -1051,6 +1241,10 @@ export default function AdminSettingsPage() {
 
         <TabsContent value="automation" className="mt-6">
           <CronJobsSection />
+        </TabsContent>
+
+        <TabsContent value="webhooks" className="mt-6">
+          <DiscordWebhookSection />
         </TabsContent>
 
         <TabsContent value="system" className="mt-6">
