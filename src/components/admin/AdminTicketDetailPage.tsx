@@ -159,6 +159,20 @@ export default function AdminTicketDetailPage() {
     if (error) {
       toast({ title: "মেসেজ পাঠাতে সমস্যা", description: error.message, variant: "destructive" });
     } else {
+      // Send support reply email to ticket owner (fire and forget)
+      if (ticket) {
+        const { data: ownerEmails } = await supabase.rpc("get_user_emails");
+        const ownerEmail = (ownerEmails as any[])?.find((e: any) => e.user_id === ticket.user_id)?.email;
+        if (ownerEmail) {
+          supabase.functions.invoke("send-template-email", {
+            body: {
+              templateName: "support-reply",
+              recipientEmail: ownerEmail,
+              data: { ticketNumber: ticket.ticket_number, replyPreview: message.trim().substring(0, 200), ticketUrl: window.location.origin + "/dashboard/tickets/" + ticket.id },
+            },
+          }).catch(() => {});
+        }
+      }
       setMessage("");
       removeImage();
       setReplyTo(null);
