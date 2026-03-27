@@ -711,6 +711,33 @@ export default function AdminUsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete User Confirmation */}
+      <AlertDialog open={!!deletingUser} onOpenChange={(open) => !open && setDeletingUser(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              ইউজার ডিলিট করুন
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <strong>{deletingUser?.full_name || deletingUser?.email || "এই ইউজার"}</strong> কে স্থায়ীভাবে ডিলিট করতে চান?
+              এই অ্যাকশন undo করা যাবে না। ইউজারের প্রোফাইল, রোল, ডিভাইস ও নোটিফিকেশন সব মুছে যাবে।
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>বাতিল</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deleteUser}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 gap-1.5"
+            >
+              {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+              ডিলিট করুন
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
