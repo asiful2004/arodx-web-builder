@@ -491,7 +491,7 @@ export default function AdminOrdersPage() {
             <DialogTitle className="font-display flex items-center gap-2">
               <Receipt className="w-5 h-5 text-primary" />ইনভয়েস হিস্ট্রি
             </DialogTitle>
-            <DialogDescription>{invoiceDialogOrder?.customer_name} — {invoiceDialogOrder?.package_name} প্যাকেজ</DialogDescription>
+            <DialogDescription>{invoiceDialogOrder?.customer_name} - {invoiceDialogOrder?.package_name} প্যাকেজ</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 max-h-[400px] overflow-y-auto">
             {invoices.filter((inv) => inv.order_id === invoiceDialogOrder?.id).length === 0 ? (
@@ -506,7 +506,7 @@ export default function AdminOrdersPage() {
                     <div>
                       <p className="text-xs font-semibold text-foreground">{inv.invoice_number}</p>
                       <p className="text-[10px] text-muted-foreground">
-                        {formatDate(inv.period_start)} — {formatDate(inv.period_end)}
+                        {formatDate(inv.period_start)} - {formatDate(inv.period_end)}
                       </p>
                     </div>
                   </div>

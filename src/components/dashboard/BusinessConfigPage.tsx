@@ -272,7 +272,7 @@ export default function BusinessConfigPage() {
           </Button>
           <div className="min-w-0">
             <h1 className="text-base sm:text-lg font-bold font-display text-foreground truncate">
-              {business.business_name} — কনফিগ
+              {business.business_name} - কনফিগ
             </h1>
             <p className="text-xs text-muted-foreground flex items-center gap-2">
               প্যাকেজ: <Badge variant="secondary" className="text-[10px]">{order.package_name}</Badge>

@@ -89,7 +89,7 @@ export function generateInvoicePDF(data: InvoiceData) {
     <div class="meta-box">
       <h4>Invoice Details</h4>
       <p><strong>Date:</strong> ${formatDate(data.date)}</p>
-      <p><strong>Period:</strong> ${formatDate(data.periodStart)} — ${formatDate(data.periodEnd)}</p>
+      <p><strong>Period:</strong> ${formatDate(data.periodStart)} - ${formatDate(data.periodEnd)}</p>
       <p><strong>Status:</strong> <span class="status-badge ${data.status === "paid" ? "status-paid" : "status-pending"}">${data.status === "paid" ? "PAID" : "PENDING"}</span></p>
     </div>
   </div>
@@ -146,7 +146,7 @@ export function generateInvoicePDF(data: InvoiceData) {
 
   <div class="footer">
     <p class="thanks">Thank you for your business! 🙏</p>
-    <p>Arodx — Digital Growth Agency</p>
+    <p>Arodx - Digital Growth Agency</p>
     <p>For any queries, contact us at support@arodx.com</p>
   </div>
 </div>
