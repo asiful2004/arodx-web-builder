@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [user]);
 
   // Track whether this is a fresh login vs session restore
-  const hasRestoredSession = React.useRef(false);
+  const hasRestoredSession = useRef(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
