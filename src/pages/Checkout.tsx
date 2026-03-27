@@ -765,44 +765,63 @@ export default function Checkout() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-xl overflow-hidden"
+                  className="rounded-2xl overflow-hidden border border-border shadow-lg"
                 >
-                  <div className="p-5 text-white text-center" style={{ backgroundColor: selectedPayment.color }}>
-                    <p className="text-sm opacity-90">{selectedPayment.name} {t("checkout.sendMoneyToNumber")}</p>
-                    <div className="flex items-center justify-center gap-2 mt-2">
-                      <p className="text-2xl font-bold tracking-wider">{selectedPayment.number}</p>
-                      <button
-                        onClick={() => copyNumber(selectedPayment.number)}
-                        className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition-colors"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </button>
+                  {/* Send Money Header */}
+                  <div
+                    className="relative p-6 text-center overflow-hidden"
+                    style={{ background: `linear-gradient(135deg, ${selectedPayment.color || 'hsl(var(--primary))'}, ${selectedPayment.color || 'hsl(var(--primary))'}dd)` }}
+                  >
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent_50%)]" />
+                    <div className="relative z-10">
+                      <p className="text-white/80 text-sm font-medium mb-3">
+                        {selectedPayment.name} Send Money
+                      </p>
+                      <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-xl px-5 py-3 mb-3">
+                        <p className="text-white text-2xl font-bold tracking-wide font-mono">
+                          {selectedPayment.number}
+                        </p>
+                        <button
+                          onClick={() => copyNumber(selectedPayment.number)}
+                          className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition-all hover:scale-105 active:scale-95"
+                        >
+                          <Copy className="h-4 w-4 text-white" />
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="text-white/70 text-sm">Amount</span>
+                        <span className="text-white text-xl font-bold">{currency}{amount}</span>
+                      </div>
                     </div>
-                    <p className="text-lg font-bold mt-2">Amount: {currency}{amount}</p>
                   </div>
+
+                  {/* Instruction */}
                   {selectedPayment.instruction && (
-                    <div className="mx-4 mt-4 p-4 rounded-xl bg-primary/5 border border-primary/20 backdrop-blur-sm">
-                      <div className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                          <AlertCircle className="h-3.5 w-3.5 text-primary" />
+                    <div className="px-5 pt-4">
+                      <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">
+                        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <AlertCircle className="h-4 w-4 text-primary" />
                         </div>
-                        <div>
-                          <p className="text-xs font-semibold text-primary mb-1">Payment Instruction</p>
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-primary mb-1 uppercase tracking-wide">নির্দেশনা</p>
                           <p className="text-sm text-foreground/80 leading-relaxed">{selectedPayment.instruction}</p>
                         </div>
                       </div>
                     </div>
                   )}
-                  <div className={`p-5 bg-card border border-t-0 border-border rounded-b-xl space-y-3 ${selectedPayment.instruction ? '' : ''}`}>
-                    <div className="space-y-1.5">
-                      <label className="text-sm font-medium text-foreground">Transaction ID / TrxID *</label>
-                      <Input
-                        placeholder={t("checkout.transactionPlaceholder")}
-                        value={transactionId}
-                        onChange={(e) => setTransactionId(e.target.value)}
-                        className="bg-background border-border h-12"
-                      />
-                    </div>
+
+                  {/* Transaction ID */}
+                  <div className="p-5 space-y-2">
+                    <label className="text-sm font-semibold text-foreground flex items-center gap-1">
+                      Transaction ID / TrxID
+                      <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      placeholder={t("checkout.transactionPlaceholder")}
+                      value={transactionId}
+                      onChange={(e) => setTransactionId(e.target.value)}
+                      className="bg-background border-border h-12 rounded-xl text-base"
+                    />
                   </div>
                 </motion.div>
               )}
