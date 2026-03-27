@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useSiteSettings, useUpdateSiteSetting } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
+import EmailTemplatePreviewDialog from "./EmailTemplatePreviewDialog";
 
 interface TemplateConfig {
   enabled: boolean;
@@ -145,11 +146,11 @@ export default function EmailTemplatesManager() {
   const [testEmail, setTestEmail] = useState("");
   const [testingTemplate, setTestingTemplate] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState<{ key: string; title: string } | null>(null);
 
   useEffect(() => {
     if (settings && !loaded) {
       const existing = (settings.email_templates_config as AllTemplatesConfig) || {};
-      // Initialize all templates as enabled by default
       const merged: AllTemplatesConfig = {};
       EMAIL_TEMPLATES.forEach((t) => {
         merged[t.key] = existing[t.key] || { enabled: true };
@@ -255,6 +256,16 @@ export default function EmailTemplatesManager() {
 
   return (
     <div className="space-y-5">
+      {/* Preview Dialog */}
+      {previewTemplate && (
+        <EmailTemplatePreviewDialog
+          templateKey={previewTemplate.key}
+          templateTitle={previewTemplate.title}
+          open={!!previewTemplate}
+          onOpenChange={(open) => { if (!open) setPreviewTemplate(null); }}
+        />
+      )}
+
       {/* Header Card */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-4">
@@ -349,7 +360,16 @@ export default function EmailTemplatesManager() {
                           <p className="text-xs text-muted-foreground truncate">{template.description}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0"
+                          onClick={() => setPreviewTemplate({ key: template.key, title: template.titleBn })}
+                          title="প্রিভিউ দেখুন"
+                        >
+                          <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"

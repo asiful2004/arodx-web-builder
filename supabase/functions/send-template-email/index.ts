@@ -299,7 +299,7 @@ Deno.serve(async (req) => {
     const sbAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     const body = await req.json();
-    const { templateName, recipientEmail, data } = body;
+    const { templateName, recipientEmail, data, previewOnly } = body;
 
     if (!templateName || !recipientEmail) {
       return new Response(
@@ -314,6 +314,15 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ error: `Unknown template: ${templateName}` }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Preview mode - just return the rendered HTML without sending
+    if (previewOnly) {
+      const rendered = templateFn(data || {});
+      return new Response(
+        JSON.stringify({ success: true, html: rendered.html, subject: rendered.subject }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
