@@ -781,8 +781,16 @@ export default function Checkout() {
                     <p className="text-lg font-bold mt-2">Amount: {currency}{amount}</p>
                   </div>
                   {selectedPayment.instruction && (
-                    <div className="p-3 bg-accent/50 border border-t-0 border-accent text-xs text-foreground">
-                      {selectedPayment.instruction}
+                    <div className="mx-4 mt-4 p-4 rounded-xl bg-primary/5 border border-primary/20 backdrop-blur-sm">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <AlertCircle className="h-3.5 w-3.5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-primary mb-1">Payment Instruction</p>
+                          <p className="text-sm text-foreground/80 leading-relaxed">{selectedPayment.instruction}</p>
+                        </div>
+                      </div>
                     </div>
                   )}
                   <div className={`p-5 bg-card border border-t-0 border-border rounded-b-xl space-y-3 ${selectedPayment.instruction ? '' : ''}`}>
