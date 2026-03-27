@@ -6,16 +6,17 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import bkashLogo from "@/assets/bkash-logo.png";
 import nagadLogo from "@/assets/nagad-logo.png";
 import upayLogo from "@/assets/upay-logo.png";
 import rocketLogo from "@/assets/rocket-logo.png";
 
-const paymentMethods = [
-  { id: "bkash", name: "bKash", number: "01XXXXXXXXX", color: "#E2136E", logo: bkashLogo },
-  { id: "nagad", name: "Nagad", number: "01XXXXXXXXX", color: "#F6921E", logo: nagadLogo },
-  { id: "upay", name: "Upay", number: "01XXXXXXXXX", color: "#00A651", logo: upayLogo },
-  { id: "rocket", name: "Rocket", number: "01XXXXXXXXX", color: "#8B2F8B", logo: rocketLogo },
+const defaultPaymentMethods = [
+  { id: "bkash", name: "bKash", number: "01XXXXXXXXX", color: "#E2136E", logo_url: bkashLogo, instruction: "" },
+  { id: "nagad", name: "Nagad", number: "01XXXXXXXXX", color: "#F6921E", logo_url: nagadLogo, instruction: "" },
+  { id: "upay", name: "Upay", number: "01XXXXXXXXX", color: "#00A651", logo_url: upayLogo, instruction: "" },
+  { id: "rocket", name: "Rocket", number: "01XXXXXXXXX", color: "#8B2F8B", logo_url: rocketLogo, instruction: "" },
 ];
 
 interface PaymentModalProps {
@@ -36,8 +37,9 @@ const PaymentModal = ({
   billingPeriod,
 }: PaymentModalProps) => {
   const { t } = useLanguage();
+  const { data: siteSettings } = useSiteSettings();
   const [step, setStep] = useState<"method" | "details" | "success">("method");
-  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -46,7 +48,14 @@ const PaymentModal = ({
   });
   const [loading, setLoading] = useState(false);
 
-  const selectedPayment = paymentMethods.find((m) => m.id === selectedMethod);
+  // Use admin-configured payment methods or fallback to defaults
+  const paymentSettings = siteSettings?.payment_methods as any;
+  const paymentMethods = paymentSettings?.methods?.length > 0
+    ? paymentSettings.methods
+    : defaultPaymentMethods;
+  const globalInstruction = paymentSettings?.global_instruction || "";
+
+  const selectedPayment = selectedIndex !== null ? paymentMethods[selectedIndex] : null;
 
   const copyNumber = (number: string) => {
     navigator.clipboard.writeText(number);
@@ -54,7 +63,7 @@ const PaymentModal = ({
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.phone || !formData.transactionId || !selectedMethod) {
+    if (!formData.name || !formData.phone || !formData.transactionId || !selectedPayment) {
       toast.error(t("payment.fillAll"));
       return;
     }
@@ -68,12 +77,11 @@ const PaymentModal = ({
         package_name: packageName,
         billing_period: billingPeriod,
         amount: `${currency}${amount}`,
-        payment_method: selectedMethod,
+        payment_method: selectedPayment.name || selectedPayment.id,
         transaction_id: formData.transactionId,
       });
 
       if (error) throw error;
-
       setStep("success");
     } catch (err) {
       toast.error(t("payment.submitError"));
@@ -84,7 +92,7 @@ const PaymentModal = ({
 
   const handleClose = () => {
     setStep("method");
-    setSelectedMethod(null);
+    setSelectedIndex(null);
     setFormData({ name: "", phone: "", email: "", transactionId: "" });
     onClose();
   };
@@ -119,10 +127,7 @@ const PaymentModal = ({
                   </p>
                 )}
               </div>
-              <button
-                onClick={handleClose}
-                className="p-2 rounded-full hover:bg-muted transition-colors"
-              >
+              <button onClick={handleClose} className="p-2 rounded-full hover:bg-muted transition-colors">
                 <X className="h-5 w-5 text-muted-foreground" />
               </button>
             </div>
@@ -141,17 +146,28 @@ const PaymentModal = ({
                     <p className="text-sm text-muted-foreground mb-4">
                       {t("payment.selectMethod")}
                     </p>
-                    {paymentMethods.map((method) => (
+                    {globalInstruction && (
+                      <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs text-foreground mb-3">
+                        {globalInstruction}
+                      </div>
+                    )}
+                    {paymentMethods.map((method: any, index: number) => (
                       <button
-                        key={method.id}
+                        key={index}
                         onClick={() => {
-                          setSelectedMethod(method.id);
+                          setSelectedIndex(index);
                           setStep("details");
                         }}
                         className="w-full flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/30 bg-background hover:bg-muted/50 transition-all group"
                       >
                         <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white p-1">
-                          <img src={method.logo} alt={method.name} className="w-full h-full object-contain" />
+                          {method.logo_url ? (
+                            <img src={method.logo_url} alt={method.name} className="w-full h-full object-contain" />
+                          ) : (
+                            <div className="w-full h-full rounded flex items-center justify-center text-xs font-bold" style={{ backgroundColor: method.color || "#888", color: "#fff" }}>
+                              {(method.name || "?")[0]}
+                            </div>
+                          )}
                         </div>
                         <div className="text-left flex-1">
                           <p className="font-semibold text-foreground">{method.name}</p>
@@ -173,7 +189,7 @@ const PaymentModal = ({
                   >
                     <div
                       className="p-4 rounded-xl text-white text-center"
-                      style={{ backgroundColor: selectedPayment.color }}
+                      style={{ backgroundColor: selectedPayment.color || "#333" }}
                     >
                       <p className="text-sm opacity-90">
                         {selectedPayment.name} {t("payment.sendMoney")}
@@ -194,48 +210,43 @@ const PaymentModal = ({
                       </p>
                     </div>
 
+                    {/* Custom instruction for this method */}
+                    {selectedPayment.instruction && (
+                      <div className="p-3 rounded-lg bg-accent/50 border border-accent text-xs text-foreground">
+                        {selectedPayment.instruction}
+                      </div>
+                    )}
+
                     <div className="space-y-3">
                       <Input
                         placeholder={t("payment.yourName")}
                         value={formData.name}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="bg-background border-border"
                       />
                       <Input
                         placeholder={t("payment.phoneNumber")}
                         value={formData.phone}
-                        onChange={(e) =>
-                          setFormData({ ...formData, phone: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="bg-background border-border"
                       />
                       <Input
                         placeholder={t("payment.emailOptional")}
                         type="email"
                         value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         className="bg-background border-border"
                       />
                       <Input
                         placeholder={t("payment.transactionId")}
                         value={formData.transactionId}
-                        onChange={(e) =>
-                          setFormData({ ...formData, transactionId: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, transactionId: e.target.value })}
                         className="bg-background border-border"
                       />
                     </div>
 
                     <div className="flex gap-3">
-                      <Button
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => setStep("method")}
-                      >
+                      <Button variant="outline" className="flex-1" onClick={() => setStep("method")}>
                         {t("payment.back")}
                       </Button>
                       <Button
@@ -243,11 +254,7 @@ const PaymentModal = ({
                         onClick={handleSubmit}
                         disabled={loading}
                       >
-                        {loading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          t("payment.confirmOrder")
-                        )}
+                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("payment.confirmOrder")}
                       </Button>
                     </div>
                   </motion.div>
@@ -268,17 +275,10 @@ const PaymentModal = ({
                       <CheckCircle className="h-16 w-16 text-primary mx-auto" />
                     </motion.div>
                     <div>
-                      <h4 className="text-xl font-bold font-display">
-                        {t("payment.orderSubmitted")}
-                      </h4>
-                      <p className="text-muted-foreground text-sm mt-2">
-                        {t("payment.verifyPayment")}
-                      </p>
+                      <h4 className="text-xl font-bold font-display">{t("payment.orderSubmitted")}</h4>
+                      <p className="text-muted-foreground text-sm mt-2">{t("payment.verifyPayment")}</p>
                     </div>
-                    <Button
-                      onClick={handleClose}
-                      className="bg-gradient-primary text-primary-foreground"
-                    >
+                    <Button onClick={handleClose} className="bg-gradient-primary text-primary-foreground">
                       {t("payment.ok")}
                     </Button>
                   </motion.div>
