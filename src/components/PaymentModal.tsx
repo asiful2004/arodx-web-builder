@@ -150,11 +150,8 @@ const PaymentModal = ({
                         }}
                         className="w-full flex items-center gap-4 p-4 rounded-xl border border-border hover:border-primary/30 bg-background hover:bg-muted/50 transition-all group"
                       >
-                        <div
-                          className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm"
-                          style={{ backgroundColor: method.color }}
-                        >
-                          {method.name.charAt(0)}
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden bg-white p-1">
+                          <img src={method.logo} alt={method.name} className="w-full h-full object-contain" />
                         </div>
                         <div className="text-left flex-1">
                           <p className="font-semibold text-foreground">{method.name}</p>
