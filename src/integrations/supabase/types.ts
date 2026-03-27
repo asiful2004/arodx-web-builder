@@ -605,6 +605,7 @@ export type Database = {
           bio: string | null
           cover_url: string | null
           created_at: string
+          email_verified: boolean | null
           full_name: string | null
           id: string
           social_links: Json | null
@@ -616,6 +617,7 @@ export type Database = {
           bio?: string | null
           cover_url?: string | null
           created_at?: string
+          email_verified?: boolean | null
           full_name?: string | null
           id?: string
           social_links?: Json | null
@@ -627,6 +629,7 @@ export type Database = {
           bio?: string | null
           cover_url?: string | null
           created_at?: string
+          email_verified?: boolean | null
           full_name?: string | null
           id?: string
           social_links?: Json | null
@@ -946,12 +949,43 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_codes: {
+        Row: {
+          code: string
+          code_type: string
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          used: boolean | null
+        }
+        Insert: {
+          code: string
+          code_type?: string
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          used?: boolean | null
+        }
+        Update: {
+          code?: string
+          code_type?: string
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          used?: boolean | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       cleanup_delivered_businesses: { Args: never; Returns: undefined }
+      cleanup_expired_verification_codes: { Args: never; Returns: undefined }
       cleanup_old_activity_logs: { Args: never; Returns: undefined }
       cleanup_old_cron_runs: { Args: never; Returns: undefined }
       get_cron_jobs: {
