@@ -84,7 +84,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setTimeout(() => {
             fetchUserData(session.user.id);
             registerDeviceIfNeeded(session.user.id);
+            // Send login alert email for existing users
+            sendLoginAlertEmail(session.user);
           }, 0);
+        }
+        if (_event === "USER_UPDATED" && session?.user) {
+          // Password changed notification
+          sendPasswordChangedEmail(session.user);
         }
         if (_event === "SIGNED_OUT") {
           setProfile(defaultProfile);
