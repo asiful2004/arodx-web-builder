@@ -37,8 +37,7 @@ function baseLayout(title: string, content: string): string {
 <p style="margin:0 0 2px;font-size:12px;color:${BRAND.textDark};font-weight:600;">${BRAND.name}</p>
 <p style="margin:0;font-size:11px;color:${BRAND.textLight};"><a href="mailto:${BRAND.email}" style="color:${BRAND.primaryColor};text-decoration:none;">${BRAND.email}</a></p>
 </td></tr>
-</table>
-</td></tr></table>
+</table></td></tr></table>
 </body></html>`;
 }
 
@@ -128,12 +127,9 @@ async function sendViaSMTP(smtp: any, senderEmail: string, recipientEmail: strin
 }
 
 function generateOTP(): string {
-  const digits = "0123456789";
-  let otp = "";
   const arr = new Uint8Array(6);
   crypto.getRandomValues(arr);
-  for (let i = 0; i < 6; i++) otp += digits[arr[i] % 10];
-  return otp;
+  return Array.from(arr).map(b => (b % 10).toString()).join("");
 }
 
 function generateResetToken(): string {
@@ -148,7 +144,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { type, email, siteUrl } = await req.json();
+    const body = await req.json();
+    const { type, email, code, siteUrl, newPassword } = body;
 
     if (!type || !email) {
       return new Response(JSON.stringify({ error: "Missing type or email" }), {
@@ -162,23 +159,27 @@ Deno.serve(async (req) => {
 
     // Get SMTP config
     const { data: smtpRow } = await sbAdmin
-      .from("site_settings")
-      .select("value")
-      .eq("key", "smtp")
-      .single();
+      .from("site_settings").select("value").eq("key", "smtp").single();
 
     const smtp = smtpRow?.value as any;
-    if (!smtp?.enabled || !smtp.host || !smtp.username || !smtp.password) {
-      return new Response(JSON.stringify({ error: "SMTP not configured" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+    const senderEmail = smtp?.from_email?.trim() && isValidEmail(smtp.from_email.trim())
+      ? smtp.from_email.trim() : smtp?.username || BRAND.email;
+
+    async function getUserName(targetEmail: string): Promise<string> {
+      const { data } = await sbAdmin.auth.admin.listUsers({ perPage: 1000 });
+      const user = data?.users?.find((u: any) => u.email === targetEmail);
+      return user?.user_metadata?.full_name || targetEmail;
     }
 
-    const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-    const senderEmail = smtp.from_email?.trim() && isValidEmail(smtp.from_email.trim()) ? smtp.from_email.trim() : smtp.username;
+    // ===== SEND SIGNUP OTP =====
+    if (type === "signup" || type === "resend_otp") {
+      if (!smtp?.enabled) {
+        return new Response(JSON.stringify({ error: "SMTP not configured" }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
-    if (type === "signup") {
-      // Generate OTP and store
       const otp = generateOTP();
       const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
 
@@ -186,19 +187,19 @@ Deno.serve(async (req) => {
       await sbAdmin.from("verification_codes").delete()
         .eq("email", email).eq("code_type", "signup");
 
-      await sbAdmin.from("verification_codes").insert({
+      const { error: insertErr } = await sbAdmin.from("verification_codes").insert({
         email, code: otp, code_type: "signup", expires_at: expiresAt,
       });
+      if (insertErr) throw insertErr;
 
-      // Get user name
-      const { data: userData } = await sbAdmin.auth.admin.listUsers();
-      const user = userData?.users?.find((u: any) => u.email === email);
-      const name = user?.user_metadata?.full_name || email;
-
-      const subject = `${BRAND.name} - ইমেইল ভেরিফিকেশন কোড`;
-      const html = baseLayout("ইমেইল ভেরিফিকেশন", [
+      const name = await getUserName(email);
+      const isResend = type === "resend_otp";
+      const subject = `${BRAND.name} - ${isResend ? "নতুন " : ""}ভেরিফিকেশন কোড`;
+      const html = baseLayout(isResend ? "নতুন ভেরিফিকেশন কোড" : "ইমেইল ভেরিফিকেশন", [
         p(`প্রিয় <strong>${name}</strong>,`),
-        p(`${BRAND.name}-এ আপনার অ্যাকাউন্ট তৈরি করার জন্য ধন্যবাদ। আপনার ইমেইল ভেরিফাই করতে নিচের কোডটি ব্যবহার করুন:`),
+        isResend
+          ? p("আপনার নতুন ভেরিফিকেশন কোড:")
+          : p(`${BRAND.name}-এ আপনার অ্যাকাউন্ট তৈরি করার জন্য ধন্যবাদ। আপনার ইমেইল ভেরিফাই করতে নিচের কোডটি ব্যবহার করুন:`),
         otpBlock(otp),
         p("এই কোডটি ১৫ মিনিটের মধ্যে মেয়াদ শেষ হবে।"),
         p("আপনি এই অ্যাকাউন্ট তৈরি না করে থাকলে এই ইমেইলটি উপেক্ষা করুন।"),
@@ -206,24 +207,79 @@ Deno.serve(async (req) => {
       const text = `আপনার ভেরিফিকেশন কোড: ${otp}`;
 
       await sendViaSMTP(smtp, senderEmail, email, subject, html, text);
-      console.log(`Signup OTP sent via SMTP to ${email}`);
+      console.log(`${type} OTP sent via SMTP to ${email}`);
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
 
-    } else if (type === "verify") {
-      const { code } = await req.json().catch(() => ({ code: "" }));
-      // This is handled differently - code comes from initial parse
-    } else if (type === "verify_otp") {
-      // Verify OTP against our table
-      // Actually this needs the code too, let me restructure
-    } else if (type === "reset") {
-      // Generate reset token
+    // ===== VERIFY OTP =====
+    if (type === "verify_otp") {
+      if (!code) {
+        return new Response(JSON.stringify({ error: "Missing code" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: codeRow, error: codeErr } = await sbAdmin
+        .from("verification_codes")
+        .select("*")
+        .eq("email", email)
+        .eq("code_type", "signup")
+        .eq("code", code)
+        .eq("used", false)
+        .gte("expires_at", new Date().toISOString())
+        .single();
+
+      if (codeErr || !codeRow) {
+        return new Response(JSON.stringify({ error: "Invalid or expired code" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Mark code as used
+      await sbAdmin.from("verification_codes")
+        .update({ used: true })
+        .eq("id", codeRow.id);
+
+      // Set email_verified in profiles
+      const { data: userData } = await sbAdmin.auth.admin.listUsers({ perPage: 1000 });
+      const user = userData?.users?.find((u: any) => u.email === email);
+      if (user) {
+        await sbAdmin.from("profiles")
+          .update({ email_verified: true })
+          .eq("user_id", user.id);
+      }
+
+      console.log(`Email verified for ${email}`);
+
+      return new Response(JSON.stringify({ success: true, verified: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ===== SEND PASSWORD RESET =====
+    if (type === "reset") {
+      if (!smtp?.enabled) {
+        return new Response(JSON.stringify({ error: "SMTP not configured" }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Check if user exists
+      const { data: userData } = await sbAdmin.auth.admin.listUsers({ perPage: 1000 });
+      const user = userData?.users?.find((u: any) => u.email === email);
+      if (!user) {
+        // Don't reveal if user exists - return success anyway
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       const token = generateResetToken();
       const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
-      // Invalidate old codes
       await sbAdmin.from("verification_codes").delete()
         .eq("email", email).eq("code_type", "reset");
 
@@ -231,11 +287,9 @@ Deno.serve(async (req) => {
         email, code: token, code_type: "reset", expires_at: expiresAt,
       });
 
-      const resetUrl = `${siteUrl || "https://lovable232323543535353553535343453434.lovable.app"}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
-
-      const { data: userData } = await sbAdmin.auth.admin.listUsers();
-      const user = userData?.users?.find((u: any) => u.email === email);
-      const name = user?.user_metadata?.full_name || email;
+      const baseUrl = siteUrl || "https://lovable232323543535353553535343453434.lovable.app";
+      const resetUrl = `${baseUrl}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+      const name = user.user_metadata?.full_name || email;
 
       const subject = `${BRAND.name} - পাসওয়ার্ড রিসেট`;
       const html = baseLayout("পাসওয়ার্ড রিসেট", [
@@ -253,42 +307,56 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
 
-    } else if (type === "resend_otp") {
-      // Same as signup - regenerate OTP
-      const otp = generateOTP();
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    // ===== VERIFY RESET TOKEN & UPDATE PASSWORD =====
+    if (type === "reset_verify") {
+      if (!code || !newPassword) {
+        return new Response(JSON.stringify({ error: "Missing token or password" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
-      await sbAdmin.from("verification_codes").delete()
-        .eq("email", email).eq("code_type", "signup");
+      const { data: codeRow, error: codeErr } = await sbAdmin
+        .from("verification_codes")
+        .select("*")
+        .eq("email", email)
+        .eq("code_type", "reset")
+        .eq("code", code)
+        .eq("used", false)
+        .gte("expires_at", new Date().toISOString())
+        .single();
 
-      await sbAdmin.from("verification_codes").insert({
-        email, code: otp, code_type: "signup", expires_at: expiresAt,
-      });
+      if (codeErr || !codeRow) {
+        return new Response(JSON.stringify({ error: "Invalid or expired reset token" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
-      const { data: userData } = await sbAdmin.auth.admin.listUsers();
+      // Mark token as used
+      await sbAdmin.from("verification_codes")
+        .update({ used: true })
+        .eq("id", codeRow.id);
+
+      // Find user and update password
+      const { data: userData } = await sbAdmin.auth.admin.listUsers({ perPage: 1000 });
       const user = userData?.users?.find((u: any) => u.email === email);
-      const name = user?.user_metadata?.full_name || email;
+      if (!user) {
+        return new Response(JSON.stringify({ error: "User not found" }), {
+          status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
-      const subject = `${BRAND.name} - নতুন ভেরিফিকেশন কোড`;
-      const html = baseLayout("নতুন ভেরিফিকেশন কোড", [
-        p(`প্রিয় <strong>${name}</strong>,`),
-        p("আপনার নতুন ভেরিফিকেশন কোড:"),
-        otpBlock(otp),
-        p("এই কোডটি ১৫ মিনিটের মধ্যে মেয়াদ শেষ হবে।"),
-      ].join(""));
-      const text = `আপনার নতুন ভেরিফিকেশন কোড: ${otp}`;
+      const { error: updateErr } = await sbAdmin.auth.admin.updateUserById(user.id, {
+        password: newPassword,
+      });
+      if (updateErr) throw updateErr;
 
-      await sendViaSMTP(smtp, senderEmail, email, subject, html, text);
-      console.log(`Resend OTP sent via SMTP to ${email}`);
+      console.log(`Password updated for ${email}`);
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
-
-    } else if (type === "verify_code") {
-      const { code } = await new Response(req.body).json().catch(() => ({ code: "" }));
-      // Need code from initial parse - restructure
     }
 
     return new Response(JSON.stringify({ error: "Invalid type" }), {
