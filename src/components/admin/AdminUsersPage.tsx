@@ -271,6 +271,36 @@ export default function AdminUsersPage() {
     setChangingPassword(false);
   };
 
+  const deleteUser = async () => {
+    if (!deletingUser) return;
+    setDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-update-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            target_user_id: deletingUser.user_id,
+            action: "delete_user",
+          }),
+        }
+      );
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed");
+      toast({ title: "ইউজার সফলভাবে ডিলিট করা হয়েছে" });
+      setProfiles((prev) => prev.filter((p) => p.user_id !== deletingUser.user_id));
+      setDeletingUser(null);
+    } catch (err: any) {
+      toast({ title: "ইউজার ডিলিট ব্যর্থ", description: err.message, variant: "destructive" });
+    }
+    setDeleting(false);
+  };
+
   const stats = useMemo(() => ({
     total: profiles.length,
     admins: profiles.filter((u) => u.roles.includes("admin")).length,
