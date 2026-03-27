@@ -48,11 +48,9 @@ const PaymentModal = ({
   });
   const [loading, setLoading] = useState(false);
 
-  // Use admin-configured payment methods or fallback to defaults
+  // Use ONLY admin-configured payment methods — no fallback
   const paymentSettings = siteSettings?.payment_methods as any;
-  const paymentMethods = paymentSettings?.methods?.length > 0
-    ? paymentSettings.methods
-    : defaultPaymentMethods;
+  const paymentMethods: any[] = Array.isArray(paymentSettings?.methods) ? paymentSettings.methods : [];
   const globalInstruction = paymentSettings?.global_instruction || "";
 
   const selectedPayment = selectedIndex !== null ? paymentMethods[selectedIndex] : null;
