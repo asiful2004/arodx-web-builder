@@ -406,6 +406,28 @@ export default function AdminBusinessesPage() {
         onOpenChange={setCreateOpen}
         onCreated={fetchData}
       />
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("admin.biz.deleteConfirmTitle", "Delete Business?")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("admin.biz.deleteConfirmDesc", `"${deleteTarget?.business_name}" and its associated order will be permanently deleted. This action cannot be undone.`)}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>{t("admin.biz.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Trash2 className="w-4 h-4 mr-1" />}
+              {t("admin.biz.delete", "Delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
