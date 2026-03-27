@@ -49,10 +49,49 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { target_user_id, new_password } = await req.json();
-    if (!target_user_id || !new_password) {
+    const body = await req.json();
+    const { target_user_id, new_password, action } = body;
+
+    if (!target_user_id) {
       return new Response(
-        JSON.stringify({ error: "target_user_id and new_password required" }),
+        JSON.stringify({ error: "target_user_id required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+    // DELETE USER
+    if (action === "delete_user") {
+      // Prevent self-deletion
+      if (target_user_id === caller.id) {
+        return new Response(JSON.stringify({ error: "Cannot delete yourself" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Delete related data first
+      await adminClient.from("user_roles").delete().eq("user_id", target_user_id);
+      await adminClient.from("notifications").delete().eq("user_id", target_user_id);
+      await adminClient.from("user_devices").delete().eq("user_id", target_user_id);
+      await adminClient.from("profiles").delete().eq("user_id", target_user_id);
+
+      const { error } = await adminClient.auth.admin.deleteUser(target_user_id);
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // UPDATE PASSWORD (default)
+    if (!new_password) {
+      return new Response(
+        JSON.stringify({ error: "new_password required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -64,16 +103,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Use service role to update password
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
     const { error } = await adminClient.auth.admin.updateUserById(target_user_id, {
       password: new_password,
     });
 
     if (error) {
       return new Response(JSON.stringify({ error: error.message }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
