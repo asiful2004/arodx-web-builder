@@ -200,7 +200,7 @@ export default function Checkout() {
   }, []);
 
   const handleSubmit = async () => {
-    if (!transactionId || !selectedMethod) {
+    if (!transactionId || !selectedMethod || senderNumber.length !== 11) {
       toast.error(t("checkout.paymentFillAll"));
       return;
     }
