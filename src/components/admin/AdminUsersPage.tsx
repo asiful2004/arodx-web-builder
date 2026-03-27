@@ -20,9 +20,13 @@ import {
 import {
   Users, Loader2, Search, Shield, ShieldCheck, UserCog,
   RefreshCw, Calendar, UserPlus, Trash2, Crown, User as UserIcon,
-  KeyRound, Eye, EyeOff, Palette, Code, Briefcase, Megaphone,
+  KeyRound, Eye, EyeOff, Palette, Code, Briefcase, Megaphone, AlertTriangle,
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type AppRole = "admin" | "moderator" | "user" | "client" | "hr" | "graphics_designer" | "web_developer" | "project_manager" | "digital_marketer";
 
@@ -105,6 +109,8 @@ export default function AdminUsersPage() {
   const [newPassword, setNewPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
+  const [deletingUser, setDeletingUser] = useState<UserProfile | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -263,6 +269,36 @@ export default function AdminUsersPage() {
       toast({ title: "পাসওয়ার্ড পরিবর্তন ব্যর্থ", description: err.message, variant: "destructive" });
     }
     setChangingPassword(false);
+  };
+
+  const deleteUser = async () => {
+    if (!deletingUser) return;
+    setDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-update-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            target_user_id: deletingUser.user_id,
+            action: "delete_user",
+          }),
+        }
+      );
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed");
+      toast({ title: "ইউজার সফলভাবে ডিলিট করা হয়েছে" });
+      setProfiles((prev) => prev.filter((p) => p.user_id !== deletingUser.user_id));
+      setDeletingUser(null);
+    } catch (err: any) {
+      toast({ title: "ইউজার ডিলিট ব্যর্থ", description: err.message, variant: "destructive" });
+    }
+    setDeleting(false);
   };
 
   const stats = useMemo(() => ({
@@ -450,6 +486,17 @@ export default function AdminUsersPage() {
                             <KeyRound className="w-3.5 h-3.5" />
                             পাসওয়ার্ড
                           </Button>
+                          {!isCurrentUser && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeletingUser(u)}
+                              className="gap-1.5 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              ডিলিট
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -664,6 +711,33 @@ export default function AdminUsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete User Confirmation */}
+      <AlertDialog open={!!deletingUser} onOpenChange={(open) => !open && setDeletingUser(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              ইউজার ডিলিট করুন
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <strong>{deletingUser?.full_name || deletingUser?.email || "এই ইউজার"}</strong> কে স্থায়ীভাবে ডিলিট করতে চান?
+              এই অ্যাকশন undo করা যাবে না। ইউজারের প্রোফাইল, রোল, ডিভাইস ও নোটিফিকেশন সব মুছে যাবে।
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>বাতিল</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={deleteUser}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 gap-1.5"
+            >
+              {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+              ডিলিট করুন
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
