@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useSiteSettings, useUpdateSiteSetting } from "@/hooks/useSiteSettings";
 import ChatAiConfigPanel from "./ChatAiConfigPanel";
+import EmailTemplatesManager from "./EmailTemplatesManager";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 // ===== Rate Limit Section =====
@@ -1216,8 +1217,9 @@ export default function AdminSettingsPage() {
           <RateLimitSection />
         </TabsContent>
 
-        <TabsContent value="email" className="mt-6">
+        <TabsContent value="email" className="space-y-6 mt-6">
           <SmtpConfigSection />
+          <EmailTemplatesManager />
         </TabsContent>
 
         <TabsContent value="ai" className="mt-6">
