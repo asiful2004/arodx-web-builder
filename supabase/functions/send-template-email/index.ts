@@ -112,38 +112,44 @@ function paragraph(text: string): string {
 // ===== Template Generators =====
 const TEMPLATES: Record<string, (data: any) => { subject: string; html: string; text: string }> = {
 
-  "welcome": (data) => ({
-    subject: `${BRAND.name} - স্বাগতম!`,
-    html: baseLayout(ICONS.welcome, "স্বাগতম!", [
-      paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
-      paragraph(`${BRAND.name}-এ আপনাকে স্বাগতম! আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। এখন আপনি আমাদের সকল সেবা উপভোগ করতে পারবেন।`),
-      infoTable(
-        infoRow("অ্যাকাউন্ট", data.email || "N/A") +
-        infoRow("রেজিস্ট্রেশন তারিখ", new Date().toLocaleDateString("bn-BD"))
-      ),
-      paragraph("আপনার ড্যাশবোর্ড থেকে সকল সেবা ম্যানেজ করতে পারবেন।"),
-      ctaButton("ড্যাশবোর্ডে যান", data.dashboardUrl || "#"),
-    ].join(""), "এই ইমেইলটি আপনার রেজিস্ট্রেশন নিশ্চিত করতে পাঠানো হয়েছে"),
-    text: `${BRAND.name}-এ স্বাগতম! আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে।`,
-  }),
+  "welcome": (data) => {
+    const c = data._customization || {};
+    return {
+      subject: c.subject || `${BRAND.name} - স্বাগতম!`,
+      html: baseLayout(ICONS.welcome, c.heading || "স্বাগতম!", [
+        paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
+        paragraph(c.bodyText || `${BRAND.name}-এ আপনাকে স্বাগতম! আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে। এখন আপনি আমাদের সকল সেবা উপভোগ করতে পারবেন।`),
+        infoTable(
+          infoRow("অ্যাকাউন্ট", data.email || "N/A") +
+          infoRow("রেজিস্ট্রেশন তারিখ", new Date().toLocaleDateString("bn-BD"))
+        ),
+        paragraph("আপনার ড্যাশবোর্ড থেকে সকল সেবা ম্যানেজ করতে পারবেন।"),
+        ctaButton("ড্যাশবোর্ডে যান", data.dashboardUrl || "#"),
+      ].join(""), "এই ইমেইলটি আপনার রেজিস্ট্রেশন নিশ্চিত করতে পাঠানো হয়েছে"),
+      text: `${BRAND.name}-এ স্বাগতম! আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে।`,
+    };
+  },
 
-  "login-alert": (data) => ({
-    subject: `${BRAND.name} - নতুন ডিভাইস থেকে লগইন`,
-    html: baseLayout(ICONS.shield, "নতুন লগইন সনাক্ত হয়েছে", [
-      paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
-      paragraph("আপনার অ্যাকাউন্টে একটি নতুন ডিভাইস থেকে লগইন করা হয়েছে। আপনি যদি এই লগইন করে থাকেন, তাহলে কোনো পদক্ষেপ নেওয়ার প্রয়োজন নেই।"),
-      infoTable(
-        infoRow("ডিভাইস", data.device || "Unknown") +
-        infoRow("ব্রাউজার", data.browser || "Unknown") +
-        infoRow("অপারেটিং সিস্টেম", data.os || "Unknown") +
-        infoRow("সময়", new Date().toLocaleString("bn-BD"))
-      ),
-      `<div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:12px 16px;margin:16px 0;">
+  "login-alert": (data) => {
+    const c = data._customization || {};
+    return {
+      subject: c.subject || `${BRAND.name} - নতুন ডিভাইস থেকে লগইন`,
+      html: baseLayout(ICONS.shield, c.heading || "নতুন লগইন সনাক্ত হয়েছে", [
+        paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
+        paragraph(c.bodyText || "আপনার অ্যাকাউন্টে একটি নতুন ডিভাইস থেকে লগইন করা হয়েছে। আপনি যদি এই লগইন করে থাকেন, তাহলে কোনো পদক্ষেপ নেওয়ার প্রয়োজন নেই।"),
+        infoTable(
+          infoRow("ডিভাইস", data.device || "Unknown") +
+          infoRow("ব্রাউজার", data.browser || "Unknown") +
+          infoRow("অপারেটিং সিস্টেম", data.os || "Unknown") +
+          infoRow("সময়", new Date().toLocaleString("bn-BD"))
+        ),
+        `<div style="background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:12px 16px;margin:16px 0;">
 <p style="margin:0;font-size:13px;color:#92400e;font-weight:500;">আপনি এই লগইন না করে থাকলে অনুগ্রহ করে এখনই আপনার পাসওয়ার্ড পরিবর্তন করুন।</p>
 </div>`,
-    ].join(""), "এটি একটি নিরাপত্তা সংক্রান্ত নোটিফিকেশন"),
-    text: `আপনার অ্যাকাউন্টে নতুন ডিভাইস থেকে লগইন সনাক্ত হয়েছে।`,
-  }),
+      ].join(""), "এটি একটি নিরাপত্তা সংক্রান্ত নোটিফিকেশন"),
+      text: `আপনার অ্যাকাউন্টে নতুন ডিভাইস থেকে লগইন সনাক্ত হয়েছে।`,
+    };
+  },
 
   "password-changed": (data) => ({
     subject: `${BRAND.name} - পাসওয়ার্ড পরিবর্তন হয়েছে`,
