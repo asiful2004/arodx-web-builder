@@ -317,9 +317,22 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Fetch template customizations from site_settings
+    const { data: custRow } = await sbAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("key", "email_template_customizations")
+      .single();
+    
+    const allCustomizations = (custRow?.value as any) || {};
+    const templateCustomization = allCustomizations[templateName] || {};
+
+    // Merge customization into data so templates can use it
+    const mergedData = { ...data, _customization: templateCustomization };
+
     // Preview mode - just return the rendered HTML without sending
     if (previewOnly) {
-      const rendered = templateFn(data || {});
+      const rendered = templateFn(mergedData);
       return new Response(
         JSON.stringify({ success: true, html: rendered.html, subject: rendered.subject }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
