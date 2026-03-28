@@ -72,8 +72,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (data) setProfile(data);
   }, [user]);
 
-  // Track whether this is a fresh login vs session restore
-  const hasRestoredSession = useRef(false);
+  // Only send login alert after an explicit sign-out followed by sign-in
+  const didSignOut = useRef(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -87,11 +87,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setTimeout(() => {
             fetchUserData(session.user.id);
             registerDeviceIfNeeded(session.user.id);
-            // Only send login alert on actual new login, not session restore
-            if (!hasRestoredSession.current) {
-              hasRestoredSession.current = true;
-            } else {
-              // This is an actual new sign-in (not the initial session restore)
+            // Only send login alert after a real sign-out → sign-in cycle
+            if (didSignOut.current) {
+              didSignOut.current = false;
               const info = getSimpleDeviceInfo();
               supabase.functions.invoke("send-template-email", {
                 body: {
@@ -107,7 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setProfile(defaultProfile);
           setUserRoles([]);
           setIsAdmin(false);
-          hasRestoredSession.current = true; // Next SIGNED_IN will be a real login
+          didSignOut.current = true;
         }
       }
     );
