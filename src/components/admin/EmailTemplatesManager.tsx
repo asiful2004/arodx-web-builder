@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Mail, Save, Loader2, Send, Eye, MailCheck, ShieldAlert, Lock, CreditCard, CheckCircle2, AlertTriangle, Clock, XCircle, TicketCheck, MessageSquare, Star } from "lucide-react";
+import { Mail, Save, Loader2, Send, Eye, MailCheck, ShieldAlert, Lock, CreditCard, CheckCircle2, AlertTriangle, Clock, XCircle, TicketCheck, MessageSquare, Star, Pencil } from "lucide-react";
 import { toast as sonnerToast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSiteSettings, useUpdateSiteSetting } from "@/hooks/useSiteSettings";
 import { supabase } from "@/integrations/supabase/client";
 import EmailTemplatePreviewDialog from "./EmailTemplatePreviewDialog";
+import EmailTemplateEditor from "./EmailTemplateEditor";
 
 interface TemplateConfig {
   enabled: boolean;
@@ -147,6 +148,7 @@ export default function EmailTemplatesManager() {
   const [testingTemplate, setTestingTemplate] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [previewTemplate, setPreviewTemplate] = useState<{ key: string; title: string } | null>(null);
+  const [editTemplate, setEditTemplate] = useState<{ key: string; title: string } | null>(null);
 
   useEffect(() => {
     if (settings && !loaded) {
@@ -266,6 +268,16 @@ export default function EmailTemplatesManager() {
         />
       )}
 
+      {/* Editor Dialog */}
+      {editTemplate && (
+        <EmailTemplateEditor
+          templateKey={editTemplate.key}
+          templateTitle={editTemplate.title}
+          open={!!editTemplate}
+          onOpenChange={(open) => { if (!open) setEditTemplate(null); }}
+        />
+      )}
+
       {/* Header Card */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-4">
@@ -361,6 +373,15 @@ export default function EmailTemplatesManager() {
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0"
+                          onClick={() => setEditTemplate({ key: template.key, title: template.titleBn })}
+                          title="কাস্টমাইজ করুন"
+                        >
+                          <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
