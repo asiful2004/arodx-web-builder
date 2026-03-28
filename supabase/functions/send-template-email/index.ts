@@ -151,147 +151,174 @@ const TEMPLATES: Record<string, (data: any) => { subject: string; html: string; 
     };
   },
 
-  "password-changed": (data) => ({
-    subject: `${BRAND.name} - পাসওয়ার্ড পরিবর্তন হয়েছে`,
-    html: baseLayout(ICONS.lock, "পাসওয়ার্ড পরিবর্তন সফল", [
-      paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
-      paragraph("আপনার অ্যাকাউন্টের পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে।"),
-      infoTable(
-        infoRow("অ্যাকাউন্ট", data.email || "N/A") +
-        infoRow("সময়", new Date().toLocaleString("bn-BD"))
-      ),
-      `<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;margin:16px 0;">
+  "password-changed": (data) => {
+    const c = data._customization || {};
+    return {
+      subject: c.subject || `${BRAND.name} - পাসওয়ার্ড পরিবর্তন হয়েছে`,
+      html: baseLayout(ICONS.lock, c.heading || "পাসওয়ার্ড পরিবর্তন সফল", [
+        paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
+        paragraph(c.bodyText || "আপনার অ্যাকাউন্টের পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে।"),
+        infoTable(
+          infoRow("অ্যাকাউন্ট", data.email || "N/A") +
+          infoRow("সময়", new Date().toLocaleString("bn-BD"))
+        ),
+        `<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;margin:16px 0;">
 <p style="margin:0;font-size:13px;color:#991b1b;font-weight:500;">আপনি এই পরিবর্তন না করে থাকলে অনুগ্রহ করে অবিলম্বে আমাদের সাপোর্ট টিমের সাথে যোগাযোগ করুন।</p>
 </div>`,
-    ].join(""), "এটি একটি নিরাপত্তা সংক্রান্ত নোটিফিকেশন"),
-    text: `আপনার পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে।`,
-  }),
+      ].join(""), "এটি একটি নিরাপত্তা সংক্রান্ত নোটিফিকেশন"),
+      text: `আপনার পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে।`,
+    };
+  },
 
-  "subscription-confirmation": (data) => ({
-    subject: `${BRAND.name} - সাবস্ক্রিপশন নিশ্চিত হয়েছে`,
-    html: baseLayout(ICONS.creditCard, "সাবস্ক্রিপশন সফল!", [
-      paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
-      paragraph(`আপনার <strong>${data.package || 'প্যাকেজ'}</strong> সাবস্ক্রিপশন সফলভাবে সক্রিয় হয়েছে! আমাদের পরিবারে যোগ দেওয়ার জন্য ধন্যবাদ।`),
-      infoTable(
-        infoRow("প্যাকেজ", data.package || "N/A") +
-        infoRow("বিলিং পিরিয়ড", data.billingPeriod === "yearly" ? "বার্ষিক" : "মাসিক") +
-        infoRow("পরিমাণ", `${data.amount || '0'} টাকা`) +
-        infoRow("পেমেন্ট মেথড", data.paymentMethod || "N/A") +
-        infoRow("ট্রানজ্যাকশন ID", data.transactionId || "N/A") +
-        infoRow("পরবর্তী রিনিউয়াল", data.renewalDate || "N/A")
-      ),
-      ctaButton("ড্যাশবোর্ডে যান", data.dashboardUrl || "#"),
-    ].join(""), "এটি আপনার সাবস্ক্রিপশন রসিদ"),
-    text: `আপনার ${data.package || 'প্যাকেজ'} সাবস্ক্রিপশন সফলভাবে সক্রিয় হয়েছে।`,
-  }),
+  "subscription-confirmation": (data) => {
+    const c = data._customization || {};
+    return {
+      subject: c.subject || `${BRAND.name} - সাবস্ক্রিপশন নিশ্চিত হয়েছে`,
+      html: baseLayout(ICONS.creditCard, c.heading || "সাবস্ক্রিপশন সফল!", [
+        paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
+        paragraph(c.bodyText || `আপনার <strong>${data.package || 'প্যাকেজ'}</strong> সাবস্ক্রিপশন সফলভাবে সক্রিয় হয়েছে! আমাদের পরিবারে যোগ দেওয়ার জন্য ধন্যবাদ।`),
+        infoTable(
+          infoRow("প্যাকেজ", data.package || "N/A") +
+          infoRow("বিলিং পিরিয়ড", data.billingPeriod === "yearly" ? "বার্ষিক" : "মাসিক") +
+          infoRow("পরিমাণ", `${data.amount || '0'} টাকা`) +
+          infoRow("পেমেন্ট মেথড", data.paymentMethod || "N/A") +
+          infoRow("ট্রানজ্যাকশন ID", data.transactionId || "N/A") +
+          infoRow("পরবর্তী রিনিউয়াল", data.renewalDate || "N/A")
+        ),
+        ctaButton("ড্যাশবোর্ডে যান", data.dashboardUrl || "#"),
+      ].join(""), "এটি আপনার সাবস্ক্রিপশন রসিদ"),
+      text: `আপনার ${data.package || 'প্যাকেজ'} সাবস্ক্রিপশন সফলভাবে সক্রিয় হয়েছে।`,
+    };
+  },
 
-  "payment-success": (data) => ({
-    subject: `${BRAND.name} - পেমেন্ট সফল হয়েছে`,
-    html: baseLayout(ICONS.checkCircle, "পেমেন্ট সফল!", [
-      paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
-      paragraph("আপনার মাসিক পেমেন্ট সফলভাবে সম্পন্ন হয়েছে। আপনার সকল সেবা সচল আছে।"),
-      infoTable(
-        infoRow("প্যাকেজ", data.package || "N/A") +
-        infoRow("পরিমাণ", `${data.amount || '0'} টাকা`) +
-        infoRow("পেমেন্ট মেথড", data.paymentMethod || "N/A") +
-        infoRow("ট্রানজ্যাকশন ID", data.transactionId || "N/A") +
-        infoRow("পরবর্তী পেমেন্ট", data.nextPaymentDate || "N/A")
-      ),
-    ].join(""), "এটি আপনার পেমেন্ট রসিদ"),
-    text: `আপনার পেমেন্ট ${data.amount || ''} টাকা সফলভাবে সম্পন্ন হয়েছে।`,
-  }),
+  "payment-success": (data) => {
+    const c = data._customization || {};
+    return {
+      subject: c.subject || `${BRAND.name} - পেমেন্ট সফল হয়েছে`,
+      html: baseLayout(ICONS.checkCircle, c.heading || "পেমেন্ট সফল!", [
+        paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
+        paragraph(c.bodyText || "আপনার মাসিক পেমেন্ট সফলভাবে সম্পন্ন হয়েছে। আপনার সকল সেবা সচল আছে।"),
+        infoTable(
+          infoRow("প্যাকেজ", data.package || "N/A") +
+          infoRow("পরিমাণ", `${data.amount || '0'} টাকা`) +
+          infoRow("পেমেন্ট মেথড", data.paymentMethod || "N/A") +
+          infoRow("ট্রানজ্যাকশন ID", data.transactionId || "N/A") +
+          infoRow("পরবর্তী পেমেন্ট", data.nextPaymentDate || "N/A")
+        ),
+      ].join(""), "এটি আপনার পেমেন্ট রসিদ"),
+      text: `আপনার পেমেন্ট ${data.amount || ''} টাকা সফলভাবে সম্পন্ন হয়েছে।`,
+    };
+  },
 
-  "payment-failed": (data) => ({
-    subject: `${BRAND.name} - পেমেন্ট ব্যর্থ হয়েছে`,
-    html: baseLayout(ICONS.alertTriangle, "পেমেন্ট ব্যর্থ!", [
-      paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
-      paragraph("দুঃখিত, আপনার সাম্প্রতিক পেমেন্ট প্রসেস করা সম্ভব হয়নি। অনুগ্রহ করে আপনার পেমেন্ট তথ্য আপডেট করে পুনরায় চেষ্টা করুন।"),
-      infoTable(
-        infoRow("প্যাকেজ", data.package || "N/A") +
-        infoRow("পরিমাণ", `${data.amount || '0'} টাকা`) +
-        infoRow("কারণ", data.reason || "পেমেন্ট মেথডে সমস্যা")
-      ),
-      `<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;margin:16px 0;">
+  "payment-failed": (data) => {
+    const c = data._customization || {};
+    return {
+      subject: c.subject || `${BRAND.name} - পেমেন্ট ব্যর্থ হয়েছে`,
+      html: baseLayout(ICONS.alertTriangle, c.heading || "পেমেন্ট ব্যর্থ!", [
+        paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
+        paragraph(c.bodyText || "দুঃখিত, আপনার সাম্প্রতিক পেমেন্ট প্রসেস করা সম্ভব হয়নি। অনুগ্রহ করে আপনার পেমেন্ট তথ্য আপডেট করে পুনরায় চেষ্টা করুন।"),
+        infoTable(
+          infoRow("প্যাকেজ", data.package || "N/A") +
+          infoRow("পরিমাণ", `${data.amount || '0'} টাকা`) +
+          infoRow("কারণ", data.reason || "পেমেন্ট মেথডে সমস্যা")
+        ),
+        `<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;margin:16px 0;">
 <p style="margin:0;font-size:13px;color:#991b1b;font-weight:500;">সেবা বন্ধ হওয়া এড়াতে অনুগ্রহ করে যত তাড়াতাড়ি সম্ভব পেমেন্ট সম্পন্ন করুন।</p>
 </div>`,
-      ctaButton("পেমেন্ট করুন", data.paymentUrl || "#"),
-    ].join(""), "এটি একটি পেমেন্ট সংক্রান্ত নোটিফিকেশন"),
-    text: `আপনার পেমেন্ট ব্যর্থ হয়েছে। অনুগ্রহ করে পুনরায় চেষ্টা করুন।`,
-  }),
+        ctaButton("পেমেন্ট করুন", data.paymentUrl || "#"),
+      ].join(""), "এটি একটি পেমেন্ট সংক্রান্ত নোটিফিকেশন"),
+      text: `আপনার পেমেন্ট ব্যর্থ হয়েছে। অনুগ্রহ করে পুনরায় চেষ্টা করুন।`,
+    };
+  },
 
-  "renewal-reminder": (data) => ({
-    subject: `${BRAND.name} - সাবস্ক্রিপশন রিনিউয়াল রিমাইন্ডার`,
-    html: baseLayout(ICONS.clock, "রিনিউয়াল রিমাইন্ডার", [
-      paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
-      paragraph(`আপনার <strong>${data.package || 'প্যাকেজ'}</strong> সাবস্ক্রিপশন <strong>${data.daysLeft || '৩'} দিন</strong> পর শেষ হবে। নিরবচ্ছিন্ন সেবা পেতে অনুগ্রহ করে সময়মত রিনিউ করুন।`),
-      infoTable(
-        infoRow("প্যাকেজ", data.package || "N/A") +
-        infoRow("মেয়াদ শেষ", data.expiryDate || "N/A") +
-        infoRow("রিনিউয়াল মূল্য", `${data.amount || '0'} টাকা`)
-      ),
-      ctaButton("এখনই রিনিউ করুন", data.renewalUrl || "#"),
-    ].join(""), "এটি একটি সাবস্ক্রিপশন রিমাইন্ডার"),
-    text: `আপনার সাবস্ক্রিপশন ${data.daysLeft || '৩'} দিন পর শেষ হবে।`,
-  }),
+  "renewal-reminder": (data) => {
+    const c = data._customization || {};
+    return {
+      subject: c.subject || `${BRAND.name} - সাবস্ক্রিপশন রিনিউয়াল রিমাইন্ডার`,
+      html: baseLayout(ICONS.clock, c.heading || "রিনিউয়াল রিমাইন্ডার", [
+        paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
+        paragraph(c.bodyText || `আপনার <strong>${data.package || 'প্যাকেজ'}</strong> সাবস্ক্রিপশন <strong>${data.daysLeft || '৩'} দিন</strong> পর শেষ হবে। নিরবচ্ছিন্ন সেবা পেতে অনুগ্রহ করে সময়মত রিনিউ করুন।`),
+        infoTable(
+          infoRow("প্যাকেজ", data.package || "N/A") +
+          infoRow("মেয়াদ শেষ", data.expiryDate || "N/A") +
+          infoRow("রিনিউয়াল মূল্য", `${data.amount || '0'} টাকা`)
+        ),
+        ctaButton("এখনই রিনিউ করুন", data.renewalUrl || "#"),
+      ].join(""), "এটি একটি সাবস্ক্রিপশন রিমাইন্ডার"),
+      text: `আপনার সাবস্ক্রিপশন ${data.daysLeft || '৩'} দিন পর শেষ হবে।`,
+    };
+  },
 
-  "subscription-cancelled": (data) => ({
-    subject: `${BRAND.name} - সাবস্ক্রিপশন বাতিল হয়েছে`,
-    html: baseLayout(ICONS.xCircle, "সাবস্ক্রিপশন বাতিল", [
-      paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
-      paragraph(`আপনার <strong>${data.package || 'প্যাকেজ'}</strong> সাবস্ক্রিপশন বাতিল করা হয়েছে।`),
-      infoTable(
-        infoRow("প্যাকেজ", data.package || "N/A") +
-        infoRow("বাতিলের তারিখ", new Date().toLocaleDateString("bn-BD")) +
-        infoRow("সেবা চলবে", data.activeUntil || "বিলিং পিরিয়ড শেষ পর্যন্ত")
-      ),
-      paragraph("আপনি যেকোনো সময় পুনরায় সাবস্ক্রাইব করতে পারবেন। আমরা আপনাকে আবার পেতে চাই!"),
-      ctaButton("পুনরায় সাবস্ক্রাইব করুন", data.resubscribeUrl || "#"),
-    ].join(""), "সাবস্ক্রিপশন বাতিলের কনফার্মেশন"),
-    text: `আপনার ${data.package || ''} সাবস্ক্রিপশন বাতিল করা হয়েছে।`,
-  }),
+  "subscription-cancelled": (data) => {
+    const c = data._customization || {};
+    return {
+      subject: c.subject || `${BRAND.name} - সাবস্ক্রিপশন বাতিল হয়েছে`,
+      html: baseLayout(ICONS.xCircle, c.heading || "সাবস্ক্রিপশন বাতিল", [
+        paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
+        paragraph(`আপনার <strong>${data.package || 'প্যাকেজ'}</strong> সাবস্ক্রিপশন বাতিল করা হয়েছে।`),
+        infoTable(
+          infoRow("প্যাকেজ", data.package || "N/A") +
+          infoRow("বাতিলের তারিখ", new Date().toLocaleDateString("bn-BD")) +
+          infoRow("সেবা চলবে", data.activeUntil || "বিলিং পিরিয়ড শেষ পর্যন্ত")
+        ),
+        paragraph(c.bodyText || "আপনি যেকোনো সময় পুনরায় সাবস্ক্রাইব করতে পারবেন। আমরা আপনাকে আবার পেতে চাই!"),
+        ctaButton("পুনরায় সাবস্ক্রাইব করুন", data.resubscribeUrl || "#"),
+      ].join(""), "সাবস্ক্রিপশন বাতিলের কনফার্মেশন"),
+      text: `আপনার ${data.package || ''} সাবস্ক্রিপশন বাতিল করা হয়েছে।`,
+    };
+  },
 
-  "ticket-received": (data) => ({
-    subject: `${BRAND.name} - সাপোর্ট টিকেট #${data.ticketNumber || ''}`,
-    html: baseLayout(ICONS.ticket, "টিকেট গ্রহণ করা হয়েছে", [
-      paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
-      paragraph("আপনার সাপোর্ট টিকেট সফলভাবে গ্রহণ করা হয়েছে। আমাদের টিম যত দ্রুত সম্ভব আপনার সমস্যার সমাধান করবে।"),
-      infoTable(
-        infoRow("টিকেট নম্বর", data.ticketNumber || "N/A") +
-        infoRow("বিষয়", data.subject || "N/A") +
-        infoRow("ক্যাটাগরি", data.category || "General") +
-        infoRow("প্রায়োরিটি", data.priority || "Medium") +
-        infoRow("স্ট্যাটাস", "Open")
-      ),
-      ctaButton("টিকেট দেখুন", data.ticketUrl || "#"),
-    ].join(""), `টিকেট ট্র্যাকিং ID: ${data.ticketNumber || ''}`),
-    text: `আপনার সাপোর্ট টিকেট ${data.ticketNumber || ''} গ্রহণ করা হয়েছে।`,
-  }),
+  "ticket-received": (data) => {
+    const c = data._customization || {};
+    return {
+      subject: c.subject || `${BRAND.name} - সাপোর্ট টিকেট #${data.ticketNumber || ''}`,
+      html: baseLayout(ICONS.ticket, c.heading || "টিকেট গ্রহণ করা হয়েছে", [
+        paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
+        paragraph(c.bodyText || "আপনার সাপোর্ট টিকেট সফলভাবে গ্রহণ করা হয়েছে। আমাদের টিম যত দ্রুত সম্ভব আপনার সমস্যার সমাধান করবে।"),
+        infoTable(
+          infoRow("টিকেট নম্বর", data.ticketNumber || "N/A") +
+          infoRow("বিষয়", data.subject || "N/A") +
+          infoRow("ক্যাটাগরি", data.category || "General") +
+          infoRow("প্রায়োরিটি", data.priority || "Medium") +
+          infoRow("স্ট্যাটাস", "Open")
+        ),
+        ctaButton("টিকেট দেখুন", data.ticketUrl || "#"),
+      ].join(""), `টিকেট ট্র্যাকিং ID: ${data.ticketNumber || ''}`),
+      text: `আপনার সাপোর্ট টিকেট ${data.ticketNumber || ''} গ্রহণ করা হয়েছে।`,
+    };
+  },
 
-  "support-reply": (data) => ({
-    subject: `${BRAND.name} - টিকেট #${data.ticketNumber || ''} রিপ্লাই`,
-    html: baseLayout(ICONS.messageCircle, "নতুন সাপোর্ট রিপ্লাই", [
-      paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
-      paragraph(`আপনার টিকেট <strong>#${data.ticketNumber || ''}</strong>-এ আমাদের সাপোর্ট টিম রিপ্লাই দিয়েছে।`),
-      `<div style="background:#f8fafc;border-left:3px solid ${BRAND.primaryColor};border-radius:0 8px 8px 0;padding:16px;margin:16px 0;">
+  "support-reply": (data) => {
+    const c = data._customization || {};
+    return {
+      subject: c.subject || `${BRAND.name} - টিকেট #${data.ticketNumber || ''} রিপ্লাই`,
+      html: baseLayout(ICONS.messageCircle, c.heading || "নতুন সাপোর্ট রিপ্লাই", [
+        paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
+        paragraph(`আপনার টিকেট <strong>#${data.ticketNumber || ''}</strong>-এ আমাদের সাপোর্ট টিম রিপ্লাই দিয়েছে।`),
+        `<div style="background:#f8fafc;border-left:3px solid ${BRAND.primaryColor};border-radius:0 8px 8px 0;padding:16px;margin:16px 0;">
 <p style="margin:0 0 4px;font-size:11px;color:${BRAND.textLight};font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">সাপোর্ট টিম রিপ্লাই</p>
 <p style="margin:0;font-size:14px;color:${BRAND.textDark};line-height:1.6;">${data.replyPreview || 'বিস্তারিত দেখতে টিকেটে যান'}</p>
 </div>`,
-      ctaButton("রিপ্লাই দেখুন", data.ticketUrl || "#"),
-    ].join(""), `টিকেট #${data.ticketNumber || ''}`),
-    text: `আপনার টিকেট #${data.ticketNumber || ''}-এ নতুন রিপ্লাই এসেছে।`,
-  }),
+        ctaButton("রিপ্লাই দেখুন", data.ticketUrl || "#"),
+      ].join(""), `টিকেট #${data.ticketNumber || ''}`),
+      text: `আপনার টিকেট #${data.ticketNumber || ''}-এ নতুন রিপ্লাই এসেছে।`,
+    };
+  },
 
-  "feedback-request": (data) => ({
-    subject: `${BRAND.name} - আপনার মতামত জানান`,
-    html: baseLayout(ICONS.star, "আপনার মতামত গুরুত্বপূর্ণ", [
-      paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
-      paragraph("আপনার সেবা সম্পর্কে আপনার মূল্যবান মতামত জানতে চাই। আপনার ফিডব্যাক আমাদের সেবার মান উন্নত করতে সাহায্য করবে।"),
-      data.project ? infoTable(infoRow("প্রজেক্ট", data.project)) : '',
-      ctaButton("ফিডব্যাক দিন", data.feedbackUrl || "#"),
-      paragraph("আপনার সময় দেওয়ার জন্য অগ্রিম ধন্যবাদ।"),
-    ].join(""), "আমরা আপনার মতামতকে মূল্যায়ন করি"),
-    text: `আপনার মূল্যবান মতামত জানাতে অনুরোধ করা হচ্ছে।`,
-  }),
+  "feedback-request": (data) => {
+    const c = data._customization || {};
+    return {
+      subject: c.subject || `${BRAND.name} - আপনার মতামত জানান`,
+      html: baseLayout(ICONS.star, c.heading || "আপনার মতামত গুরুত্বপূর্ণ", [
+        paragraph(`প্রিয় <strong>${data.name || 'গ্রাহক'}</strong>,`),
+        paragraph(c.bodyText || "আপনার সেবা সম্পর্কে আপনার মূল্যবান মতামত জানতে চাই। আপনার ফিডব্যাক আমাদের সেবার মান উন্নত করতে সাহায্য করবে।"),
+        data.project ? infoTable(infoRow("প্রজেক্ট", data.project)) : '',
+        ctaButton("ফিডব্যাক দিন", data.feedbackUrl || "#"),
+        paragraph("আপনার সময় দেওয়ার জন্য অগ্রিম ধন্যবাদ।"),
+      ].join(""), "আমরা আপনার মতামতকে মূল্যায়ন করি"),
+      text: `আপনার মূল্যবান মতামত জানাতে অনুরোধ করা হচ্ছে।`,
+    };
+  },
 };
 
 Deno.serve(async (req) => {
