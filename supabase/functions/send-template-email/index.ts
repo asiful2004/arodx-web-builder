@@ -426,7 +426,7 @@ Deno.serve(async (req) => {
     const subjectEncoded = `=?UTF-8?B?${encodeBase64(textEncoder.encode(rendered.subject))}?=`;
 
     const mimeMessage = [
-      `From: ${senderEmail}`,
+      `From: ${BRAND.name} <${senderEmail}>`,
       `To: ${recipientEmail}`,
       `Subject: ${subjectEncoded}`,
       `MIME-Version: 1.0`,
