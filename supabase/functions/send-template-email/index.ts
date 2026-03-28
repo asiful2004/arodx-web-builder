@@ -410,7 +410,7 @@ Deno.serve(async (req) => {
     }
 
     // Generate email
-    const rendered = templateFn(data || {});
+    const rendered = templateFn(mergedData);
 
     const isValidEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
     const rawFrom = smtp.from_email?.trim();
