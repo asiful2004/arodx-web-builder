@@ -8,7 +8,7 @@ const corsHeaders = {
 
 // ===== Brand Constants =====
 const BRAND = {
-  name: "ArodX",
+  name: "Arodx",
   tagline: "Web Development Agency",
   primaryColor: "#2659FF",
   primaryDark: "#1a3fcc",
