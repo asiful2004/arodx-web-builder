@@ -27,17 +27,24 @@ const PortfolioSection = () => {
   const port = settings?.portfolio;
 
   const hasCustomData = !!port;
-  const badge = t("portfolio.badge", port?.badge);
-  const title = t("portfolio.title", port?.title);
-  const titleHighlight = t("portfolio.titleHighlight", port?.title_highlight);
-  const subtitle = t("portfolio.subtitle", port?.subtitle);
+  const badge = hasCustomData ? (port?.badge || t("portfolio.badge")) : t("portfolio.badge");
+  const title = hasCustomData ? (port?.title || t("portfolio.title")) : t("portfolio.title");
+  const titleHighlight = hasCustomData ? (port?.title_highlight || t("portfolio.titleHighlight")) : t("portfolio.titleHighlight");
+  const subtitle = hasCustomData ? (port?.subtitle || t("portfolio.subtitle")) : t("portfolio.subtitle");
   const rawProjects = hasCustomData ? (Array.isArray(port?.projects) ? port.projects : []) : defaultProjects;
-  const projects = rawProjects.map((p: any, i: number) => ({
-    ...p,
-    title: t(`portfolio.project.${i}.title`, p.title),
-    category: t(`portfolio.project.${i}.category`, p.category),
-    description: t(`portfolio.project.${i}.description`, p.description),
-  }));
+  const projects = hasCustomData
+    ? rawProjects.map((p: any) => ({
+        ...p,
+        title: p?.title || "",
+        category: p?.category || "",
+        description: p?.description || "",
+      }))
+    : rawProjects.map((p: any, i: number) => ({
+        ...p,
+        title: t(`portfolio.project.${i}.title`, p.title),
+        category: t(`portfolio.project.${i}.category`, p.category),
+        description: t(`portfolio.project.${i}.description`, p.description),
+      }));
 
   return (
     <section id="portfolio" aria-label="Portfolio" className="py-24 px-4">
