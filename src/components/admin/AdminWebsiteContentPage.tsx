@@ -801,11 +801,12 @@ function SectionCard({ section }: { section: SectionConfig }) {
 
   const sectionData = settings?.[section.key];
 
+  // Always sync localData with latest sectionData when not editing
   useEffect(() => {
-    if (sectionData && !localData) {
+    if (sectionData && !editing) {
       setLocalData(sectionData);
     }
-  }, [sectionData]);
+  }, [sectionData, editing]);
 
   const handleEdit = () => {
     setLocalData(sectionData || {});
