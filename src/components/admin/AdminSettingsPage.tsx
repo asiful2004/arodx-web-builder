@@ -1305,6 +1305,10 @@ export default function AdminSettingsPage() {
             <Webhook className="h-3.5 w-3.5" />
             ওয়েবহুক
           </TabsTrigger>
+          <TabsTrigger value="pixel" className="text-xs gap-1.5 flex-1 min-w-[100px]">
+            <Facebook className="h-3.5 w-3.5" />
+            Meta Pixel
+          </TabsTrigger>
           <TabsTrigger value="system" className="text-xs gap-1.5 flex-1 min-w-[100px]">
             <Server className="h-3.5 w-3.5" />
             সিস্টেম তথ্য
@@ -1346,6 +1350,10 @@ export default function AdminSettingsPage() {
 
         <TabsContent value="webhooks" className="mt-6">
           <DiscordWebhookSection />
+        </TabsContent>
+
+        <TabsContent value="pixel" className="mt-6">
+          <MetaPixelSection />
         </TabsContent>
 
         <TabsContent value="system" className="mt-6">
