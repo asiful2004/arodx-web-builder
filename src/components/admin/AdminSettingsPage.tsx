@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Settings, Loader2, Save, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil, FileText, Bot, Mail, Eye, EyeOff, Send, ChevronLeft, ChevronRight, Database, HardDrive, Server, Activity, Webhook, Bell, MessageSquare, ShoppingCart, TicketCheck } from "lucide-react";
+import { Settings, Loader2, Save, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil, FileText, Bot, Mail, Eye, EyeOff, Send, ChevronLeft, ChevronRight, Database, HardDrive, Server, Activity, Webhook, Bell, MessageSquare, ShoppingCart, TicketCheck, Facebook } from "lucide-react";
 import { toast as sonnerToast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
