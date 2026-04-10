@@ -74,6 +74,7 @@ const LazyFallback = () => (
 );
 
 const PageTracker = () => { usePageTracker(); return null; };
+const MetaPixelTracker = () => { const { useMetaPixel: useMP } = require("@/hooks/useMetaPixel"); useMP(); return null; };
 
 const usePreloaderCheck = () => {
   const [showPreloader, setShowPreloader] = useState(true);
