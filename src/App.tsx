@@ -156,6 +156,7 @@ const App = () => {
         <BrowserRouter>
           <AuthProvider>
             <PageTracker />
+            <MetaPixelInit />
             <Suspense fallback={<LazyFallback />}>
               <Routes>
                 <Route path="/" element={<><Index /><Suspense fallback={null}><LiveChat /></Suspense></>} />
