@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Settings, Loader2, Save, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil, FileText, Bot, Mail, Eye, EyeOff, Send, ChevronLeft, ChevronRight, Database, HardDrive, Server, Activity, Webhook, Bell, MessageSquare, ShoppingCart, TicketCheck } from "lucide-react";
+import { Settings, Loader2, Save, ShieldAlert, Clock, Play, RefreshCw, CheckCircle2, XCircle, AlertTriangle, Pencil, FileText, Bot, Mail, Eye, EyeOff, Send, ChevronLeft, ChevronRight, Database, HardDrive, Server, Activity, Webhook, Bell, MessageSquare, ShoppingCart, TicketCheck, Facebook } from "lucide-react";
 import { toast as sonnerToast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -1171,6 +1171,105 @@ function DiscordWebhookSection() {
     </div>
   );
 }
+// ===== Meta Pixel Section =====
+function MetaPixelSection() {
+  const { data: settings, isLoading } = useSiteSettings();
+  const updateMutation = useUpdateSiteSetting();
+  const [pixelId, setPixelId] = useState("");
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    if (settings?.meta_pixel) {
+      const mp = settings.meta_pixel as any;
+      setPixelId(mp.pixel_id || "");
+      setEnabled(mp.enabled ?? false);
+    }
+  }, [settings]);
+
+  const handleSave = () => {
+    updateMutation.mutate(
+      { key: "meta_pixel", value: { pixel_id: pixelId.trim(), enabled } },
+      {
+        onSuccess: () => sonnerToast.success("Meta Pixel সেটিংস সেভ হয়েছে!"),
+        onError: () => sonnerToast.error("সেভ করতে সমস্যা হয়েছে"),
+      }
+    );
+  };
+
+  if (isLoading) {
+    return <Card><CardContent className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></CardContent></Card>;
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+            <Facebook className="h-5 w-5 text-blue-500" />
+          </div>
+          <div>
+            <CardTitle className="text-lg">Meta Pixel (Facebook Pixel)</CardTitle>
+            <CardDescription>Facebook/Instagram Ad ট্র্যাকিংয়ের জন্য Meta Pixel সেটআপ করুন</CardDescription>
+          </div>
+        </div>
+        <Button onClick={handleSave} disabled={updateMutation.isPending} size="sm" className="gap-2">
+          {updateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          সেভ
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/30">
+          <div>
+            <Label className="text-sm font-semibold">Pixel সক্রিয় করুন</Label>
+            <p className="text-xs text-muted-foreground mt-1">সক্রিয় করলে সাইটের প্রতিটি পেজে Meta Pixel স্ক্রিপ্ট লোড হবে</p>
+          </div>
+          <Switch checked={enabled} onCheckedChange={setEnabled} />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium text-muted-foreground">Pixel ID</Label>
+          <Input
+            value={pixelId}
+            onChange={(e) => setPixelId(e.target.value)}
+            placeholder="যেমন: 123456789012345"
+            className="text-sm font-mono"
+          />
+          <p className="text-[10px] text-muted-foreground">
+            Meta Events Manager থেকে আপনার Pixel ID কপি করুন। শুধু নম্বরটি দিন।
+          </p>
+        </div>
+
+        <div className="p-4 rounded-xl border border-border bg-muted/20 space-y-3">
+          <h4 className="text-sm font-semibold text-foreground">📋 কিভাবে Pixel ID পাবেন?</h4>
+          <ol className="text-xs text-muted-foreground space-y-2 list-decimal list-inside">
+            <li><a href="https://business.facebook.com/events_manager" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Meta Events Manager</a> এ যান</li>
+            <li>"Data Sources" থেকে আপনার Pixel সিলেক্ট করুন</li>
+            <li>Pixel ID (সংখ্যা) কপি করুন</li>
+            <li>এখানে পেস্ট করে সেভ করুন</li>
+          </ol>
+        </div>
+
+        {enabled && pixelId && (
+          <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+            <p className="text-xs text-emerald-600 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4" />
+              Meta Pixel সক্রিয় আছে। Pixel ID: <code className="font-mono bg-emerald-500/10 px-1.5 py-0.5 rounded">{pixelId}</code>
+            </p>
+          </div>
+        )}
+
+        {enabled && !pixelId && (
+          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+            <p className="text-xs text-destructive flex items-center gap-2">
+              <XCircle className="w-4 h-4" />
+              Pixel সক্রিয় কিন্তু Pixel ID দেওয়া হয়নি। ID ছাড়া ট্র্যাকিং কাজ করবে না।
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 
 export default function AdminSettingsPage() {
@@ -1205,6 +1304,10 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="webhooks" className="text-xs gap-1.5 flex-1 min-w-[100px]">
             <Webhook className="h-3.5 w-3.5" />
             ওয়েবহুক
+          </TabsTrigger>
+          <TabsTrigger value="pixel" className="text-xs gap-1.5 flex-1 min-w-[100px]">
+            <Facebook className="h-3.5 w-3.5" />
+            Meta Pixel
           </TabsTrigger>
           <TabsTrigger value="system" className="text-xs gap-1.5 flex-1 min-w-[100px]">
             <Server className="h-3.5 w-3.5" />
@@ -1247,6 +1350,10 @@ export default function AdminSettingsPage() {
 
         <TabsContent value="webhooks" className="mt-6">
           <DiscordWebhookSection />
+        </TabsContent>
+
+        <TabsContent value="pixel" className="mt-6">
+          <MetaPixelSection />
         </TabsContent>
 
         <TabsContent value="system" className="mt-6">

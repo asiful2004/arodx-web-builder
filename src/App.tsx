@@ -11,6 +11,7 @@ import Preloader from "@/components/Preloader";
 import Index from "./pages/Index";
 const LiveChat = lazy(() => import("./components/LiveChat"));
 import { usePageTracker } from "@/hooks/usePageTracker";
+import { useMetaPixel } from "@/hooks/useMetaPixel";
 
 // Lazy load non-critical routes for performance
 const SignIn = lazy(() => import("./pages/SignIn"));
@@ -74,6 +75,7 @@ const LazyFallback = () => (
 );
 
 const PageTracker = () => { usePageTracker(); return null; };
+const MetaPixelInit = () => { useMetaPixel(); return null; };
 
 const usePreloaderCheck = () => {
   const [showPreloader, setShowPreloader] = useState(true);
@@ -154,6 +156,7 @@ const App = () => {
         <BrowserRouter>
           <AuthProvider>
             <PageTracker />
+            <MetaPixelInit />
             <Suspense fallback={<LazyFallback />}>
               <Routes>
                 <Route path="/" element={<><Index /><Suspense fallback={null}><LiveChat /></Suspense></>} />
