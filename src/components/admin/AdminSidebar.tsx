@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
-  LayoutDashboard, ShoppingBag, Building2, Users, Settings, LogOut, Shield, Ticket, MessageCircle, UserCog, BarChart3, ScrollText,
+  LayoutDashboard, ShoppingBag, Building2, Users, Settings, LogOut, Shield, Ticket, MessageCircle, UserCog, BarChart3, ScrollText, ExternalLink,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -41,6 +41,8 @@ const getWebsiteItems = (t: (k: string) => string) => [
 const getSettingsItems = (t: (k: string) => string) => [
   { title: t("admin.settings"), url: "/admin/settings", icon: Settings },
 ];
+
+const CRM_URL = "https://crm.arodx.com/login";
 
 interface AdminSidebarProps {
   profile: { full_name: string | null; avatar_url: string | null };
@@ -199,6 +201,20 @@ export function AdminSidebar({ profile, isAdmin = true }: AdminSidebarProps) {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <a
+                      href={CRM_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:bg-sidebar-accent/50 flex items-center"
+                      onClick={closeMobileMenu}
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>CRM</span>}
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
