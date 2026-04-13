@@ -161,7 +161,13 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
         <Sonner />
-        {loading && showPreloader && <Preloader onComplete={handleComplete} />}
+        {loading && showPreloader === true && <Preloader onComplete={handleComplete} />}
+        {/* While checking settings (showPreloader === null), show a minimal loading spinner */}
+        {loading && showPreloader === null && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
         <BrowserRouter>
           <AuthProvider>
             <PageTracker />
