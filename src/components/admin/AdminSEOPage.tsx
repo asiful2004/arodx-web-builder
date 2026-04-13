@@ -468,15 +468,9 @@ export default function AdminSEOPage() {
                   </div>
                 )}
                 <div className="flex gap-2">
-                  <Input
-                    value={config.og_image}
-                    onChange={e => setConfig({ ...config, og_image: e.target.value })}
-                    placeholder="https://example.com/og-image.jpg"
-                    className="flex-1"
-                  />
                   <OgImageUploadButton onUploaded={(url) => setConfig({ ...config, og_image: url })} />
                 </div>
-                <p className="text-xs text-muted-foreground">ইমেজ আপলোড করুন অথবা URL দিন। Facebook/Twitter-এ লিংক শেয়ার করলে এই ইমেজটি দেখাবে।</p>
+                <p className="text-xs text-muted-foreground">ইমেজ আপলোড করুন। Facebook/Twitter-এ লিংক শেয়ার করলে এই ইমেজটি দেখাবে।</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
