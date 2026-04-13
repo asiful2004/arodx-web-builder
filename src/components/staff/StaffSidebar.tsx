@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "@/components/NavLink";
 import {
   LayoutDashboard, LogOut, UserCog, MessageCircle, Ticket, Users,
-  Palette, Code, Briefcase, Megaphone, Clock, TrendingUp, FileText,
+  Palette, Code, Briefcase, Megaphone, Clock, TrendingUp, FileText, ExternalLink,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -187,6 +187,28 @@ export function StaffSidebar({ profile }: StaffSidebarProps) {
             </SidebarGroupContent>
           </SidebarGroup>
         )}
+
+        <SidebarGroup>
+          <SidebarGroupLabel>External</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <a
+                    href="https://crm.arodx.com/login"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:bg-sidebar-accent/50 flex items-center"
+                    onClick={closeMobileMenu}
+                  >
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    {!collapsed && <span>CRM</span>}
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-3 border-t border-sidebar-border">
