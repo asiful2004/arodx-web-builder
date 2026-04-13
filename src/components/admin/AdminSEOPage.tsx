@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -52,6 +52,60 @@ const defaultSEO: SEOConfig = {
   google_verification: "",
   bing_verification: "",
 };
+
+// OG Image Upload Button
+function OgImageUploadButton({ onUploaded }: { onUploaded: (url: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("শুধুমাত্র ইমেজ ফাইল আপলোড করুন");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("ফাইল সাইজ ৫MB এর বেশি হতে পারবে না");
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `og-preview.${ext}`;
+      // Remove old file first (ignore errors)
+      await supabase.storage.from("public-assets").remove([path]);
+      const { error } = await supabase.storage.from("public-assets").upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("public-assets").getPublicUrl(path);
+      // Add cache-busting param
+      const publicUrl = urlData.publicUrl + "?t=" + Date.now();
+      onUploaded(publicUrl);
+      toast.success("OG ইমেজ আপলোড হয়েছে!");
+    } catch (err: any) {
+      toast.error("আপলোড ব্যর্থ: " + (err.message || ""));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <>
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+      <Button
+        type="button"
+        variant="outline"
+        size="default"
+        disabled={uploading}
+        onClick={() => inputRef.current?.click()}
+        className="gap-2 shrink-0"
+      >
+        {uploading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+        {uploading ? "আপলোড হচ্ছে..." : "আপলোড"}
+      </Button>
+    </>
+  );
+}
 
 // SEO Score calculator
 function calcSEOScore(config: SEOConfig): { score: number; issues: { type: "error" | "warning" | "success"; msg: string }[] } {
@@ -406,13 +460,23 @@ export default function AdminSEOPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label>OG Image URL</Label>
-                <Input
-                  value={config.og_image}
-                  onChange={e => setConfig({ ...config, og_image: e.target.value })}
-                  placeholder="https://example.com/og-image.jpg"
-                />
+              <div className="space-y-3">
+                <Label>OG Preview Image (1200×630 recommended)</Label>
+                {config.og_image && (
+                  <div className="relative rounded-lg overflow-hidden border border-border">
+                    <img src={config.og_image} alt="OG Preview" className="w-full max-h-48 object-cover" />
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    value={config.og_image}
+                    onChange={e => setConfig({ ...config, og_image: e.target.value })}
+                    placeholder="https://example.com/og-image.jpg"
+                    className="flex-1"
+                  />
+                  <OgImageUploadButton onUploaded={(url) => setConfig({ ...config, og_image: url })} />
+                </div>
+                <p className="text-xs text-muted-foreground">ইমেজ আপলোড করুন অথবা URL দিন। Facebook/Twitter-এ লিংক শেয়ার করলে এই ইমেজটি দেখাবে।</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
