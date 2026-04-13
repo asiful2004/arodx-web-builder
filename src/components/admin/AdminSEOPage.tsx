@@ -407,13 +407,23 @@ export default function AdminSEOPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label>OG Image URL</Label>
-                <Input
-                  value={config.og_image}
-                  onChange={e => setConfig({ ...config, og_image: e.target.value })}
-                  placeholder="https://example.com/og-image.jpg"
-                />
+              <div className="space-y-3">
+                <Label>OG Preview Image (1200×630 recommended)</Label>
+                {config.og_image && (
+                  <div className="relative rounded-lg overflow-hidden border border-border">
+                    <img src={config.og_image} alt="OG Preview" className="w-full max-h-48 object-cover" />
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    value={config.og_image}
+                    onChange={e => setConfig({ ...config, og_image: e.target.value })}
+                    placeholder="https://example.com/og-image.jpg"
+                    className="flex-1"
+                  />
+                  <OgImageUploadButton onUploaded={(url) => setConfig({ ...config, og_image: url })} />
+                </div>
+                <p className="text-xs text-muted-foreground">ইমেজ আপলোড করুন অথবা URL দিন। Facebook/Twitter-এ লিংক শেয়ার করলে এই ইমেজটি দেখাবে।</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
